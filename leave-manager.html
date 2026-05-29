@@ -35,13 +35,49 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   .members-layout{grid-template-columns:1fr}
   .sidebar{border-right:none;border-bottom:1px solid var(--border)}
   .detail-stats{grid-template-columns:repeat(2,1fr)!important}
-  .log-head,.log-row,.add-log-form{grid-template-columns:1fr 0.8fr 0.5fr 1fr 26px!important}
-  header{padding:12px 16px}
-  .tabs{padding:0 16px}
-  #page-calendar{padding:16px!important}
-  .cal-cell{min-height:56px!important}
-  .cal-event{font-size:10px!important}
+  .log-head{display:none!important}
+  .log-row{grid-template-columns:1fr auto!important;gap:4px}
+  .log-row .log-date-days{display:flex;gap:6px;align-items:center}
+  .add-log-form{display:none!important}
+  .btn-add-log-mobile{display:flex!important}
+  header{padding:10px 12px}
+  .logo{font-size:16px!important}
+  .tabs{padding:0 12px}
+  .tab{padding:9px 12px!important;font-size:12px!important}
+  #page-calendar{padding:8px!important}
+  .cal-wrap{padding:12px 10px!important;border-radius:10px!important}
+  .cal-header{margin-bottom:10px!important;gap:6px!important}
+  .cal-title{font-size:13px!important;min-width:80px!important}
+  .cal-btn{width:24px!important;height:24px!important;font-size:13px!important}
+  .cal-legend{gap:6px!important;font-size:10px!important}
+  .cal-legend-dot{width:6px!important;height:6px!important}
+  .cal-grid{gap:2px!important}
+  .cal-day-name{font-size:10px!important;padding:3px 0!important}
+  .cal-cell{min-height:48px!important;padding:3px 4px!important;border-radius:5px!important}
+  .cal-date{font-size:11px!important}
+  .cal-holiday-label{font-size:9px!important}
+  .cal-event{font-size:10px!important;padding:1px 3px!important;margin-bottom:1px!important;border-radius:3px!important}
+  .cal-more{font-size:9px!important}
+  .detail-area{padding:14px 16px}
+  .sync-status{display:none}
+  .year-select{font-size:12px!important}
+  .year-select select{font-size:12px!important;padding:3px 7px!important}
 }
+/* mobile bottom sheet */
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200}
+.sheet-overlay.open{display:block}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;padding:20px 20px 36px;z-index:201;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 18px}
+.sheet-title{font-size:16px;font-weight:500;margin-bottom:18px}
+.sheet-field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.sheet-field label{font-size:12px;font-weight:500;color:var(--muted)}
+.sheet-field input,.sheet-field select{font-size:15px;padding:11px 13px;border-radius:9px}
+.sheet-date-row{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+.sheet-date-row span{text-align:center;font-size:13px;color:var(--muted)}
+.btn-sheet-submit{width:100%;background:var(--text);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Ok',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px}
+.btn-sheet-submit:hover{opacity:.88}
+.btn-add-log-mobile{display:none;position:fixed;bottom:24px;right:20px;background:var(--text);color:#fff;border:none;border-radius:99px;padding:13px 20px;font-family:'Ok',sans-serif;font-size:14px;font-weight:500;cursor:pointer;z-index:100;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,.18)}
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:14px}
 .detail-area{padding:20px 24px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
 .sec-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
@@ -119,6 +155,7 @@ input:focus,select:focus{border-color:var(--text)}
 .btn-log-cancel{background:none;border:1px solid var(--border);border-radius:6px;padding:7px 0;font-family:'Ok',sans-serif;font-size:12px;cursor:pointer;flex:1;color:var(--muted);display:none}
 .btn-log-cancel:hover{border-color:var(--text);color:var(--text)}
 .no-member{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);font-size:13px;font-style:italic}
+@media(max-width:768px){.hide-mobile{display:none!important}.mobile-sub{display:block!important}.log-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px}}
 
 /* edit modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:100;align-items:center;justify-content:center}
@@ -160,6 +197,7 @@ input:focus,select:focus{border-color:var(--text)}
 .cal-event.sick{background:var(--amber-bg);color:var(--amber)}
 .cal-event.special{background:#f3eef8;color:#7c3aed}
 .cal-more{font-size:10px;color:var(--muted);padding:1px 4px}
+.cal-cell[onclick]:hover{background:var(--blue-bg)!important;transition:background .15s}
 </style>
 </head>
 <body>
@@ -285,7 +323,7 @@ input:focus,select:focus{border-color:var(--text)}
 
 <script>
 const SUPA_URL='https://bptveoizcohqhlhgqsba.supabase.co', SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdHZlb2l6Y29ocWhsaGdxc2JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMjgwOTEsImV4cCI6MjA5NTYwNDA5MX0.TcUjDVOdR8RvTDchshzZ75olLUmpLZbpZofw2mbsth8';
-let members=[], logs={}, selectedId=null;
+let members=[], logs={}, grants=[], selectedId=null;
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
 let editingMemberId=null, editingLogId=null;
 
@@ -331,12 +369,46 @@ async function loadData(){
     const allLogs=await supa('leave_logs?order=start_date.desc')||[];
     logs={};
     allLogs.forEach(l=>{ if(!logs[l.member_id]) logs[l.member_id]=[]; logs[l.member_id].push(l); });
-    setSync('ok'); renderAll();
+    grants=await supa('leave_grants?order=created_at.asc')||[];
+    setSync('ok');
+    await checkAndApplyGrants();
+    renderAll();
   }catch(e){ setSync('err'); }
 }
 
 function getLogs(mid){ return (logs[mid]||[]).filter(l=>new Date(l.start_date).getFullYear()===getYear()); }
 function usedDays(mid){ return parseFloat(getLogs(mid).reduce((s,l)=>s+parseFloat(l.days),0).toFixed(2)); }
+
+function getMemberTotal(mid){
+  const m=members.find(x=>x.id===mid); if(!m) return 0;
+  const year=getYear();
+  const memberGrants=grants.filter(g=>g.member_id===mid && g.year===year);
+  const grantTotal=memberGrants.reduce((s,g)=>s+parseFloat(g.amount),0);
+  return parseFloat((m.total + grantTotal).toFixed(2));
+}
+
+async function checkAndApplyGrants(){
+  const now=new Date();
+  const currentYear=now.getFullYear();
+  const currentMonth=now.getMonth()+1;
+  if(currentMonth < 7) return;
+
+  // 7월 지급 체크 - 아직 지급 안 된 팀원에게만
+  for(const m of members){
+    const already=grants.find(g=>g.member_id===m.id && g.year===currentYear && g.month===7);
+    if(!already){
+      try{
+        const id='G'+Date.now()+Math.random().toString(36).slice(2,6);
+        const res=await supa('leave_grants',{method:'POST',body:JSON.stringify({
+          id, member_id:m.id, year:currentYear, month:7, amount:1, reason:'7월 반기 연차 지급'
+        })});
+        const grant=res?res[0]:{id,member_id:m.id,year:currentYear,month:7,amount:1,reason:'7월 반기 연차 지급'};
+        grants.push(grant);
+        console.log(`${m.name} 7월 연차 +1일 지급 완료`);
+      }catch(e){ console.error('연차 지급 실패:', e); }
+    }
+  }
+}
 
 /* ── modal ── */
 function openModal(id){ document.getElementById(id).classList.add('open'); }
@@ -521,7 +593,7 @@ async function deleteLog(logId){
 /* ── recommend ── */
 function getRecommendDates(mid){
   const m=members.find(x=>x.id===mid); if(!m) return [];
-  const year=getYear(), remain=m.total-usedDays(mid);
+  const year=getYear(), remain=getMemberTotal(mid)-usedDays(mid);
   if(remain<=0) return [];
   const holidays=KR_HOLIDAYS[year]||{};
   const usedDates=new Set((logs[mid]||[]).map(l=>l.start_date));
@@ -584,7 +656,9 @@ function renderTeamCalendar(){
       inner+=`<div class="cal-event ${typeClass[ev.type]||'annual'}" title="${ev.name} — ${typeLabel[ev.type]||'연차'} (${ev.days}일)">${ev.name}</div>`;
     });
     if(events.length>3) inner+=`<div class="cal-more">+${events.length-3}명 더</div>`;
-    html+=`<div class="${cls}">${inner}</div>`;
+    const clickable = !holiday && dow!==0 && dow!==6;
+    const clickAttr = clickable ? `onclick="openSheetWithDate('${dateStr}')"` : '';
+    html+=`<div class="${cls}" ${clickAttr}>${inner}</div>`;
   }
   const total=firstDay+daysInMonth, rem=total%7===0?0:7-(total%7);
   for(let i=1;i<=rem;i++) html+=`<div class="cal-cell other-month"><div class="cal-date">${i}</div></div>`;
@@ -604,7 +678,7 @@ function renderMemberList(){
   if(!members.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:16px">팀원을 추가해주세요</div>';return;}
   list.innerHTML='';
   members.forEach(m=>{
-    const used=usedDays(m.id),pct=Math.min((used/m.total)*100,100),remain=parseFloat((m.total-used).toFixed(2));
+    const mTotal=getMemberTotal(m.id),used=usedDays(m.id),pct=Math.min((used/mTotal)*100,100),remain=parseFloat((mTotal-used).toFixed(2));
     const barClass=pct>=100?'over':pct>=75?'warn':'';
     const div=document.createElement('div');
     div.className='member-item'+(selectedId===m.id?' active':'');
@@ -621,7 +695,7 @@ function renderMemberList(){
     list.appendChild(div);
   });
   document.getElementById('total-members').textContent=members.length;
-  const avg=members.length?parseFloat((members.reduce((s,m)=>s+(m.total-usedDays(m.id)),0)/members.length).toFixed(2)):0;
+  const avg=members.length?parseFloat((members.reduce((s,m)=>s+(getMemberTotal(m.id)-usedDays(m.id)),0)/members.length).toFixed(2)):0;
   document.getElementById('avg-remain').textContent=avg;
 }
 
@@ -630,7 +704,7 @@ function renderDetail(){
   if(!selectedId){area.innerHTML='<div class="no-member">팀원을 선택하세요</div>';return;}
   const m=members.find(x=>x.id===selectedId);
   if(!m){area.innerHTML='<div class="no-member">팀원을 선택하세요</div>';return;}
-  const used=usedDays(m.id),remain=parseFloat((m.total-used).toFixed(2));
+  const mTotal=getMemberTotal(m.id),used=usedDays(m.id),remain=parseFloat((mTotal-used).toFixed(2));
   const memberLogs=getLogs(m.id);
   const typeMap={annual:'연차',half_am:'오전반차',half_pm:'오후반차',halfhalf_am:'오전반반차',halfhalf_pm:'오후반반차',sick:'병가',special:'특별휴가'};
   const typeClass={annual:'annual',half_am:'half',half_pm:'half',halfhalf_am:'halfhalf',halfhalf_pm:'halfhalf',sick:'sick',special:'special'};
@@ -638,7 +712,7 @@ function renderDetail(){
   area.innerHTML=`
     <div><div class="detail-name">${m.name}</div><div class="detail-team">${m.dept} · ${getYear()}년</div></div>
     <div class="detail-stats">
-      <div class="ds-card"><div class="ds-val">${m.total}</div><div class="ds-label">총 연차</div></div>
+      <div class="ds-card"><div class="ds-val">${mTotal}</div><div class="ds-label">총 연차</div></div>
       <div class="ds-card"><div class="ds-val">${used}</div><div class="ds-label">사용</div></div>
       <div class="ds-card ${remain<=3?'red':remain<=7?'amber':'green'}"><div class="ds-val">${remain}</div><div class="ds-label">잔여</div></div>
       <div class="ds-card"><div class="ds-val">${memberLogs.length}</div><div class="ds-label">사용 횟수</div></div>
@@ -690,6 +764,120 @@ function applyRecommend(date,days){
 function renderAll(){ renderMemberList(); renderTeamCalendar(); if(selectedId) renderDetail(); }
 loadData();
 setInterval(loadData,30000);
+
+
+function openSheetWithDate(dateStr){
+  // 팀원 선택 안됐으면 팀원 관리 탭으로 유도
+  if(!selectedId){
+    if(confirm('팀원을 먼저 선택해주세요.\n팀원 관리 탭으로 이동할까요?')){
+      switchTab('members');
+    }
+    return;
+  }
+  // 공통 시트 열기
+  document.getElementById('sheet-start').value=dateStr;
+  document.getElementById('sheet-end').value=dateStr;
+  document.getElementById('sheet-reason').value='개인사유';
+  document.getElementById('sheet-days').value='1';
+  document.getElementById('sheet-type').value='annual';
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet-panel').classList.add('open');
+  // 시트 상단에 날짜 표시
+  document.querySelector('.sheet-title').textContent=`휴가 등록 — ${{dateStr}}`;
+}
+function openSheet(){
+  if(!selectedId){ alert('팀원을 먼저 선택해주세요.'); return; }
+  document.querySelector('.sheet-title').textContent='휴가 등록';
+  document.getElementById('sheet-start').value='';
+  document.getElementById('sheet-end').value='';
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet-panel').classList.add('open');
+}
+function closeSheet(){
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('sheet-panel').classList.remove('open');
+}
+function applySheetTypeDays(type){
+  const el=document.getElementById('sheet-days'); if(!el) return;
+  if(type==='half_am'||type==='half_pm') el.value='0.5';
+  else if(type==='halfhalf_am'||type==='halfhalf_pm') el.value='0.25';
+  else if(type==='annual') el.value='1';
+}
+async function addLogFromSheet(){
+  if(!selectedId) return;
+  const reason=document.getElementById('sheet-reason').value.trim();
+  const startDate=document.getElementById('sheet-start').value;
+  const endDate=document.getElementById('sheet-end').value||startDate;
+  const days=parseFloat(document.getElementById('sheet-days').value);
+  const type=document.getElementById('sheet-type').value;
+  if(!reason||!startDate||!days){alert('모든 항목을 입력해주세요.');return;}
+  const btn=document.querySelector('.btn-sheet-submit'); btn.disabled=true;
+  try{
+    const isMulti=endDate&&endDate!==startDate&&type==='annual';
+    if(isMulti){
+      const workdays=getWorkdaysBetween(startDate,endDate);
+      for(const wd of workdays){
+        const id='L'+Date.now()+Math.random();
+        const res=await supa('leave_logs',{method:'POST',body:JSON.stringify({id,member_id:selectedId,reason,start_date:wd,days:1,type})});
+        const log=res?res[0]:{id,member_id:selectedId,reason,start_date:wd,days:1,type};
+        if(!logs[selectedId]) logs[selectedId]=[];
+        logs[selectedId].unshift(log);
+      }
+    } else {
+      const id='L'+Date.now();
+      const res=await supa('leave_logs',{method:'POST',body:JSON.stringify({id,member_id:selectedId,reason,start_date:startDate,days,type})});
+      const log=res?res[0]:{id,member_id:selectedId,reason,start_date:startDate,days,type};
+      if(!logs[selectedId]) logs[selectedId]=[];
+      logs[selectedId].unshift(log);
+    }
+    document.getElementById('sheet-reason').value='개인사유';
+    document.getElementById('sheet-start').value='';
+    document.getElementById('sheet-end').value='';
+    document.getElementById('sheet-days').value='1';
+    closeSheet();
+    renderDetail(); renderMemberList(); renderTeamCalendar();
+  }catch(e){alert('저장 실패: '+e.message);}
+  btn.disabled=false;
+}
 </script>
+
+<!-- mobile FAB -->
+<button class="btn-add-log-mobile" id="fab-add-log" onclick="openSheet()">+ 휴가 등록</button>
+
+<!-- bottom sheet overlay -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet-panel">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">휴가 등록</div>
+  <div class="sheet-field">
+    <label>사유</label>
+    <input id="sheet-reason" type="text" value="개인사유" placeholder="사유 입력">
+  </div>
+  <div class="sheet-field">
+    <label>날짜</label>
+    <div class="sheet-date-row">
+      <input id="sheet-start" type="date" onchange="checkDateValid(this)">
+      <span>~</span>
+      <input id="sheet-end" type="date" onchange="checkDateValid(this)">
+    </div>
+  </div>
+  <div class="sheet-field">
+    <label>유형</label>
+    <select id="sheet-type" onchange="applySheetTypeDays(this.value)">
+      <option value="annual">연차 (1일)</option>
+      <option value="half_am">오전반차 (0.5일)</option>
+      <option value="half_pm">오후반차 (0.5일)</option>
+      <option value="halfhalf_am">오전반반차 (0.25일)</option>
+      <option value="halfhalf_pm">오후반반차 (0.25일)</option>
+      <option value="sick">병가</option>
+      <option value="special">특별휴가</option>
+    </select>
+  </div>
+  <div class="sheet-field">
+    <label>일수</label>
+    <input id="sheet-days" type="number" value="1" min="0.25" max="30" step="0.25">
+  </div>
+  <button class="btn-sheet-submit" onclick="addLogFromSheet()">등록</button>
+</div>
 </body>
 </html>
