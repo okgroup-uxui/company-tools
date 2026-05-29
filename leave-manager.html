@@ -266,7 +266,7 @@ async function loadData(){
 }
 
 function getLogs(mid){ return (logs[mid]||[]).filter(l=>new Date(l.start_date).getFullYear()===getYear()); }
-function usedDays(mid){ return getLogs(mid).reduce((s,l)=>s+parseFloat(l.days),0); }
+function usedDays(mid){ return parseFloat(getLogs(mid).reduce((s,l)=>s+parseFloat(l.days),0).toFixed(2)); }
 
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===(tab==='calendar'?0:1)));
@@ -472,7 +472,7 @@ function renderMemberList(){
     list.appendChild(div);
   });
   document.getElementById('total-members').textContent=members.length;
-  const avg=members.length?Math.round(members.reduce((s,m)=>s+(m.total-usedDays(m.id)),0)/members.length*10)/10:0;
+  const avg=members.length?parseFloat((members.reduce((s,m)=>s+(m.total-usedDays(m.id)),0)/members.length).toFixed(2)):0;
   document.getElementById('avg-remain').textContent=avg;
 }
 
