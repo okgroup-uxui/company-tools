@@ -123,7 +123,11 @@ input:focus,select:focus{border-color:var(--text)}
       <div class="add-form">
         <div class="form-row"><label>이름</label><input id="new-name" type="text" placeholder="홍길동"></div>
         <div class="input-row">
-          <div class="form-row"><label>부서</label><input id="new-dept" type="text" placeholder="개발팀"></div>
+          <div class="form-row"><label>팀</label><select id="new-dept" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-family:'Ok',sans-serif;font-size:13px;color:var(--text);outline:none;">
+          <option value="">팀 선택</option>
+          <option value="디자인팀">디자인팀</option>
+          <option value="UX/UI팀">UX/UI팀</option>
+        </select></div>
           <div class="form-row"><label>연차 (일)</label><input id="new-total" type="number" value="15" min="1" max="30"></div>
         </div>
         <button class="btn-add" id="btn-add-member" onclick="addMember()">+ 팀원 추가</button>
@@ -248,6 +252,14 @@ async function deleteMember(id, e) {
 
 function selectMember(id) { selectedId = id; renderAll(); }
 
+function applyTypeDays(type) {
+  const daysEl = document.getElementById('log-days');
+  if (!daysEl) return;
+  if (type === 'half') daysEl.value = '0.5';
+  else if (type === 'halfhalf') daysEl.value = '0.25';
+  else if (type === 'annual') daysEl.value = '1';
+}
+
 async function addLog() {
   if (!selectedId) return;
   const reason = document.getElementById('log-reason').value.trim();
@@ -369,8 +381,8 @@ function renderDetail() {
   const used = usedDays(m.id);
   const remain = m.total - used;
   const memberLogs = getLogs(m.id);
-  const typeMap = {annual:'연차',half:'반차',sick:'병가',special:'특별휴가'};
-  const typeClass = {annual:'annual',half:'half',sick:'sick',special:'special'};
+  const typeMap = {annual:'연차',half:'반차',halfhalf:'반반차',sick:'병가',special:'특별휴가'};
+  const typeClass = {annual:'annual',half:'half',halfhalf:'half',sick:'sick',special:'special'};
   const recs = getRecommendDates(m.id);
 
   content.innerHTML = `
@@ -398,9 +410,10 @@ function renderDetail() {
         <input id="log-reason" type="text" placeholder="사유 입력">
         <input id="log-start" type="date">
         <input id="log-days" type="number" value="1" min="0.5" max="30" step="0.5">
-        <select id="log-type">
-          <option value="annual">연차</option>
-          <option value="half">반차</option>
+        <select id="log-type" onchange="applyTypeDays(this.value)">
+          <option value="annual">연차 (1일)</option>
+          <option value="half">반차 (0.5일)</option>
+          <option value="halfhalf">반반차 (0.25일)</option>
           <option value="sick">병가</option>
           <option value="special">특별휴가</option>
         </select>
