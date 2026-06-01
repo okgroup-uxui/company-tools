@@ -84,6 +84,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .btn-sheet-submit{width:100%;background:var(--text);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Ok',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px}
 .btn-sheet-submit:hover{opacity:.88}
 .btn-add-log-mobile{display:none;position:fixed;bottom:24px;right:20px;background:var(--text);color:#fff;border:none;border-radius:99px;padding:13px 20px;font-family:'Ok',sans-serif;font-size:14px;font-weight:500;cursor:pointer;z-index:100;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+@media(max-width:768px){.btn-add-log-mobile{display:flex}}
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:14px}
 .detail-area{padding:20px 24px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
 .sec-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
@@ -501,7 +502,7 @@ function switchTab(tab){
   document.getElementById('page-calendar').classList.toggle('active',tab==='calendar');
   document.getElementById('page-members').classList.toggle('active',tab==='members');
   const fab=document.getElementById('fab-add-log');
-  if(fab) fab.style.display=tab==='calendar'?'flex':'none';
+  if(fab){ const isMobile=window.innerWidth<=768; fab.style.display=(tab==='calendar'&&isMobile)?'flex':'none'; }
 }
 
 async function addMember(){
