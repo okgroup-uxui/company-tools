@@ -391,20 +391,22 @@ async function checkAndApplyGrants(){
   const now=new Date();
   const currentYear=now.getFullYear();
   const currentMonth=now.getMonth()+1;
-  if(currentMonth < 7) return;
+  const currentDay=now.getDate();
+  // 6월 2일 이후부터 지급
+  if(currentMonth < 6 || (currentMonth === 6 && currentDay < 2)) return;
 
-  // 7월 지급 체크 - 아직 지급 안 된 팀원에게만
+  // 6월 지급 체크 - 아직 지급 안 된 팀원에게만
   for(const m of members){
-    const already=grants.find(g=>g.member_id===m.id && g.year===currentYear && g.month===7);
+    const already=grants.find(g=>g.member_id===m.id && g.year===currentYear && g.month===6);
     if(!already){
       try{
         const id='G'+Date.now()+Math.random().toString(36).slice(2,6);
         const res=await supa('leave_grants',{method:'POST',body:JSON.stringify({
-          id, member_id:m.id, year:currentYear, month:7, amount:1, reason:'7월 반기 연차 지급'
+          id, member_id:m.id, year:currentYear, month:6, amount:1, reason:'반기 연차 지급'
         })});
-        const grant=res?res[0]:{id,member_id:m.id,year:currentYear,month:7,amount:1,reason:'7월 반기 연차 지급'};
+        const grant=res?res[0]:{id,member_id:m.id,year:currentYear,month:6,amount:1,reason:'반기 연차 지급'};
         grants.push(grant);
-        console.log(`${m.name} 7월 연차 +1일 지급 완료`);
+        console.log(`${m.name} 반기 연차 +1일 지급 완료`);
       }catch(e){ console.error('연차 지급 실패:', e); }
     }
   }
