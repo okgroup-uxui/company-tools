@@ -39,7 +39,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   .log-row{grid-template-columns:1fr auto!important;gap:4px}
   .log-row .log-date-days{display:flex;gap:6px;align-items:center}
   .add-log-form{display:none!important}
-  .btn-add-log-mobile{display:flex!important}
+  .btn-add-log-mobile{display:flex}
   header{padding:10px 12px}
   .logo{font-size:16px!important}
   .tabs{padding:0 12px}
@@ -501,7 +501,7 @@ function switchTab(tab){
   document.getElementById('page-calendar').classList.toggle('active',tab==='calendar');
   document.getElementById('page-members').classList.toggle('active',tab==='members');
   const fab=document.getElementById('fab-add-log');
-  if(fab) fab.style.display=tab==='calendar'?'':'none';
+  if(fab) fab.style.display=tab==='calendar'?'flex':'none';
 }
 
 async function addMember(){
