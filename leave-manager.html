@@ -186,6 +186,7 @@ input:focus,select:focus{border-color:var(--text)}
 .cal-day-name:first-child{color:var(--red)}.cal-day-name:last-child{color:var(--blue)}
 .cal-cell{min-height:80px;border:0.5px solid var(--border);border-radius:7px;padding:5px 6px;background:var(--surface);position:relative}
 .cal-cell.other-month{background:var(--bg);opacity:.5}
+.cal-cell.past{opacity:.45;pointer-events:none}
 .cal-cell.today{border-color:var(--text);border-width:1.5px}
 .cal-cell.holiday{background:#fff8f8}
 .cal-cell.sunday .cal-date{color:var(--red)}.cal-cell.saturday .cal-date{color:var(--blue)}
@@ -403,20 +404,22 @@ async function checkAndApplyGrants(){
   const now=new Date();
   const currentYear=now.getFullYear();
   const currentMonth=now.getMonth()+1;
-  if(currentMonth < 7) return;
+  const currentDay=now.getDate();
+  // 6월 2일 이후부터 지급
+  if(currentMonth < 6 || (currentMonth===6 && currentDay < 2)) return;
 
-  // 7월 지급 체크 - 아직 지급 안 된 팀원에게만
+  // 6월 지급 체크 - 아직 지급 안 된 팀원에게만
   for(const m of members){
-    const already=grants.find(g=>g.member_id===m.id && g.year===currentYear && g.month===7);
+    const already=grants.find(g=>g.member_id===m.id && g.year===currentYear && g.month===6);
     if(!already){
       try{
         const id='G'+Date.now()+Math.random().toString(36).slice(2,6);
         const res=await supa('leave_grants',{method:'POST',body:JSON.stringify({
-          id, member_id:m.id, year:currentYear, month:7, amount:1, reason:'7월 반기 연차 지급'
+          id, member_id:m.id, year:currentYear, month:6, amount:1, reason:'반기 연차 지급'
         })});
-        const grant=res?res[0]:{id,member_id:m.id,year:currentYear,month:7,amount:1,reason:'7월 반기 연차 지급'};
+        const grant=res?res[0]:{id,member_id:m.id,year:currentYear,month:6,amount:1,reason:'반기 연차 지급'};
         grants.push(grant);
-        console.log(`${m.name} 7월 연차 +1일 지급 완료`);
+        console.log(`${m.name} 반기 연차 +1일 지급 완료`);
       }catch(e){ console.error('연차 지급 실패:', e); }
     }
   }
@@ -565,6 +568,20 @@ async function addLog(){
   const type=document.getElementById('log-type').value;
   if(!reason||!startDate||!days){alert('모든 항목을 입력해주세요.');return;}
 
+  // 과거 날짜 차단
+  const todayStr=new Date().toISOString().slice(0,10);
+  if(startDate < todayStr){alert('과거 날짜에는 휴가를 등록할 수 없어요.');return;}
+
+  // 연차 초과 경고 (병가·특별휴가는 제외)
+  if(type!=='sick'&&type!=='special'){
+    const isMulti=endDate&&endDate!==startDate&&type==='annual';
+    const addDays=isMulti?getWorkdaysBetween(startDate,endDate).length:days;
+    const remain=getMemberTotal(selectedId)-usedDays(selectedId);
+    if(addDays>remain){
+      if(!confirm(`잔여 연차(${remain}일)보다 많은 ${addDays}일을 등록하려 해요.\n초과 등록할까요?`)) return;
+    }
+  }
+
   const btn=document.querySelector('.btn-log-add'); btn.disabled=true;
   try{
     // 연차(1일)이고 종료일이 있을 경우 날짜별 개별 등록
@@ -661,6 +678,7 @@ function renderTeamCalendar(){
     const events=dateMap[dateStr]||[];
     let cls='cal-cell';
     if(dateStr===todayStr) cls+=' today';
+    else if(dateStr<todayStr) cls+=' past';
     if(holiday) cls+=' holiday';
     if(dow===0) cls+=' sunday'; if(dow===6) cls+=' saturday';
     let inner=`<div class="cal-date">${d}</div>`;
@@ -670,8 +688,8 @@ function renderTeamCalendar(){
       inner+=`<div class="cal-event ${typeClass[ev.type]||'annual'}" title="${ev.name} — ${typeLabel[ev.type]||'연차'} (${ev.days}일)">${ev.name}</div>`;
     });
     if(events.length>3) inner+=`<div class="cal-more">+${events.length-3}명 더</div>`;
-    const clickable = !holiday && dow!==0 && dow!==6;
-    const clickAttr = clickable ? `onclick="openSheetWithDate('${dateStr}')"` : '';
+    const clickable = !holiday && dow!==0 && dow!==6 && dateStr>=todayStr;
+    const clickAttr = clickable ? `onclick="openSheetWithDate('${dateStr}')" style="cursor:pointer"` : '';
     html+=`<div class="${cls}" ${clickAttr}>${inner}</div>`;
   }
   const total=firstDay+daysInMonth, rem=total%7===0?0:7-(total%7);
@@ -832,6 +850,21 @@ async function addLogFromSheet(){
   const days=parseFloat(document.getElementById('sheet-days').value);
   const type=document.getElementById('sheet-type').value;
   if(!reason||!startDate||!days){alert('모든 항목을 입력해주세요.');return;}
+
+  // 과거 날짜 차단
+  const todayStr=new Date().toISOString().slice(0,10);
+  if(startDate < todayStr){alert('과거 날짜에는 휴가를 등록할 수 없어요.');return;}
+
+  // 연차 초과 경고 (병가·특별휴가는 제외)
+  if(type!=='sick'&&type!=='special'){
+    const isMulti=endDate&&endDate!==startDate&&type==='annual';
+    const addDays=isMulti?getWorkdaysBetween(startDate,endDate).length:days;
+    const remain=getMemberTotal(memberId)-usedDays(memberId);
+    if(addDays>remain){
+      if(!confirm(`잔여 연차(${remain}일)보다 많은 ${addDays}일을 등록하려 해요.\n초과 등록할까요?`)) return;
+    }
+  }
+
   const btn=document.querySelector('.btn-sheet-submit'); btn.disabled=true;
   try{
     const isMulti=endDate&&endDate!==startDate&&type==='annual';
