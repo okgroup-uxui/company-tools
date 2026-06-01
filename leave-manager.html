@@ -56,6 +56,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   .cal-cell{min-height:48px!important;padding:3px 4px!important;border-radius:5px!important}
   .cal-date{font-size:11px!important}
   .cal-holiday-label{font-size:9px!important}
+  .cal-birthday-label{font-size:9px!important}
   .cal-event{font-size:10px!important;padding:1px 3px!important;margin-bottom:1px!important;border-radius:3px!important}
   .cal-more{font-size:9px!important}
   .detail-area{padding:14px 16px}
@@ -190,6 +191,7 @@ input:focus,select:focus{border-color:var(--text)}
 .cal-cell.sunday .cal-date{color:var(--red)}.cal-cell.saturday .cal-date{color:var(--blue)}
 .cal-date{font-size:12px;font-weight:500;margin-bottom:3px;line-height:1}
 .cal-holiday-label{font-size:10px;color:var(--red);margin-bottom:2px}
+.cal-birthday-label{font-size:10px;color:#d97706;margin-bottom:2px}
 .cal-event{font-size:11px;border-radius:4px;padding:2px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .cal-event.annual{background:var(--blue-bg);color:var(--blue)}
 .cal-event.half{background:var(--green-bg);color:var(--green)}
@@ -328,6 +330,16 @@ let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
 let editingMemberId=null, editingLogId=null;
 
 const KR_HOLIDAYS={};
+
+// 매년 반복되는 생일 (MM-DD 형식)
+const BIRTHDAYS={
+  '02-13':'🎂 이진명',
+  '03-19':'🎂 공주원',
+  '06-22':'🎂 한지희',
+  '08-29':'🎂 박상준',
+  '12-18':'🎂 조연주',
+  '12-25':'🎂 신수림',
+};
 function setHolidays(y){
   KR_HOLIDAYS[y]={
     [`${y}-01-01`]:'신정',[`${y}-03-01`]:'삼일절',[`${y}-05-05`]:'어린이날',
@@ -645,6 +657,7 @@ function renderTeamCalendar(){
     const dateStr=`${calYear}-${mm}-${dd}`;
     const dow=new Date(calYear,calMonth,d).getDay();
     const holiday=holidays[dateStr];
+    const birthday=BIRTHDAYS[`${mm}-${dd}`];
     const events=dateMap[dateStr]||[];
     let cls='cal-cell';
     if(dateStr===todayStr) cls+=' today';
@@ -652,6 +665,7 @@ function renderTeamCalendar(){
     if(dow===0) cls+=' sunday'; if(dow===6) cls+=' saturday';
     let inner=`<div class="cal-date">${d}</div>`;
     if(holiday) inner+=`<div class="cal-holiday-label">${holiday}</div>`;
+    if(birthday) inner+=`<div class="cal-birthday-label">${birthday}</div>`;
     events.slice(0,3).forEach(ev=>{
       inner+=`<div class="cal-event ${typeClass[ev.type]||'annual'}" title="${ev.name} — ${typeLabel[ev.type]||'연차'} (${ev.days}일)">${ev.name}</div>`;
     });
@@ -767,8 +781,14 @@ setInterval(loadData,30000);
 
 
 function openSheetWithDate(dateStr){
-  // 시트 열기 (팀원 미선택이어도 OK)
-  populateSheetMemberSelect(selectedId||'');
+  // 팀원 선택 안됐으면 팀원 관리 탭으로 유도
+  if(!selectedId){
+    if(confirm('팀원을 먼저 선택해주세요.\n팀원 관리 탭으로 이동할까요?')){
+      switchTab('members');
+    }
+    return;
+  }
+  // 공통 시트 열기
   document.getElementById('sheet-start').value=dateStr;
   document.getElementById('sheet-end').value=dateStr;
   document.getElementById('sheet-reason').value='개인사유';
@@ -776,32 +796,20 @@ function openSheetWithDate(dateStr){
   document.getElementById('sheet-type').value='annual';
   document.getElementById('sheet-overlay').classList.add('open');
   document.getElementById('sheet-panel').classList.add('open');
-  document.querySelector('.sheet-title').textContent=`휴가 등록 — ${dateStr}`;
+  // 시트 상단에 날짜 표시
+  document.querySelector('.sheet-title').textContent=`휴가 등록 — ${{dateStr}}`;
 }
 function openSheet(){
-  populateSheetMemberSelect(selectedId||'');
+  if(!selectedId){ alert('팀원을 먼저 선택해주세요.'); return; }
   document.querySelector('.sheet-title').textContent='휴가 등록';
   document.getElementById('sheet-start').value='';
   document.getElementById('sheet-end').value='';
-  document.getElementById('sheet-reason').value='개인사유';
-  document.getElementById('sheet-days').value='1';
-  document.getElementById('sheet-type').value='annual';
   document.getElementById('sheet-overlay').classList.add('open');
   document.getElementById('sheet-panel').classList.add('open');
 }
 function closeSheet(){
   document.getElementById('sheet-overlay').classList.remove('open');
   document.getElementById('sheet-panel').classList.remove('open');
-}
-function populateSheetMemberSelect(preselectedId){
-  const sel=document.getElementById('sheet-member');
-  sel.innerHTML='<option value="">팀원 선택</option>';
-  members.forEach(m=>{
-    const opt=document.createElement('option');
-    opt.value=m.id; opt.textContent=m.name;
-    if(m.id===preselectedId) opt.selected=true;
-    sel.appendChild(opt);
-  });
 }
 function applySheetTypeDays(type){
   const el=document.getElementById('sheet-days'); if(!el) return;
@@ -810,8 +818,7 @@ function applySheetTypeDays(type){
   else if(type==='annual') el.value='1';
 }
 async function addLogFromSheet(){
-  const memberId=document.getElementById('sheet-member').value;
-  if(!memberId){alert('팀원을 선택해주세요.');return;}
+  if(!selectedId) return;
   const reason=document.getElementById('sheet-reason').value.trim();
   const startDate=document.getElementById('sheet-start').value;
   const endDate=document.getElementById('sheet-end').value||startDate;
@@ -825,17 +832,17 @@ async function addLogFromSheet(){
       const workdays=getWorkdaysBetween(startDate,endDate);
       for(const wd of workdays){
         const id='L'+Date.now()+Math.random();
-        const res=await supa('leave_logs',{method:'POST',body:JSON.stringify({id,member_id:memberId,reason,start_date:wd,days:1,type})});
-        const log=res?res[0]:{id,member_id:memberId,reason,start_date:wd,days:1,type};
-        if(!logs[memberId]) logs[memberId]=[];
-        logs[memberId].unshift(log);
+        const res=await supa('leave_logs',{method:'POST',body:JSON.stringify({id,member_id:selectedId,reason,start_date:wd,days:1,type})});
+        const log=res?res[0]:{id,member_id:selectedId,reason,start_date:wd,days:1,type};
+        if(!logs[selectedId]) logs[selectedId]=[];
+        logs[selectedId].unshift(log);
       }
     } else {
       const id='L'+Date.now();
-      const res=await supa('leave_logs',{method:'POST',body:JSON.stringify({id,member_id:memberId,reason,start_date:startDate,days,type})});
-      const log=res?res[0]:{id,member_id:memberId,reason,start_date:startDate,days,type};
-      if(!logs[memberId]) logs[memberId]=[];
-      logs[memberId].unshift(log);
+      const res=await supa('leave_logs',{method:'POST',body:JSON.stringify({id,member_id:selectedId,reason,start_date:startDate,days,type})});
+      const log=res?res[0]:{id,member_id:selectedId,reason,start_date:startDate,days,type};
+      if(!logs[selectedId]) logs[selectedId]=[];
+      logs[selectedId].unshift(log);
     }
     document.getElementById('sheet-reason').value='개인사유';
     document.getElementById('sheet-start').value='';
@@ -856,12 +863,6 @@ async function addLogFromSheet(){
 <div class="sheet" id="sheet-panel">
   <div class="sheet-handle"></div>
   <div class="sheet-title">휴가 등록</div>
-  <div class="sheet-field" id="sheet-member-field">
-    <label>팀원</label>
-    <select id="sheet-member">
-      <option value="">팀원 선택</option>
-    </select>
-  </div>
   <div class="sheet-field">
     <label>사유</label>
     <input id="sheet-reason" type="text" value="개인사유" placeholder="사유 입력">
