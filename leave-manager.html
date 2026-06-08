@@ -348,11 +348,29 @@ const BIRTHDAYS={
   '12-25':'🎂 신수림',
 };
 function setHolidays(y){
-  KR_HOLIDAYS[y]={
+  const base={
     [`${y}-01-01`]:'신정',[`${y}-03-01`]:'삼일절',[`${y}-05-05`]:'어린이날',
-    [`${y}-06-03`]:'지방선거',[`${y}-06-06`]:'현충일',[`${y}-08-15`]:'광복절',
-    [`${y}-10-03`]:'개천절',[`${y}-10-09`]:'한글날',[`${y}-12-25`]:'크리스마스'
+    [`${y}-06-06`]:'현충일',[`${y}-08-15`]:'광복절',
+    [`${y}-10-03`]:'개천절',[`${y}-10-09`]:'한글날',[`${y}-12-25`]:'크리스마스',
   };
+  const lunar={
+    2025:{
+      '2025-01-28':'설날 연휴','2025-01-29':'설날','2025-01-30':'설날 연휴',
+      '2025-05-05':'부처님오신날',
+      '2025-10-05':'추석 연휴','2025-10-06':'추석','2025-10-07':'추석 연휴',
+    },
+    2026:{
+      '2026-02-16':'설날 연휴','2026-02-17':'설날','2026-02-18':'설날 연휴',
+      '2026-05-24':'부처님오신날',
+      '2026-09-24':'추석 연휴','2026-09-25':'추석','2026-09-26':'추석 연휴',
+    },
+    2027:{
+      '2027-02-05':'설날 연휴','2027-02-06':'설날','2027-02-07':'설날 연휴',
+      '2027-05-13':'부처님오신날',
+      '2027-10-14':'추석 연휴','2027-10-15':'추석','2027-10-16':'추석 연휴',
+    },
+  };
+  KR_HOLIDAYS[y]={...base,...(lunar[y]||{})};
 }
 const curYear=new Date().getFullYear();
 const yearSel=document.getElementById('year-sel');
@@ -634,19 +652,58 @@ function getRecommendDates(mid){
   if(remain<=0) return [];
   const holidays=KR_HOLIDAYS[year]||{};
   const usedDates=new Set((logs[mid]||[]).map(l=>l.start_date));
+  const today=new Date(); today.setHours(0,0,0,0);
   const recs=[];
-  Object.entries(holidays).forEach(([date,name])=>{
-    const d=new Date(date),dow=d.getDay();
-    const chk=ds=>!usedDates.has(ds)&&new Date(ds)>new Date()?ds:null;
-    if(dow===4){const f=new Date(d);f.setDate(d.getDate()+1);const s=f.toISOString().slice(0,10);if(chk(s))recs.push({date:s,label:name+' 연결',effect:'4일 연휴',days:1});}
-    if(dow===2){const mn=new Date(d);mn.setDate(d.getDate()-1);const s=mn.toISOString().slice(0,10);if(chk(s))recs.push({date:s,label:name+' 징검다리',effect:'4일 연휴',days:1});}
-  });
-  if(remain>=5){
-    const aug=new Date(year,7,4).toISOString().slice(0,10);
-    const dec=new Date(year,11,22).toISOString().slice(0,10);
-    if(new Date(aug)>new Date()) recs.push({date:aug,label:'여름 황금연휴',effect:'9일 연휴',days:5});
-    if(new Date(dec)>new Date()) recs.push({date:dec,label:'연말 황금연휴',effect:'크리스마스 연결',days:5});
+
+  const isHoliday=ds=>!!holidays[ds];
+  const isWeekend=ds=>{const w=new Date(ds).getDay();return w===0||w===6;};
+  const isOff=ds=>isHoliday(ds)||isWeekend(ds);
+  const addD=(ds,n)=>{const d=new Date(ds);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
+  const isAvail=ds=>{const d=new Date(ds);return d>today&&!usedDates.has(ds)&&!isOff(ds);};
+
+  // 연속 휴일 블록의 시작/끝 구하기
+  function getOffBlock(startDs){
+    let s=new Date(startDs),e=new Date(startDs);
+    while(isOff(addD(s.toISOString().slice(0,10),-1))) s.setDate(s.getDate()-1);
+    while(isOff(addD(e.toISOString().slice(0,10),1))) e.setDate(e.getDate()+1);
+    return {start:s.toISOString().slice(0,10),end:e.toISOString().slice(0,10)};
   }
+
+  const seen=new Set();
+  Object.entries(holidays).forEach(([date,name])=>{
+    const d=new Date(date); if(d<=today) return;
+    const {start:bs,end:be}=getOffBlock(date);
+    const blockLen=Math.round((new Date(be)-new Date(bs))/86400000)+1;
+
+    // 블록 앞 징검다리
+    const before1=addD(bs,-1);
+    const before2=addD(bs,-2);
+    if(isAvail(before1)&&!seen.has(before1)){
+      const total=isOff(before2)?blockLen+3:blockLen+1;
+      seen.add(before1);
+      recs.push({date:before1,label:name+' 앞 징검다리',effect:total+'일 연휴',days:1});
+    }
+
+    // 블록 뒤 징검다리
+    const after1=addD(be,1);
+    const after2=addD(be,2);
+    if(isAvail(after1)&&!seen.has(after1)){
+      const total=isOff(after2)?blockLen+3:blockLen+1;
+      seen.add(after1);
+      recs.push({date:after1,label:name+' 뒤 징검다리',effect:total+'일 연휴',days:1});
+    }
+
+    // 블록 사이 샌드위치 평일
+    for(let i=1;i<blockLen-1;i++){
+      const between=addD(bs,i);
+      if(!isOff(between)&&isAvail(between)&&!seen.has(between)){
+        seen.add(between);
+        recs.push({date:between,label:name+' 샌드위치',effect:'장기 연휴',days:1});
+      }
+    }
+  });
+
+  recs.sort((a,b)=>a.date.localeCompare(b.date));
   return recs.slice(0,5);
 }
 
