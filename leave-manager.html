@@ -456,7 +456,7 @@ function closeModal(id){ document.getElementById(id).classList.remove('open'); e
 /* ── member edit ── */
 function openMemberEdit(id, e){
   e.stopPropagation();
-  const m=members.find(x=>x.id===id); if(!m) return;
+  const m=members.find(x=>String(x.id)===String(id)); if(!m) return;
   editingMemberId=id;
   document.getElementById('edit-name').value=m.name;
   document.getElementById('edit-dept').value=m.dept;
@@ -471,7 +471,7 @@ async function saveMemberEdit(){
   if(!name||!total) return;
   try{
     await supa(`members?id=eq.${editingMemberId}`,{method:'PATCH',body:JSON.stringify({name,dept,total})});
-    const m=members.find(x=>x.id===editingMemberId);
+    const m=members.find(x=>String(x.id)===String(editingMemberId));
     if(m){ m.name=name; m.dept=dept; m.total=total; }
     closeModal('edit-member-modal');
     renderAll();
@@ -481,7 +481,7 @@ async function saveMemberEdit(){
 /* ── log edit ── */
 function openLogEdit(logId){
   const allLogs=Object.values(logs).flat();
-  const log=allLogs.find(l=>l.id===logId); if(!log) return;
+  const log=allLogs.find(l=>String(l.id)===String(logId)); if(!log) return;
   editingLogId=logId;
   document.getElementById('edit-log-reason').value=log.reason;
   document.getElementById('edit-log-date').value=log.start_date;
@@ -506,7 +506,7 @@ async function saveLogEdit(){
   try{
     await supa(`leave_logs?id=eq.${editingLogId}`,{method:'PATCH',body:JSON.stringify({reason,start_date:start,days,type})});
     Object.keys(logs).forEach(mid=>{
-      const idx=logs[mid].findIndex(l=>l.id===editingLogId);
+      const idx=logs[mid].findIndex(l=>String(l.id)===String(editingLogId));
       if(idx>-1) logs[mid][idx]={...logs[mid][idx],reason,start_date:start,days,type};
     });
     closeModal('edit-log-modal');
