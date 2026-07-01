@@ -16,6 +16,7 @@
 }
 body{font-family:'Ok',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
 header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:20px}
 .logo{font-size:19px;font-weight:500}.logo em{font-style:italic;color:var(--muted)}
 .header-right{display:flex;align-items:center;gap:14px}
 .sync-status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
@@ -85,6 +86,12 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .btn-sheet-submit:hover{opacity:.88}
 .btn-add-log-mobile{display:none;position:fixed;bottom:24px;right:20px;background:var(--text);color:#fff;border:none;border-radius:99px;padding:13px 20px;font-family:'Ok',sans-serif;font-size:14px;font-weight:500;cursor:pointer;z-index:100;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,.18)}
 @media(max-width:768px){.btn-add-log-mobile{display:flex}}
+.btn-install-app{position:fixed;bottom:80px;right:20px;background:linear-gradient(135deg, #FF571F 0%, #FF8F5F 100%);color:#fff;border:none;border-radius:99px;padding:12px 18px;font-family:'Ok',sans-serif;font-size:13px;font-weight:500;cursor:pointer;z-index:99;display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(255,87,31,.3);transition:transform .2s}
+.btn-install-app:hover{transform:scale(1.05)}
+@media(max-width:768px){.btn-install-app{display:flex}}
+.btn-install-header{background:var(--bg);border:1px solid var(--border);font-size:13px;cursor:pointer;padding:4px 8px;display:flex;align-items:center;justify-content:center;gap:5px;border-radius:20px;transition:background .15s;font-family:'Ok',sans-serif;font-weight:500;color:var(--text)}
+.btn-install-header:hover{background:var(--border)}
+.btn-install-header span{font-size:11px;color:var(--muted)}
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:14px}
 .detail-area{padding:20px 24px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
 .sec-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
@@ -208,6 +215,11 @@ input:focus,select:focus{border-color:var(--text)}
 .cal-more{font-size:10px;color:var(--muted);padding:1px 4px}
 .cal-cell[onclick]:hover{background:var(--blue-bg)!important;transition:background .15s}
 </style>
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22연차%20관리%22,%22short_name%22:%22연차관리%22,%22description%22:%22팀원%20연차%20관리%20및%20알림%20시스템%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23ffffff%22,%22theme_color%22:%22%23FF571F%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,<svg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20192%20192%27><rect%20fill=%27%23FF571F%27%20width=%27192%27%20height=%27192%27/><text%20x=%2796%27%20y=%27130%27%20font-size=%27120%27%20text-anchor=%27middle%27%20fill=%27white%27%20font-weight=%27bold%27>✓</text></svg>%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]}">
+<meta name="theme-color" content="#FF571F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="연차관리">
 </head>
 <body>
 
@@ -220,6 +232,7 @@ input:focus,select:focus{border-color:var(--text)}
       <select id="edit-dept">
         <option value="디자인팀">디자인팀</option>
         <option value="UX/UI팀">UX/UI팀</option>
+        <option value="마케팅팀">마케팅팀</option>
       </select>
     </div>
     <div class="modal-row"><label>총 연차 (일)</label><input id="edit-total" type="number" min="0.25" max="365" step="0.25"></div>
@@ -258,7 +271,10 @@ input:focus,select:focus{border-color:var(--text)}
 </div>
 
 <header>
-  <div class="logo">Leave<em>Tracker</em></div>
+  <div class="header-left">
+    <div class="logo">Leave<em>Tracker</em></div>
+    <button class="btn-install-header" id="install-btn" onclick="installApp()" title="앱으로 설치">📱<span>앱 설치</span></button>
+  </div>
   <div class="header-right">
     <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">연결 중...</span></div>
     <div class="year-select"><span>연도</span>
@@ -312,6 +328,7 @@ input:focus,select:focus{border-color:var(--text)}
                 <option value="">팀 선택</option>
                 <option value="디자인팀">디자인팀</option>
                 <option value="UX/UI팀">UX/UI팀</option>
+                <option value="마케팅팀">마케팅팀</option>
               </select>
             </div>
             <div class="form-row"><label>연차 (일)</label><input id="new-total" type="number" value="15" min="0.25" max="365" step="0.25"></div>
@@ -958,6 +975,115 @@ async function addLogFromSheet(){
   }catch(e){alert('저장 실패: '+e.message);}
   btn.disabled=false;
 }
+
+/* ── 푸시 알림 기능 ── */
+function requestNotificationPermission(){
+  if(!('Notification' in window)){
+    console.log('이 브라우저는 알림을 지원하지 않습니다');
+    return;
+  }
+  if(Notification.permission==='default'){
+    Notification.requestPermission().then(function(permission){
+      if(permission==='granted'){
+        console.log('알림 권한 허용됨');
+        new Notification('연차 관리 시작', {
+          body: '휴가 알림을 받으실 수 있습니다',
+          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23FF571F"/><text x="50" y="60" font-size="60" text-anchor="middle" fill="white" font-weight="bold">✓</text></svg>'
+        });
+      }
+    });
+  }
+}
+
+function sendNotification(title, options={}){
+  if(Notification.permission==='granted'){
+    const defaultOptions={
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23FF571F"/><text x="50" y="60" font-size="60" text-anchor="middle" fill="white" font-weight="bold">✓</text></svg>',
+      badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23FF571F"/></svg>'
+    };
+    new Notification(title, {...defaultOptions, ...options});
+  }
+}
+
+function checkAndNotifyLeaves(){
+  const now=new Date();
+  const tomorrow=new Date(now.getTime()+86400000);
+  const tomorrowStr=tomorrow.toISOString().split('T')[0];
+  
+  members.forEach(m=>{
+    if(logs[m.id]){
+      logs[m.id].forEach(log=>{
+        if(log.start_date===tomorrowStr && !log.notified){
+          sendNotification(`${m.name}의 연차가 내일 시작됩니다`, {
+            body: `${m.dept} · ${m.name} · ${log.reason}`,
+            tag: `leave-${log.id}`
+          });
+          log.notified=true;
+        }
+      });
+    }
+  });
+}
+
+function checkBirthdaysAndSandwiches(){
+  const today=new Date();
+  const todayStr=today.toISOString().split('T')[0];
+  const year=today.getFullYear();
+  const month=String(today.getMonth()+1).padStart(2,'0');
+  const date=String(today.getDate()).padStart(2,'0');
+  const todayKey=month+date;
+  
+  members.forEach(m=>{
+    if(m.birthday){
+      const bday=m.birthday.slice(5); // MM-DD 추출
+      const bdayKey=bday.replace('-','');
+      
+      if(bdayKey===todayKey){
+        sendNotification(`🎂 ${m.name}의 생일입니다`, {
+          body: m.dept
+        });
+      }
+    }
+  });
+}
+
+// 페이지 로드 시 알림 권한 요청
+/* ── PWA 앱 설치 ── */
+let deferredPrompt;
+const installBtn=document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+});
+
+function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choiceResult=>{
+      if(choiceResult.outcome==='accepted'){
+        console.log('앱 설치 완료!');
+      }
+      deferredPrompt=null;
+    });
+  } else {
+    // beforeinstallprompt가 없으면 수동 설치 안내
+    alert('📱 앱 설치 방법\n\n🖥️ 데스크톱: 우측상단 메뉴 > "앱 설치" 클릭\n\n📱 아이폰: 공유 > 홈화면에 추가\n\n📱 안드로이드: 우측상단 메뉴 > "설치" 또는 "앱 설치"');
+  }
+}
+
+window.addEventListener('load', function(){
+  requestNotificationPermission();
+  
+  // 매 시간마다 알림 체크
+  setInterval(checkAndNotifyLeaves, 3600000);
+  setInterval(checkBirthdaysAndSandwiches, 3600000);
+  
+  // 초기 체크
+  checkAndNotifyLeaves();
+  checkBirthdaysAndSandwiches();
+});
+
 </script>
 
 <!-- mobile FAB -->
