@@ -215,7 +215,7 @@ input:focus,select:focus{border-color:var(--text)}
 .cal-more{font-size:10px;color:var(--muted);padding:1px 4px}
 .cal-cell[onclick]:hover{background:var(--blue-bg)!important;transition:background .15s}
 </style>
-<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22연차%20관리%22,%22short_name%22:%22연차관리%22,%22description%22:%22팀원%20연차%20관리%20및%20알림%20시스템%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%23ffffff%22,%22theme_color%22:%22%23FF571F%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,<svg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%20192%20192%27><rect%20fill=%27%23FF571F%27%20width=%27192%27%20height=%27192%27/><text%20x=%2796%27%20y=%27130%27%20font-size=%27120%27%20text-anchor=%27middle%27%20fill=%27white%27%20font-weight=%27bold%27>✓</text></svg>%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]}">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#FF571F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1072,7 +1072,13 @@ function installApp(){
   }
 }
 
+// 페이지 로드 시 알림 권한 요청
 window.addEventListener('load', function(){
+  // Service Worker 등록
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(err=>console.log('SW 등록 실패:', err));
+  }
+  
   requestNotificationPermission();
   
   // 매 시간마다 알림 체크
