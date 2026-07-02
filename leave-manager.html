@@ -220,6 +220,8 @@ input:focus,select:focus{border-color:var(--text)}
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="연차관리">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 </head>
 <body>
 
@@ -976,22 +978,63 @@ async function addLogFromSheet(){
   btn.disabled=false;
 }
 
-/* ── 푸시 알림 기능 ── */
-function requestNotificationPermission(){
-  if(!('Notification' in window)){
+/* ── Firebase Cloud Messaging (실제 서버 푸시) ── */
+const firebaseConfig={
+  apiKey:"AIzaSyC82Rm71vFNNeYFrXZYpaqkvVY97hMZt-g",
+  authDomain:"leave-tracker-d81a7.firebaseapp.com",
+  projectId:"leave-tracker-d81a7",
+  storageBucket:"leave-tracker-d81a7.firebasestorage.app",
+  messagingSenderId:"723263075295",
+  appId:"1:723263075295:web:9bf8e588528699bb42ca6a",
+  measurementId:"G-FCDH7CEE15"
+};
+const VAPID_KEY="BB1GXJ6wZBy47F74mOwiu40U3793V-cndo3KYiM6u5LaZQsSiv892tjf6kjO9nP_Mfn1l3_GVo3-BbB-oc7kgTI";
+
+let fcmMessaging=null;
+
+async function requestNotificationPermission(){
+  if(!('Notification' in window) || !('serviceWorker' in navigator)){
     console.log('이 브라우저는 알림을 지원하지 않습니다');
     return;
   }
-  if(Notification.permission==='default'){
-    Notification.requestPermission().then(function(permission){
-      if(permission==='granted'){
-        console.log('알림 권한 허용됨');
-        new Notification('연차 관리 시작', {
-          body: '휴가 알림을 받으실 수 있습니다',
-          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23FF571F"/><text x="50" y="60" font-size="60" text-anchor="middle" fill="white" font-weight="bold">✓</text></svg>'
-        });
-      }
+  try{
+    const permission=await Notification.requestPermission();
+    if(permission!=='granted'){
+      console.log('알림 권한 거부됨');
+      return;
+    }
+    // Firebase 초기화
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    fcmMessaging=firebase.messaging();
+
+    const swReg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    const token=await fcmMessaging.getToken({vapidKey:VAPID_KEY, serviceWorkerRegistration:swReg});
+
+    if(token){
+      console.log('FCM 토큰 발급 완료');
+      await registerPushToken(token);
+    }
+
+    // 앱이 열려있을 때(foreground) 알림 수신 처리
+    fcmMessaging.onMessage((payload)=>{
+      const title=payload.notification?.title || '연차 관리';
+      const body=payload.notification?.body || '';
+      sendNotification(title, {body});
     });
+  }catch(e){
+    console.log('알림 설정 실패:', e.message);
+  }
+}
+
+async function registerPushToken(token){
+  try{
+    await supa('push_tokens', {
+      method:'POST',
+      body: JSON.stringify({token})
+    });
+  }catch(e){
+    // 이미 등록된 토큰이면 무시 (unique 제약)
+    console.log('토큰 등록 스킵(이미 존재):', e.message);
   }
 }
 
@@ -1005,67 +1048,19 @@ function sendNotification(title, options={}){
   }
 }
 
-function checkAndNotifyLeaves(){
-  const now=new Date();
-  const todayStr=now.toISOString().split('T')[0];
-  const hour=now.getHours();
-  const minute=now.getMinutes();
-  
-  // 8시 30분 ±5분 범위에서만 알림 발송 (서버 시간 차이 고려)
-  const isNotificationTime=hour===8 && minute>=25 && minute<=35;
-  
-  if(!isNotificationTime) return;
-  
-  // 오늘 이미 알림을 보냈는지 확인
-  const lastNotifyDate=localStorage.getItem('lastLeaveNotifyDate');
-  if(lastNotifyDate===todayStr) return; // 이미 오늘 알림을 보냈으면 스킵
-  
-  // 휴가 유형별 라벨
-  const typeLabel={
-    annual:'연차',
-    half_am:'오전반차',
-    half_pm:'오후반차',
-    halfhalf_am:'오전반반차',
-    halfhalf_pm:'오후반반차',
-    sick:'병가',
-    special:'특별휴가'
-  };
-  
-  members.forEach(m=>{
-    if(logs[m.id]){
-      logs[m.id].forEach(log=>{
-        // 휴가 시작일이 오늘인 경우
-        if(log.start_date===todayStr){
-          const label=typeLabel[log.type] || '휴가';
-          sendNotification(`${m.name}의 ${label}이 오늘 시작됩니다`, {
-            body: `${m.dept} · ${log.reason}`,
-            tag: `leave-${log.id}`
-          });
-          // 오늘 알림을 보냈다고 기록
-          localStorage.setItem('lastLeaveNotifyDate', todayStr);
-        }
-      });
-    }
-  });
-}
-
+// 생일 알림은 앱이 열려있을 때만 로컬로 체크 (서버 스케줄과 별도)
 function checkBirthdaysAndSandwiches(){
   const today=new Date();
-  const todayStr=today.toISOString().split('T')[0];
-  const year=today.getFullYear();
   const month=String(today.getMonth()+1).padStart(2,'0');
   const date=String(today.getDate()).padStart(2,'0');
   const todayKey=month+date;
-  
+
   members.forEach(m=>{
     if(m.birthday){
-      const bday=m.birthday.slice(5); // MM-DD 추출
+      const bday=m.birthday.slice(5);
       const bdayKey=bday.replace('-','');
-      
       if(bdayKey===todayKey){
-        sendNotification(`🎂 ${m.name}의 생일입니다`, {
-          body: m.dept
-        });
+        sendNotification(`🎂 ${m.name}의 생일입니다`, { body: m.dept });
       }
     }
   });
@@ -1098,23 +1093,15 @@ function installApp(){
 
 // 페이지 로드 시 알림 권한 요청
 window.addEventListener('load', function(){
-  // Service Worker 등록
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(err=>console.log('SW 등록 실패:', err));
-  }
-  
   requestNotificationPermission();
-  
-  // 매 시간마다 알림 체크
-  setInterval(checkAndNotifyLeaves, 3600000);
+
+  // 생일은 앱이 열려있을 때 매 시간 체크 (연차/반차 알림은 서버에서 8:30 KST 자동 발송)
   setInterval(checkBirthdaysAndSandwiches, 3600000);
-  
-  // 초기 체크
-  checkAndNotifyLeaves();
   checkBirthdaysAndSandwiches();
 });
 
 </script>
+
 
 <!-- mobile FAB -->
 <button class="btn-add-log-mobile" id="fab-add-log" onclick="openSheet()">+ 휴가 등록</button>
