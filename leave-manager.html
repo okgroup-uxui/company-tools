@@ -357,14 +357,10 @@ const KR_HOLIDAYS={};
 
 // 매년 반복되는 생일 (MM-DD 형식)
 const BIRTHDAYS={
-  '01-18':'🎂 김유정',
   '02-13':'🎂 이진명',
   '03-19':'🎂 공주원',
-  '04-28':'🎂 장영채',
   '06-22':'🎂 한지희',
-  '08-10':'🎂 배동환',
   '08-29':'🎂 박상준',
-  '12-13':'🎂 박진호',
   '12-18':'🎂 조연주',
   '12-25':'🎂 신수림',
 };
@@ -1011,18 +1007,42 @@ function sendNotification(title, options={}){
 
 function checkAndNotifyLeaves(){
   const now=new Date();
-  const tomorrow=new Date(now.getTime()+86400000);
-  const tomorrowStr=tomorrow.toISOString().split('T')[0];
+  const todayStr=now.toISOString().split('T')[0];
+  const hour=now.getHours();
+  const minute=now.getMinutes();
+  
+  // 8시 30분 ±5분 범위에서만 알림 발송 (서버 시간 차이 고려)
+  const isNotificationTime=hour===8 && minute>=25 && minute<=35;
+  
+  if(!isNotificationTime) return;
+  
+  // 오늘 이미 알림을 보냈는지 확인
+  const lastNotifyDate=localStorage.getItem('lastLeaveNotifyDate');
+  if(lastNotifyDate===todayStr) return; // 이미 오늘 알림을 보냈으면 스킵
+  
+  // 휴가 유형별 라벨
+  const typeLabel={
+    annual:'연차',
+    half_am:'오전반차',
+    half_pm:'오후반차',
+    halfhalf_am:'오전반반차',
+    halfhalf_pm:'오후반반차',
+    sick:'병가',
+    special:'특별휴가'
+  };
   
   members.forEach(m=>{
     if(logs[m.id]){
       logs[m.id].forEach(log=>{
-        if(log.start_date===tomorrowStr && !log.notified){
-          sendNotification(`${m.name}의 연차가 내일 시작됩니다`, {
-            body: `${m.dept} · ${m.name} · ${log.reason}`,
+        // 휴가 시작일이 오늘인 경우
+        if(log.start_date===todayStr){
+          const label=typeLabel[log.type] || '휴가';
+          sendNotification(`${m.name}의 ${label}이 오늘 시작됩니다`, {
+            body: `${m.dept} · ${log.reason}`,
             tag: `leave-${log.id}`
           });
-          log.notified=true;
+          // 오늘 알림을 보냈다고 기록
+          localStorage.setItem('lastLeaveNotifyDate', todayStr);
         }
       });
     }
