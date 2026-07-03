@@ -276,6 +276,7 @@ input:focus,select:focus{border-color:var(--text)}
   <div class="header-left">
     <div class="logo">Leave<em>Tracker</em></div>
     <button class="btn-install-header" id="install-btn" onclick="installApp()" title="앱으로 설치">📱<span>앱 설치</span></button>
+    <button class="btn-install-header" id="notif-btn" onclick="requestNotificationPermission()" title="알림 켜기" style="display:none;">🔔<span>알림 켜기</span></button>
   </div>
   <div class="header-right">
     <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">연결 중...</span></div>
@@ -1003,6 +1004,8 @@ async function requestNotificationPermission(){
       console.log('알림 권한 거부됨');
       return;
     }
+    document.getElementById('notif-btn').style.display='none';
+
     // Firebase 초기화
     if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     fcmMessaging=firebase.messaging();
@@ -1091,9 +1094,17 @@ function installApp(){
   }
 }
 
-// 페이지 로드 시 알림 권한 요청
+// 페이지 로드 시 알림 상태 확인
 window.addEventListener('load', function(){
-  requestNotificationPermission();
+  if('Notification' in window){
+    if(Notification.permission==='default'){
+      // 아직 허용/거부 안 함 → 버튼을 눌러야 팝업이 뜸 (iOS는 자동 요청이 막혀있음)
+      document.getElementById('notif-btn').style.display='flex';
+    } else if(Notification.permission==='granted'){
+      // 이미 허용됨 → 토큰만 재확인
+      requestNotificationPermission();
+    }
+  }
 
   // 생일은 앱이 열려있을 때 매 시간 체크 (연차/반차 알림은 서버에서 8:30 KST 자동 발송)
   setInterval(checkBirthdaysAndSandwiches, 3600000);
