@@ -255,7 +255,7 @@
    OKTYPO CONFIG — 프로젝트에 맞게 아래 값만 수정하면 됩니다.
    ============================================================ */
 const CONFIG = {
-  PROXY_ENDPOINT: "https://oko-proxy.okgroup0425.workers.dev/",
+  PROXY_ENDPOINT: "https://oko-proxy.YOUR-SUBDOMAIN.workers.dev/",
   MODEL: "claude-sonnet-5",
   MAX_TOKENS: 4000,
   PAGES_PER_BATCH: 3,   // 한 번의 API 호출에 묶어 보낼 페이지 수
@@ -412,7 +412,11 @@ async function checkChunk(chunk){
     })
   });
 
-  if(!res.ok) throw new Error(`API 오류 (${res.status})`);
+  if(!res.ok){
+    const bodyText = await res.text().catch(() => '');
+    console.error('oko-proxy 응답 본문:', bodyText);
+    throw new Error(`API 오류 (${res.status}) — 콘솔에서 상세 내용 확인`);
+  }
   const data = await res.json();
   const textBlock = (data.content || []).find(b => b.type === 'text');
   if(!textBlock) return [];
