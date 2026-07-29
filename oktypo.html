@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OKTYPO — 문서 교정 원고지</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#f5f5f0;
+    --paper-cell:#ececE5;
+    --ink:#1c1c1a;
+    --ink-soft:#767068;
+    --pen:#FF571F;
+    --rule:#d8d9cf;
+    --shadow:rgba(28,28,26,0.10);
+    --good:#3f7d4f;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR', sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:56px 24px;
+  }
+
+  .mono{ font-family:'IBM Plex Mono', monospace; letter-spacing:0.02em; }
+  .serif{ font-family:'Noto Serif KR', serif; }
+
+  .stage{ width:100%; max-width:720px; }
+
+  /* ── 마스트헤드 ── */
+  .masthead{ margin-bottom:28px; }
+  .stamp-tag{
+    display:inline-block;
+    font-size:11px;
+    padding:3px 9px;
+    border:1px solid var(--pen);
+    color:var(--pen);
+    border-radius:2px;
+    margin-bottom:14px;
+  }
+  .masthead h1{
+    font-size:26px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .masthead p{ font-size:13px; color:var(--ink-soft); }
+
+  /* ── 원고지 시트 ── */
+  .sheet{
+    position:relative;
+    background:
+      repeating-linear-gradient(0deg, transparent 0, transparent 27px, var(--rule) 27px, var(--rule) 28px),
+      repeating-linear-gradient(90deg, transparent 0, transparent 27px, var(--rule) 27px, var(--rule) 28px),
+      var(--paper);
+    border:1px solid var(--rule);
+    box-shadow:0 12px 32px var(--shadow);
+    padding:0;
+  }
+
+  .sheet-header{
+    display:flex;
+    border-bottom:1px solid var(--rule);
+  }
+  .cell-title{
+    flex:1;
+    padding:14px 20px;
+    font-size:13px;
+    border-right:1px solid var(--rule);
+    display:flex; align-items:center; gap:8px;
+    color:var(--ink-soft);
+  }
+  .cell-title b{ color:var(--ink); font-weight:600; }
+  .cell-meta{
+    width:150px;
+    padding:14px 20px;
+    font-size:12px;
+    text-align:right;
+    color:var(--ink-soft);
+  }
+  .cell-meta b{ color:var(--pen); }
+
+  .sheet-body{ padding:36px; }
+
+  /* ── 업로드 ── */
+  #dropzone{
+    border:1.5px dashed var(--rule);
+    padding:52px 24px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color 0.2s, background 0.2s;
+  }
+  #dropzone.drag{ border-color:var(--pen); background:rgba(255,87,31,0.04); }
+  #dropzone .nib{ width:34px; height:34px; margin:0 auto 16px; }
+  #dropzone .main-txt{ font-size:14px; margin-bottom:6px; }
+  #dropzone .sub-txt{ font-size:12px; color:var(--ink-soft); }
+  #fileInput{ display:none; }
+
+  /* ── 진행중 ── */
+  #progressState{ display:none; padding:36px 0; text-align:center; }
+  #progLine{ position:relative; height:2px; background:var(--rule); margin-bottom:16px; }
+  #progFill{ position:absolute; top:0; left:0; height:2px; width:0%; background:var(--pen); transition:width 0.3s ease; }
+  #progNib{ position:absolute; top:-9px; left:0%; width:20px; height:20px; transform:translateX(-50%); transition:left 0.3s ease; }
+  #progressLabel{ font-size:13px; color:var(--ink-soft); }
+  #progressLabel .mono{ color:var(--pen); }
+
+  /* ── 결과 ── */
+  #resultState{ display:none; }
+
+  .stamp{
+    position:absolute;
+    top:28px; right:36px;
+    border:2px solid var(--pen);
+    color:var(--pen);
+    padding:8px 14px;
+    font-size:13px;
+    font-weight:700;
+    transform:rotate(-7deg);
+    border-radius:3px;
+    opacity:0.9;
+    pointer-events:none;
+  }
+
+  .summary-row{ display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+  .summary-chip{
+    font-size:12px; padding:5px 11px;
+    border:1px solid var(--rule);
+    color:var(--ink-soft);
+  }
+  .summary-chip b{ color:var(--pen); }
+
+  #issueList{ display:flex; flex-direction:column; gap:2px; }
+
+  .issue{
+    display:flex; gap:14px;
+    padding:16px 4px;
+    border-bottom:1px solid var(--rule);
+  }
+  .issue:last-child{ border-bottom:none; }
+
+  .mark{
+    flex:0 0 30px; height:30px;
+    border:1.5px solid var(--pen);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:var(--pen);
+    transform:rotate(-4deg);
+    margin-top:2px;
+  }
+
+  .issue-main{ flex:1; }
+  .issue-loc{ font-size:11px; color:var(--ink-soft); margin-bottom:6px; }
+  .issue-diff{ font-size:15px; margin-bottom:6px; }
+  .issue-diff .orig{ text-decoration:line-through; text-decoration-color:var(--pen); text-decoration-thickness:1.5px; color:var(--ink-soft); }
+  .issue-diff .caret{ color:var(--pen); margin:0 6px; font-weight:700; }
+  .issue-diff .fix{ color:var(--good); font-weight:600; }
+  .issue-context{ font-size:12px; color:var(--ink-soft); line-height:1.5; }
+
+  .empty-state{ text-align:center; padding:40px 0; color:var(--ink-soft); font-size:13px; }
+
+  .actions{ display:flex; gap:10px; margin-top:26px; }
+  button.btn{
+    font-family:'Noto Sans KR', sans-serif;
+    font-size:13px;
+    padding:10px 18px;
+    border:1px solid var(--rule);
+    background:transparent;
+    color:var(--ink);
+    cursor:pointer;
+    transition:all 0.15s;
+  }
+  button.btn.primary{
+    background:var(--pen);
+    border-color:var(--pen);
+    color:#fff;
+    font-weight:600;
+  }
+  button.btn:hover{ border-color:var(--pen); }
+  button.btn.primary:hover{ background:#ff6b38; }
+
+  #errorBanner{
+    display:none; margin:24px 36px 0; padding:12px 14px;
+    border:1px solid var(--pen); color:var(--pen); font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="masthead">
+    <span class="stamp-tag mono">OKNEXUS DOCUMENT AGENT</span>
+    <h1 class="serif">문서 교정 원고지</h1>
+    <p>PDF를 넣으면 오탈자·맞춤법·띄어쓰기를 표시해 드립니다</p>
+  </div>
+
+  <div class="sheet" id="sheet">
+    <div class="sheet-header mono">
+      <div class="cell-title" id="titleCell">제목 — <b>미입력</b></div>
+      <div class="cell-meta" id="metaCell">0 / 0 p</div>
+    </div>
+
+    <div class="sheet-body" style="position:relative;">
+      <div id="resultStamp" class="stamp" style="display:none;"></div>
+
+      <!-- 1. 업로드 -->
+      <div id="dropzone">
+        <svg class="nib" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2 L20 10 L9 21 L4 21 L4 16 Z" stroke="#FF571F" stroke-width="1.5" fill="none"/>
+          <path d="M12 2 L20 10" stroke="#FF571F" stroke-width="1.5"/>
+        </svg>
+        <div class="main-txt">PDF를 끌어놓거나 클릭해서 선택</div>
+        <div class="sub-txt">텍스트·이미지 PDF 모두 지원 (피그마 export 포함)</div>
+        <input type="file" id="fileInput" accept="application/pdf">
+      </div>
+
+      <!-- 2. 진행중 -->
+      <div id="progressState">
+        <div id="progLine">
+          <div id="progFill"></div>
+          <svg id="progNib" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2 L20 10 L9 21 L4 21 L4 16 Z" stroke="#FF571F" stroke-width="1.6" fill="var(--paper)"/>
+          </svg>
+        </div>
+        <div id="progressLabel" class="mono">문서 준비중...</div>
+      </div>
+
+      <!-- 3. 결과 -->
+      <div id="resultState">
+        <div class="summary-row mono" id="summaryRow"></div>
+        <div id="issueList"></div>
+        <div class="actions">
+          <button class="btn primary" id="copyBtn">결과 복사하기</button>
+          <button class="btn" id="resetBtn">새 파일 검사</button>
+        </div>
+      </div>
+
+      <div id="errorBanner"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   OKTYPO CONFIG — 프로젝트에 맞게 아래 값만 수정하면 됩니다.
+   ============================================================ */
+const CONFIG = {
+  PROXY_ENDPOINT: "https://oko-proxy.YOUR-SUBDOMAIN.workers.dev/",
+  MODEL: "claude-sonnet-5",
+  MAX_TOKENS: 4000,
+  PAGES_PER_BATCH: 3,   // 한 번의 API 호출에 묶어 보낼 페이지 수
+  IMAGE_SCALE: 1.8,     // 페이지 렌더링 해상도 (텍스트가 작으면 올리기)
+  IMAGE_QUALITY: 0.85   // JPEG 압축 품질
+};
+
+const el = {
+  dropzone: document.getElementById('dropzone'),
+  fileInput: document.getElementById('fileInput'),
+  progressState: document.getElementById('progressState'),
+  resultState: document.getElementById('resultState'),
+  progressLabel: document.getElementById('progressLabel'),
+  progFill: document.getElementById('progFill'),
+  progNib: document.getElementById('progNib'),
+  summaryRow: document.getElementById('summaryRow'),
+  issueList: document.getElementById('issueList'),
+  errorBanner: document.getElementById('errorBanner'),
+  copyBtn: document.getElementById('copyBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  titleCell: document.getElementById('titleCell'),
+  metaCell: document.getElementById('metaCell'),
+  resultStamp: document.getElementById('resultStamp'),
+};
+
+function showState(name){
+  el.dropzone.style.display = name === 'upload' ? '' : 'none';
+  el.progressState.style.display = name === 'progress' ? '' : 'none';
+  el.resultState.style.display = name === 'result' ? '' : 'none';
+}
+function showError(msg){ el.errorBanner.textContent = msg; el.errorBanner.style.display = 'block'; }
+function clearError(){ el.errorBanner.style.display = 'none'; }
+
+el.dropzone.addEventListener('click', () => el.fileInput.click());
+el.fileInput.addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0]); });
+['dragenter','dragover'].forEach(evt => el.dropzone.addEventListener(evt, e => { e.preventDefault(); el.dropzone.classList.add('drag'); }));
+['dragleave','drop'].forEach(evt => el.dropzone.addEventListener(evt, e => { e.preventDefault(); el.dropzone.classList.remove('drag'); }));
+el.dropzone.addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0];
+  if(f && f.type === 'application/pdf') handleFile(f);
+  else showError('PDF 파일만 지원합니다.');
+});
+
+el.resetBtn.addEventListener('click', () => {
+  el.fileInput.value = '';
+  clearError();
+  el.resultStamp.style.display = 'none';
+  el.titleCell.innerHTML = '제목 — <b>미입력</b>';
+  el.metaCell.textContent = '0 / 0 p';
+  showState('upload');
+});
+
+async function handleFile(file){
+  clearError();
+  el.titleCell.innerHTML = `제목 — <b>${escapeHtml(file.name)}</b>`;
+  showState('progress');
+  setProgress(5, 'PDF 여는 중...');
+
+  try{
+    const pageImages = await renderPdfPagesToImages(file);
+    if(!pageImages.length){
+      throw new Error('페이지를 렌더링할 수 없습니다.');
+    }
+    el.metaCell.textContent = `${pageImages.length} p`;
+
+    const chunks = buildImageChunks(pageImages, CONFIG.PAGES_PER_BATCH);
+    const allIssues = [];
+
+    for(let i = 0; i < chunks.length; i++){
+      setProgress(15 + Math.round((i / chunks.length) * 75), `검사 중 (${i + 1}/${chunks.length})`);
+      const issues = await checkChunk(chunks[i]);
+      allIssues.push(...issues);
+    }
+
+    setProgress(100, '완료');
+    renderResults(allIssues);
+    setTimeout(() => showState('result'), 250);
+
+  }catch(err){
+    console.error(err);
+    showError(err.message || '처리 중 오류가 발생했습니다.');
+    showState('upload');
+  }
+}
+
+function setProgress(pct, label){
+  el.progFill.style.width = pct + '%';
+  el.progNib.style.left = pct + '%';
+  el.progressLabel.innerHTML = `<span class="mono">${label}</span>`;
+}
+
+/* 텍스트 레이어가 없거나(피그마 export 등) 이미지+텍스트가 섞인 PDF도
+   동일하게 처리하기 위해, 텍스트 추출 대신 각 페이지를 이미지로 렌더링해서
+   Claude 비전으로 직접 읽게 한다. */
+async function renderPdfPagesToImages(file){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const images = [];
+
+  for(let i = 1; i <= pdf.numPages; i++){
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: CONFIG.IMAGE_SCALE });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    const dataUrl = canvas.toDataURL('image/jpeg', CONFIG.IMAGE_QUALITY);
+    images.push(dataUrl.split(',')[1]); // base64 부분만
+  }
+  return images;
+}
+
+/* 페이지 이미지를 PAGES_PER_BATCH개씩 묶어서 하나의 API 요청으로 보낸다 */
+function buildImageChunks(pageImages, batchSize){
+  const chunks = [];
+  for(let i = 0; i < pageImages.length; i += batchSize){
+    const slice = pageImages.slice(i, i + batchSize);
+    chunks.push({ images: slice, from: i + 1, to: i + slice.length });
+  }
+  return chunks;
+}
+
+async function checkChunk(chunk){
+  const systemPrompt =
+`당신은 한국어 문서 교정 전문가입니다. 전달된 페이지 이미지들을 직접 읽고(디자인에 박힌 텍스트, 캡션, 라벨 포함)
+오탈자, 맞춤법 오류, 띄어쓰기 오류, 문장부호 오류만 찾아내세요.
+이미지는 순서대로 p.${chunk.from}부터 p.${chunk.to}까지에 해당합니다. 문제가 발견된 이미지의 실제 페이지 번호를 표기하세요.
+자연스러운 표현 차이나 디자인/스타일 취향은 지적하지 마세요. 실제 오류만 보고하세요.
+반드시 아래 JSON 형식으로만 응답하고, 다른 텍스트는 절대 포함하지 마세요:
+[{"type":"오탈자|맞춤법|띄어쓰기|문장부호","page":1,"original":"원문","suggestion":"수정안","context":"주변 문맥 20자 내외"}]
+오류가 없으면 빈 배열 []을 반환하세요.`;
+
+  const imageBlocks = chunk.images.map(b64 => ({
+    type: 'image',
+    source: { type: 'base64', media_type: 'image/jpeg', data: b64 }
+  }));
+
+  const res = await fetch(CONFIG.PROXY_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: CONFIG.MODEL,
+      max_tokens: CONFIG.MAX_TOKENS,
+      system: systemPrompt,
+      messages: [{
+        role: 'user',
+        content: [
+          ...imageBlocks,
+          { type: 'text', text: `위 ${chunk.images.length}개 페이지(p.${chunk.from}~p.${chunk.to})를 검사해 주세요.` }
+        ]
+      }]
+    })
+  });
+
+  if(!res.ok) throw new Error(`API 오류 (${res.status})`);
+  const data = await res.json();
+  const textBlock = (data.content || []).find(b => b.type === 'text');
+  if(!textBlock) return [];
+  const clean = textBlock.text.replace(/```json|```/g, '').trim();
+  try{ return JSON.parse(clean); }
+  catch{ console.warn('JSON 파싱 실패:', clean); return []; }
+}
+
+const TYPE_MARK = { '오탈자':'오', '맞춤법':'맞', '띄어쓰기':'띄', '문장부호':'문' };
+
+function renderResults(issues){
+  const counts = issues.reduce((acc, it) => { acc[it.type] = (acc[it.type] || 0) + 1; return acc; }, {});
+
+  el.summaryRow.innerHTML = `
+    <span class="summary-chip">전체 <b>${issues.length}</b>건</span>
+    ${Object.entries(counts).map(([type, n]) => `<span class="summary-chip">${type} <b>${n}</b></span>`).join('')}
+  `;
+
+  if(issues.length === 0){
+    el.issueList.innerHTML = `<div class="empty-state">오류가 발견되지 않았습니다.</div>`;
+    el.resultStamp.textContent = '교정완료';
+    el.resultStamp.style.display = 'block';
+    return;
+  }
+
+  el.resultStamp.textContent = `${issues.length}건 발견`;
+  el.resultStamp.style.display = 'block';
+
+  el.issueList.innerHTML = issues.map(it => `
+    <div class="issue">
+      <div class="mark">${TYPE_MARK[it.type] || '?'}</div>
+      <div class="issue-main">
+        <div class="issue-loc mono">${it.type} · p.${it.page ?? '-'}</div>
+        <div class="issue-diff">
+          <span class="orig">${escapeHtml(it.original)}</span>
+          <span class="caret">‸</span>
+          <span class="fix">${escapeHtml(it.suggestion)}</span>
+        </div>
+        <div class="issue-context">${escapeHtml(it.context || '')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+el.copyBtn.addEventListener('click', () => {
+  const rows = Array.from(el.issueList.querySelectorAll('.issue')).map(node => node.innerText.replace(/\n+/g, ' ').trim());
+  navigator.clipboard.writeText(rows.join('\n')).then(() => {
+    el.copyBtn.textContent = '복사 완료';
+    setTimeout(() => el.copyBtn.textContent = '결과 복사하기', 1500);
+  });
+});
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+</script>
+</body>
+</html>
