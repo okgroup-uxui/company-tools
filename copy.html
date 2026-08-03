@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>에이전트 #2 — 컨셉·카피 생성</title>
+<style>
+  :root {
+    --bg: #F7F7F5;
+    --white: #FFFFFF;
+    --border: #E4E4DC;
+    --border-light: #EEEEEA;
+    --text: #1A1A18;
+    --sub: #5A5A52;
+    --dim: #9A9A90;
+    --red: #C8341A;
+    --blue: #2D5BE3;
+    --blue-l: #EEF2FF;
+    --blue-b: #BFCEF7;
+    --green: #1A7A4A;
+    --green-l: #EDFAF3;
+    --green-b: #BBF7D0;
+    --purple: #5B21B6;
+    --purple-l: #F3F0FF;
+    --purple-b: #DDD6FE;
+    --tag: #F2F2EC;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.75;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+  }
+
+  /* ─── PAGE HEADER ─── */
+  .page-header { width: 100%; max-width: 700px; margin-bottom: 24px; }
+  .eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 8px;
+  }
+  .page-title { font-size: 22px; font-weight: 800; line-height: 1.25; margin-bottom: 6px; }
+  .page-desc { font-size: 13px; color: var(--sub); line-height: 1.65; }
+
+  /* ─── FORM CARD ─── */
+  .form-card {
+    width: 100%; max-width: 700px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+  .form-chrome {
+    background: #F2F2EE; border-bottom: 1px solid var(--border);
+    padding: 11px 18px; display: flex; align-items: center; gap: 9px;
+  }
+  .chrome-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .chrome-dot:nth-child(1) { background: #FF5F57; }
+  .chrome-dot:nth-child(2) { background: #FEBC2E; }
+  .chrome-dot:nth-child(3) { background: #28C840; }
+  .chrome-label { font-size: 11px; font-weight: 600; color: var(--dim); letter-spacing: 0.04em; margin-left: 4px; }
+
+  .form-body { padding: 26px 28px 8px; }
+
+  /* ─── STEP HEADING ─── */
+  .step-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+  .step-num {
+    width: 20px; height: 20px; border-radius: 5px;
+    background: var(--blue); color: white;
+    font-size: 10px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-title { font-size: 13.5px; font-weight: 800; color: var(--text); }
+
+  /* ─── FORM GROUP ─── */
+  .fg { margin-bottom: 18px; }
+  .fl {
+    font-size: 12.5px; font-weight: 700; color: var(--text);
+    margin-bottom: 8px; display: flex; align-items: center;
+    gap: 6px; flex-wrap: wrap;
+  }
+  .fhint { font-size: 11px; color: var(--dim); margin-top: 5px; line-height: 1.5; }
+  .divider { border: none; border-top: 1px solid var(--border-light); margin: 6px 0 18px; }
+
+  /* ─── TOGGLE BUTTONS ─── */
+  .toggle-group { display: flex; gap: 7px; flex-wrap: wrap; }
+  .tb {
+    padding: 9px 15px; border-radius: 8px; border: 1.5px solid var(--border);
+    font-size: 12.5px; font-weight: 600; color: var(--sub);
+    background: var(--white); cursor: pointer; transition: all 0.15s;
+    user-select: none; -webkit-user-select: none;
+  }
+  .tb:hover { border-color: #C8C8C0; color: var(--text); }
+  .tb.on { border-color: var(--blue); background: var(--blue-l); color: var(--blue); }
+
+  /* ─── CHECK GRID ─── */
+  .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 8px; }
+  .ci {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 7px; border: 1.5px solid var(--border);
+    font-size: 12.5px; color: var(--sub); background: var(--white);
+    cursor: pointer; transition: all 0.15s; user-select: none; -webkit-user-select: none;
+  }
+  .ci:hover { border-color: #C8C8C0; color: var(--text); }
+  .ci.on { border-color: var(--blue); background: var(--blue-l); color: var(--blue); }
+  .cb {
+    width: 16px; height: 16px; border-radius: 3px;
+    border: 1.5px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 10px;
+  }
+  .ci.on .cb { background: var(--blue); border-color: var(--blue); color: white; }
+
+  /* ─── TEXTAREA ─── */
+  .fake-area {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 13px; color: var(--text);
+    background: var(--white); min-height: 64px; resize: vertical;
+    font-family: inherit; line-height: 1.65; outline: none; transition: border-color 0.15s;
+  }
+  .fake-area:focus { border-color: var(--blue); }
+  .fake-area::placeholder { color: var(--dim); }
+  .char-count { font-size: 11px; color: var(--dim); text-align: right; margin-top: 4px; }
+
+  /* ─── ADVANCED ACCORDION ─── */
+  .adv-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; background: var(--bg); border: 1px solid var(--border-light);
+    border-radius: 9px; cursor: pointer; user-select: none; margin-bottom: 0;
+  }
+  .adv-toggle-lbl { font-size: 12.5px; font-weight: 700; color: var(--sub); display: flex; align-items: center; gap: 7px; }
+  .adv-chip { font-size: 10px; font-weight: 600; color: var(--dim); background: var(--tag); padding: 2px 7px; border-radius: 4px; }
+  .adv-arrow { font-size: 11px; color: var(--dim); transition: transform 0.2s; }
+  .adv-toggle.open .adv-arrow { transform: rotate(180deg); }
+  .adv-body { display: none; padding: 18px 4px 4px; }
+  .adv-body.show { display: block; }
+
+  /* ─── LENGTH ─── */
+  .len-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .lp {
+    padding: 9px 6px; border-radius: 7px; border: 1.5px solid var(--border);
+    background: var(--white); cursor: pointer; text-align: center;
+    transition: all 0.15s; user-select: none;
+  }
+  .lp .lp-name { font-size: 12px; font-weight: 700; color: var(--sub); display: block; line-height: 1.3; }
+  .lp .lp-range { font-size: 10px; color: var(--dim); display: block; margin-top: 2px; }
+  .lp:hover { border-color: #C8C8C0; }
+  .lp.on { border-color: var(--blue); background: var(--blue-l); }
+  .lp.on .lp-name { color: var(--blue); }
+  .lp.on .lp-range { color: #7BA7FF; }
+
+  /* ─── 읏맨 ─── */
+  .ootman-box {
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 9px; padding: 13px 15px;
+  }
+  .ootman-top { display: flex; align-items: center; justify-content: space-between; }
+  .ootman-left { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: var(--text); }
+  .ootman-badge {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--purple-l); color: var(--purple);
+    padding: 2px 7px; border-radius: 4px; border: 1px solid var(--purple-b);
+  }
+  .sw-wrap { display: flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
+  .sw {
+    width: 36px; height: 20px; background: var(--border); border-radius: 10px;
+    position: relative; transition: background 0.2s; flex-shrink: 0;
+  }
+  .sw::after {
+    content: ''; position: absolute; width: 14px; height: 14px; background: white;
+    border-radius: 50%; top: 3px; left: 3px;
+    transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  }
+  .sw.on { background: var(--purple); }
+  .sw.on::after { transform: translateX(16px); }
+  .sw-lbl { font-size: 12px; font-weight: 600; color: var(--dim); }
+  .sw-lbl.on { color: var(--purple); }
+  .ootman-panel { display: none; margin-top: 12px; }
+  .ootman-panel.show { display: block; }
+  .ootman-styles { display: flex; flex-wrap: wrap; gap: 7px; }
+  .os {
+    padding: 7px 13px; border-radius: 7px; border: 1.5px solid var(--border);
+    font-size: 12px; font-weight: 600; color: var(--sub);
+    background: var(--white); cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .os:hover { border-color: var(--purple-b); }
+  .os.on { border-color: #7C3AED; background: #F3F0FF; color: #5B21B6; }
+
+  /* ─── FOOTER ─── */
+  .form-footer {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 18px 28px 22px; border-top: 1px solid var(--border-light); background: #FAFAF8;
+  }
+  .foot-note { font-size: 11.5px; color: var(--dim); line-height: 1.5; }
+  .submit-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 26px; border-radius: 9px; font-size: 13.5px;
+    font-weight: 700; cursor: pointer; border: none; font-family: inherit;
+    background: var(--blue); color: white;
+    transition: opacity 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .submit-btn:hover { opacity: 0.88; }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { opacity: 0.55; cursor: default; }
+  .spinner {
+    width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.4); border-top-color: white;
+    animation: spin 0.7s linear infinite; display: none;
+  }
+  .submit-btn.loading .spinner { display: inline-block; }
+  .submit-btn.loading .btn-lbl { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── RESULT CARD ─── */
+  .result-card {
+    width: 100%; max-width: 700px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+    display: none;
+  }
+  .result-card.show { display: block; }
+  .result-head {
+    padding: 16px 22px; border-bottom: 1px solid var(--border-light);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .result-head-title { font-size: 14px; font-weight: 800; }
+  .redo-btn {
+    font-size: 12px; font-weight: 700; color: var(--blue); background: var(--blue-l);
+    border: none; border-radius: 7px; padding: 7px 13px; cursor: pointer;
+  }
+  .redo-btn:hover { opacity: 0.85; }
+  .result-body { padding: 20px 22px 24px; }
+  .rgroup { margin-bottom: 20px; }
+  .rgroup:last-child { margin-bottom: 0; }
+  .rgroup-title {
+    font-size: 11.5px; font-weight: 800; color: var(--dim);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 9px;
+  }
+  .ritem {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 13px; border-radius: 8px; background: var(--bg);
+    border: 1px solid var(--border-light); margin-bottom: 7px; font-size: 13px;
+  }
+  .ritem:last-child { margin-bottom: 0; }
+  .ritem span { flex: 1; }
+  .copy-btn {
+    flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--sub);
+    background: var(--white); border: 1px solid var(--border); border-radius: 6px;
+    padding: 5px 10px; cursor: pointer; transition: all 0.15s;
+  }
+  .copy-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); background: var(--green-l); }
+  .error-box {
+    display: none; margin: 0 0 18px; padding: 12px 14px;
+    background: #FFF0ED; border: 1px solid #FFC9BE; border-radius: 8px;
+    font-size: 12.5px; color: #A32B12; line-height: 1.6;
+  }
+  .error-box.show { display: block; }
+
+  .toast {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1A1A18; color: white;
+    padding: 12px 22px; border-radius: 10px;
+    font-size: 13.5px; font-weight: 600;
+    opacity: 0; transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none; white-space: nowrap; z-index: 999;
+    box-shadow: 0 4px 20px rgba(0,0,0,.2);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 600px) {
+    body { padding: 24px 14px 60px; }
+    .len-presets { grid-template-columns: repeat(3,1fr); }
+    .form-footer { flex-direction: column; align-items: flex-start; }
+    .form-body { padding: 20px 18px 8px; }
+    .toast { white-space: normal; width: calc(100% - 40px); text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="eyebrow">Agent #2 · 컨셉·카피 생성</div>
+  <h1 class="page-title">컨셉·브랜드 네이밍·카피 생성</h1>
+  <p class="page-desc">목적과 키워드만 입력하면 브랜드명·슬로건·카피 초안을 바로 만들어드려요. 세부 옵션은 필요할 때만 펼쳐서 조정하세요.</p>
+</div>
+
+<!-- FORM CARD -->
+<div class="form-card">
+  <div class="form-chrome">
+    <div class="chrome-dot"></div>
+    <div class="chrome-dot"></div>
+    <div class="chrome-dot"></div>
+    <span class="chrome-label">에이전트 #2 — 컨셉·카피 생성</span>
+  </div>
+
+  <div class="form-body">
+
+    <div class="error-box" id="errorBox"></div>
+
+    <!-- ① 목적 -->
+    <div class="step-row">
+      <span class="step-num">1</span>
+      <span class="step-title">무엇을 만들까요?</span>
+    </div>
+    <div class="fg">
+      <div class="toggle-group" id="purposeGrp">
+        <div class="tb" data-g="purpose" data-v="cibi">브랜드명·CI/BI</div>
+        <div class="tb on" data-g="purpose" data-v="campaign">캠페인·광고 카피</div>
+        <div class="tb" data-g="purpose" data-v="event">기념·이벤트 문구</div>
+      </div>
+      <div class="fhint" id="purposeHint"></div>
+    </div>
+
+    <!-- ② 키워드 -->
+    <div class="fg">
+      <div class="fl">핵심 키워드</div>
+      <textarea class="fake-area" id="kwInput" maxlength="300" style="min-height:44px;"
+        placeholder="예: 신뢰 / 젊음 / 레드 / 디지털 / 전문성"
+        oninput="onTextarea(this,'kwCount')"></textarea>
+      <div class="char-count" id="kwCount">0 / 300</div>
+    </div>
+
+    <!-- ③ 브랜드 컨텍스트 -->
+    <div class="fg">
+      <div class="fl">브랜드 설명</div>
+      <textarea class="fake-area" id="ctxInput" maxlength="500"
+        placeholder="예: OK금융그룹 저축은행 앱 신규 캠페인. 20-30대 대상, 피해야 할 표현: 대출·부채 직접 언급"
+        oninput="onTextarea(this,'ctxCount')"></textarea>
+      <div class="char-count" id="ctxCount">0 / 500</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 고급 설정 (접힘) -->
+    <div class="adv-toggle" id="advToggle" onclick="toggleAdv()">
+      <div class="adv-toggle-lbl">⚙️ 세부 옵션 <span class="adv-chip">선택</span></div>
+      <span class="adv-arrow">▾</span>
+    </div>
+    <div class="adv-body" id="advBody">
+
+      <div class="fg">
+        <div class="fl">타겟</div>
+        <div class="toggle-group" id="targetGrp">
+          <div class="tb" data-g="target" data-v="mz">20-30대</div>
+          <div class="tb" data-g="target" data-v="mid">40-50대</div>
+          <div class="tb" data-g="target" data-v="all">전 연령</div>
+          <div class="tb" data-g="target" data-v="b2b">법인·B2B</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <div class="fl">언어</div>
+        <div class="toggle-group" id="langGrp">
+          <div class="tb on" data-g="lang" data-v="ko-en">한국어+영문</div>
+          <div class="tb" data-g="lang" data-v="ko">한국어</div>
+          <div class="tb" data-g="lang" data-v="en">영문</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <div class="fl">톤앤매너 <span style="font-size:11px;font-weight:400;color:var(--dim)">(복수 선택)</span></div>
+        <div class="check-grid" id="toneGrp">
+          <div class="ci" data-g="tone" data-v="pro"><div class="cb"></div>전문적·신뢰감</div>
+          <div class="ci" data-g="tone" data-v="casual"><div class="cb"></div>친근·캐주얼</div>
+          <div class="ci" data-g="tone" data-v="premium"><div class="cb"></div>세련·프리미엄</div>
+          <div class="ci" data-g="tone" data-v="impact"><div class="cb"></div>강렬·임팩트</div>
+          <div class="ci" data-g="tone" data-v="warm"><div class="cb"></div>따뜻·공감</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <div class="fl">길이 <span style="font-size:11px;font-weight:400;color:var(--dim)">(헤드카피·슬로건 기준)</span></div>
+        <div class="len-presets">
+          <div class="lp" data-min="3" data-max="10" onclick="pickLen(this)">
+            <span class="lp-name">짧게</span><span class="lp-range">3–10자</span>
+          </div>
+          <div class="lp on" data-min="15" data-max="25" onclick="pickLen(this)">
+            <span class="lp-name">보통</span><span class="lp-range">15–25자</span>
+          </div>
+          <div class="lp" data-min="30" data-max="50" onclick="pickLen(this)">
+            <span class="lp-name">길게</span><span class="lp-range">30–50자</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg" style="margin-bottom:0;">
+        <div class="fl">읏맨 말투 적용</div>
+        <div class="ootman-box">
+          <div class="ootman-top">
+            <div class="ootman-left">읏맨 캐릭터 톤 <span class="ootman-badge">OK MASCOT</span></div>
+            <div class="sw-wrap" onclick="toggleOotman()">
+              <div class="sw" id="swEl"></div>
+              <span class="sw-lbl" id="swLbl">OFF</span>
+            </div>
+          </div>
+          <div class="ootman-panel" id="ootmanPanel">
+            <div class="ootman-styles">
+              <div class="os on" data-style="energetic" onclick="pickStyle(this)">⚡ 에너제틱</div>
+              <div class="os" data-style="friendly" onclick="pickStyle(this)">🤝 친근한</div>
+              <div class="os" data-style="cool" onclick="pickStyle(this)">😎 쿨</div>
+              <div class="os" data-style="witty" onclick="pickStyle(this)">😄 위트</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /adv-body -->
+
+  </div><!-- /form-body -->
+
+  <div class="form-footer">
+    <div class="foot-note">키워드와 브랜드 설명만 입력하면<br>바로 생성할 수 있어요.</div>
+    <button class="submit-btn" id="submitBtn" onclick="doSubmit()">
+      <span class="spinner"></span><span class="btn-lbl">✍️ 카피 생성</span>
+    </button>
+  </div>
+</div><!-- /form-card -->
+
+<!-- RESULT CARD -->
+<div class="result-card" id="resultCard">
+  <div class="result-head">
+    <span class="result-head-title">생성 결과</span>
+    <button class="redo-btn" onclick="doSubmit()">🔄 다시 생성</button>
+  </div>
+  <div class="result-body" id="resultBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // 이 프록시 URL을 실제 사용 중인 Cloudflare Worker로 바꿔주세요.
+  // (OKNEXUS의 기존 oko-proxy를 그대로 쓸 수도, 이 에이전트 전용 Worker를 새로 만들어도 됩니다)
+  // ─────────────────────────────────────────────
+  const PROXY_URL = 'https://oko-proxy.okgroup0425.workers.dev';
+  const MODEL = 'claude-sonnet-5';
+
+  const S = {
+    purpose: 'campaign', target: null, lang: 'ko-en', tone: [],
+    lenMin: 15, lenMax: 25,
+    ootmanOn: false, style: 'energetic',
+  };
+
+  const purposeHints = {
+    cibi:     '브랜드명 후보 8개 + 슬로건 5개 + 서브카피 3개를 생성합니다.',
+    campaign: '헤드카피 5개 + 서브카피 3개 + CTA 5개 + 해시태그 8개를 생성합니다.',
+    event:    '기념 슬로건 3개 + 응원 카피 5개 + 이벤트 문구 3개를 생성합니다.',
+  };
+  document.getElementById('purposeHint').textContent = purposeHints.campaign;
+
+  // ─ 단일 선택 토글 ─
+  document.querySelectorAll('.tb').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const g = btn.dataset.g;
+      document.querySelectorAll(`.tb[data-g="${g}"]`).forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      S[g] = btn.dataset.v;
+      if (g === 'purpose') document.getElementById('purposeHint').textContent = purposeHints[btn.dataset.v] || '';
+    });
+  });
+
+  // ─ 체크박스 (톤앤매너 다중선택) ─
+  document.querySelectorAll('.ci').forEach(item => {
+    item.addEventListener('click', () => {
+      const v = item.dataset.v;
+      const on = item.classList.toggle('on');
+      item.querySelector('.cb').textContent = on ? '✓' : '';
+      if (on) S.tone.push(v); else S.tone = S.tone.filter(x => x !== v);
+    });
+  });
+
+  function onTextarea(el, cntId) {
+    document.getElementById(cntId).textContent = `${el.value.length} / ${el.maxLength}`;
+  }
+
+  function toggleAdv() {
+    document.getElementById('advToggle').classList.toggle('open');
+    document.getElementById('advBody').classList.toggle('show');
+  }
+
+  function pickLen(el) {
+    document.querySelectorAll('.lp').forEach(p => p.classList.remove('on'));
+    el.classList.add('on');
+    S.lenMin = +el.dataset.min; S.lenMax = +el.dataset.max;
+  }
+
+  function toggleOotman() {
+    S.ootmanOn = !S.ootmanOn;
+    document.getElementById('swEl').classList.toggle('on', S.ootmanOn);
+    const lbl = document.getElementById('swLbl');
+    lbl.textContent = S.ootmanOn ? 'ON' : 'OFF';
+    lbl.classList.toggle('on', S.ootmanOn);
+    document.getElementById('ootmanPanel').classList.toggle('show', S.ootmanOn);
+  }
+  function pickStyle(el) {
+    document.querySelectorAll('.os').forEach(e => e.classList.remove('on'));
+    el.classList.add('on'); S.style = el.dataset.style;
+  }
+
+  const langLabel = { 'ko-en': '한국어와 영문을 함께', ko: '한국어만', en: '영문만' };
+  const targetLabel = { mz: '20-30대 디지털 네이티브', mid: '40-50대 주거래 고객', all: '전 연령대', b2b: '법인·B2B 담당자' };
+  const toneLabel = { pro: '전문적·신뢰감', casual: '친근·캐주얼', premium: '세련·프리미엄', impact: '강렬·임팩트', warm: '따뜻·공감' };
+  const styleLabel = {
+    energetic: '감탄사와 구어체를 섞은 신나는 말투 (예: "OK로 시작하면 읏! 다 잘 된다구~")',
+    friendly:  '따뜻한 구어체, 공감형 말투 (예: "같이 해봐요! OK가 옆에 있을게요")',
+    cool:      '짧고 강한 임팩트 말투 (예: "OK가 해결. 그게 다야.")',
+    witty:     '재치와 말장난을 활용한 말투 (예: "이자 더 받기, 읏맨은 가능!")',
+  };
+
+  const outputSchema = {
+    cibi:     { brandNames: '브랜드명 후보 8개', slogans: '슬로건 5개', subcopy: '서브카피 3개' },
+    campaign: { headlines: '헤드카피 5개', subcopy: '서브카피 3개', cta: 'CTA(행동유도문구) 5개', hashtags: '해시태그 8개' },
+    event:    { slogans: '기념 슬로건 3개', cheer: '응원 카피 5개', eventcopy: '이벤트 문구 3개' },
+  };
+  const groupLabel = {
+    brandNames: '브랜드명 후보', slogans: '슬로건', subcopy: '서브카피',
+    headlines: '헤드카피', cta: 'CTA', hashtags: '해시태그', cheer: '응원 카피', eventcopy: '이벤트 문구',
+  };
+
+  function buildPrompt() {
+    const kw = document.getElementById('kwInput').value.trim();
+    const ctx = document.getElementById('ctxInput').value.trim();
+    const schema = outputSchema[S.purpose];
+    const schemaKeys = Object.keys(schema).map(k => `"${k}": ["...", "..."]  // ${schema[k]}`).join(',\n    ');
+
+    let lines = [];
+    lines.push('당신은 OK금융그룹의 브랜드·카피 전문 카피라이터입니다.');
+    lines.push(`핵심 키워드: ${kw}`);
+    lines.push(`브랜드 설명: ${ctx}`);
+    lines.push(`언어: ${langLabel[S.lang]} 작성`);
+    if (S.target) lines.push(`타겟: ${targetLabel[S.target]}`);
+    if (S.tone.length) lines.push(`톤앤매너: ${S.tone.map(t => toneLabel[t]).join(', ')}`);
+    lines.push(`헤드카피·슬로건 길이: 약 ${S.lenMin}~${S.lenMax}자 (서브카피는 이 값의 약 2배)`);
+    if (S.ootmanOn) lines.push(`말투: OK금융그룹 마스코트 '읏맨' 캐릭터 톤을 적용. ${styleLabel[S.style]}`);
+    lines.push('');
+    lines.push('아래 JSON 형식으로만 응답하세요. 설명, 코드블록 표시(```), 다른 텍스트 없이 순수 JSON 객체만 출력합니다:');
+    lines.push('{');
+    lines.push(`    ${schemaKeys}`);
+    lines.push('}');
+    return lines.join('\n');
+  }
+
+  async function doSubmit() {
+    const kw = document.getElementById('kwInput').value.trim();
+    const ctx = document.getElementById('ctxInput').value.trim();
+    hideError();
+
+    const miss = [];
+    if (!kw) miss.push('핵심 키워드');
+    if (!ctx) miss.push('브랜드 설명');
+    if (miss.length) { toast('⚠️ 필수 항목: ' + miss.join(', ')); return; }
+
+    setLoading(true);
+    try {
+      const res = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 1500,
+          messages: [{ role: 'user', content: buildPrompt() }],
+        }),
+      });
+
+      if (!res.ok) throw new Error(`서버 응답 오류 (${res.status})`);
+      const data = await res.json();
+      const textBlock = (data.content || []).find(b => b.type === 'text');
+      if (!textBlock) throw new Error('응답에서 결과 텍스트를 찾을 수 없습니다.');
+
+      const cleaned = textBlock.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/,'').replace(/```\s*$/,'');
+      let parsed;
+      try { parsed = JSON.parse(cleaned); }
+      catch { throw new Error('결과를 해석할 수 없습니다. 다시 시도해주세요.'); }
+
+      renderResults(parsed);
+      toast('✓ 카피 생성 완료');
+    } catch (err) {
+      showError(err.message || '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function renderResults(parsed) {
+    const body = document.getElementById('resultBody');
+    body.innerHTML = '';
+    Object.keys(parsed).forEach(key => {
+      const items = parsed[key];
+      if (!Array.isArray(items) || !items.length) return;
+      const group = document.createElement('div');
+      group.className = 'rgroup';
+      const title = document.createElement('div');
+      title.className = 'rgroup-title';
+      title.textContent = groupLabel[key] || key;
+      group.appendChild(title);
+      items.forEach(text => {
+        const row = document.createElement('div');
+        row.className = 'ritem';
+        const span = document.createElement('span');
+        span.textContent = text;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = '복사';
+        btn.onclick = () => copyText(text, btn);
+        row.appendChild(span); row.appendChild(btn);
+        group.appendChild(row);
+      });
+      body.appendChild(group);
+    });
+    document.getElementById('resultCard').classList.add('show');
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const old = btn.textContent;
+      btn.textContent = '✓ 복사됨'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+    });
+  }
+
+  function setLoading(on) {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = on;
+    btn.classList.toggle('loading', on);
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = '⚠️ ' + msg + ' — Worker 프록시 주소(PROXY_URL)가 올바른지 확인해주세요.';
+    box.classList.add('show');
+  }
+  function hideError() {
+    document.getElementById('errorBox').classList.remove('show');
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
