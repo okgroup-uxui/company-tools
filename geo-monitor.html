@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GEO MONITOR · OKNEXUS</title>
+<title>GEO MONITOR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   @font-face {
     font-family: 'OKLight';
@@ -15,17 +15,18 @@
   }
 
   :root {
-    --bg: #06070d;
-    --surface: #0B0D14;
-    --surface-2: #101322;
-    --amber: #e07d08;
+    --bg: #0A0A0A;
+    --surface: #141414;
+    --surface-2: #1C1C1C;
+    --amber: #ADADB4;
     --orange: #FF571F;
-    --cream: #F1E9DC;
-    --cream-dim: #F1E9DC99;
-    --cream-faint: #F1E9DC4d;
-    --line: #FF571F26;
-    --line-amber: #e07d0833;
-    --font-hud: 'Orbitron', sans-serif;
+    --cream: #FFFFFF;
+    --cream-dim: #FFFFFF99;
+    --cream-faint: #FFFFFF4d;
+    --line: #FFFFFF14;
+    --line-amber: #ADADB433;
+    --white-strong: #FFFFFF;
+    --font-hud: 'Space Grotesk', sans-serif;
     --font-kr: 'OKLight', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
     --radius: 3px;
   }
@@ -41,9 +42,6 @@
   }
   body {
     min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse 900px 500px at 15% -10%, #e07d0814, transparent 60%),
-      radial-gradient(ellipse 700px 500px at 100% 10%, #FF571F0f, transparent 60%);
   }
   a { color: var(--orange); text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -61,7 +59,7 @@
 
   .status-cluster { display: flex; align-items: center; gap: 14px; }
   .conn-pill { display: flex; align-items: center; gap: 7px; font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.08em; padding: 7px 12px; border: 1px solid var(--line); border-radius: 20px; color: var(--cream-dim); }
-  .conn-pill .pip { width: 6px; height: 6px; border-radius: 50%; background: #6b6458; }
+  .conn-pill .pip { width: 6px; height: 6px; border-radius: 50%; background: #5A5A5D; }
   .conn-pill.live .pip { background: var(--orange); box-shadow: 0 0 6px 1px #FF571F99; }
   .conn-pill.live { color: var(--cream); border-color: #FF571F44; }
 
@@ -98,11 +96,11 @@
     background: var(--surface-2); border: 1px solid var(--line); color: var(--cream);
     font-family: var(--font-kr); font-size: 13.5px; padding: 10px 12px; border-radius: var(--radius);
   }
-  input::placeholder { color: #F1E9DC4a; }
-  input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.75) sepia(1) saturate(6) hue-rotate(-10deg); cursor: pointer; }
+  input::placeholder { color: #FFFFFF4a; }
+  input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.85); cursor: pointer; }
 
   .btn { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.08em; border-radius: var(--radius); border: 1px solid transparent; cursor: pointer; padding: 10px 16px; white-space: nowrap; transition: filter .15s, opacity .15s; }
-  .btn-primary { background: var(--orange); color: #0B0D14; font-weight: 600; }
+  .btn-primary { background: var(--orange); color: #FFFFFF; font-weight: 600; }
   .btn-primary:hover { filter: brightness(1.1); }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); }
@@ -150,11 +148,11 @@
   @keyframes sweep { to { transform: rotate(360deg); } }
   .node-label { font-family: var(--font-hud); font-size: 9.5px; letter-spacing: 0.05em; fill: var(--cream-dim); text-anchor: middle; }
   .node-dot { transition: fill .3s, r .3s, filter .3s; }
-  .node-dot.idle { fill: #1c1f2c; stroke: #FF571F55; stroke-width: 1.5; }
-  .node-dot.scanning { fill: #1c1f2c; stroke: var(--amber); stroke-width: 1.5; animation: pulse 0.9s ease-in-out infinite; }
-  @keyframes pulse { 50% { stroke-width: 3; filter: drop-shadow(0 0 4px #e07d08); } }
+  .node-dot.idle { fill: var(--surface-2); stroke: #FFFFFF33; stroke-width: 1.5; }
+  .node-dot.scanning { fill: var(--surface-2); stroke: var(--white-strong); stroke-width: 1.5; animation: pulse 0.9s ease-in-out infinite; }
+  @keyframes pulse { 50% { stroke-width: 3; filter: drop-shadow(0 0 4px #ADADB4); } }
   .node-dot.hit { fill: var(--orange); stroke: var(--orange); filter: drop-shadow(0 0 8px #FF571Fa0); }
-  .node-dot.miss { fill: transparent; stroke: #F1E9DC33; stroke-width: 1.5; }
+  .node-dot.miss { fill: transparent; stroke: #FFFFFF33; stroke-width: 1.5; }
 
   .scan-side { display: flex; flex-direction: column; gap: 14px; }
   .scan-target { font-size: 12.5px; color: var(--cream-dim); border-left: 2px solid var(--orange); padding-left: 10px; line-height: 1.5; }
@@ -208,7 +206,7 @@
   .kpi-card .kpi-sub { font-size: 11px; color: var(--cream-faint); margin-top: 4px; }
 
   /* ---------- modal ---------- */
-  .modal-backdrop { position: fixed; inset: 0; background: #06070dcc; display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal-backdrop { position: fixed; inset: 0; background: #0A0A0Acc; display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
   .modal-backdrop.open { display: flex; }
   .modal { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 24px; max-width: 480px; width: 100%; max-height: 88vh; overflow-y: auto; }
   .modal h3 { font-family: var(--font-hud); font-size: 13px; letter-spacing: 0.1em; color: var(--amber); margin: 0 0 16px; }
@@ -248,7 +246,7 @@
     <div class="brand-mark">
       <span class="dot"></span>
       <h1>GEO MONITOR</h1>
-      <span class="sub">OKNEXUS · PROMPT INTELLIGENCE</span>
+      <span class="sub">BRAND EXPOSURE TRACKER</span>
     </div>
     <div class="status-cluster">
       <div class="conn-pill" id="connPill"><span class="pip"></span><span id="connLabel">연동 안 됨 · 데모</span></div>
@@ -328,8 +326,8 @@
         <div><h2>MENTION TREND</h2><p class="desc">시간에 따른 OK저축은행 언급률 추세 (엔진별, 카테고리 필터만 적용).</p></div>
       </div>
       <div class="trend-legend">
-        <div class="legend-item"><span class="legend-swatch" style="background:#F1E9DC99"></span>GPT</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:#e07d08"></span>GEMINI</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#FFFFFF99"></span>GPT</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#ADADB4"></span>GEMINI</div>
         <div class="legend-item"><span class="legend-swatch" style="background:#FF571F"></span>CLAUDE</div>
       </div>
       <div id="trendChartWrap"></div>
@@ -467,6 +465,7 @@
       <button class="btn btn-ghost btn-sm" id="testConnBtn">연동 테스트</button>
       <button class="btn btn-primary btn-sm" id="saveSettingsBtn">저장</button>
     </div>
+    <div class="status-line" id="settingsStatusLine" style="margin-top:12px;"></div>
   </div>
 </div>
 
@@ -508,7 +507,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var CATEGORIES = ['OK 브랜드', '수신상품', '여신상품'];
   var ENGINES = ['gpt', 'gemini', 'claude'];
   var ENGINE_LABEL = { gpt: 'GPT', gemini: 'GEMINI', claude: 'CLAUDE' };
-  var ENGINE_COLOR = { gpt: '#F1E9DC99', gemini: '#e07d08', claude: '#FF571F' };
+  var ENGINE_COLOR = { gpt: '#FFFFFF99', gemini: '#ADADB4', claude: '#FF571F' };
   var DEFAULT_BRANDS = ['OK저축은행', 'SBI저축은행', '웰컴저축은행', '페퍼저축은행', '애큐온저축은행'];
   var OWN_BRAND = 'OK저축은행';
 
@@ -773,7 +772,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width:100%;height:auto;font-family:Orbitron,sans-serif;">';
     [0, 50, 100].forEach(function (v) {
       svg += '<line x1="' + pad + '" y1="' + y(v) + '" x2="' + (width - pad) + '" y2="' + y(v) + '" stroke="#FF571F1a" stroke-width="1"/>';
-      svg += '<text x="' + (pad - 8) + '" y="' + (y(v) + 3) + '" font-size="9" fill="#F1E9DC66" text-anchor="end">' + v + '%</text>';
+      svg += '<text x="' + (pad - 8) + '" y="' + (y(v) + 3) + '" font-size="9" fill="#FFFFFF66" text-anchor="end">' + v + '%</text>';
     });
     ENGINES.forEach(function (eng) {
       var pts = byEngine[eng];
@@ -1035,14 +1034,16 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function setSweeping(on) { $('radarSweep').classList.toggle('spinning', on); }
 
   /* ---------------- status line ---------------- */
-  function showStatus(kind, message) {
-    var el = $('statusLine');
+  function showStatusIn(elId, kind, message) {
+    var el = $(elId);
+    if (!el) return;
     if (kind === 'loading') {
-      el.innerHTML = '<span class="marker">●</span> OKNEXUS <span class="bounce-dots"><span></span><span></span><span></span></span> ' + escapeHtml(message || '');
+      el.innerHTML = '<span class="marker">●</span> <span class="bounce-dots"><span></span><span></span><span></span></span> ' + escapeHtml(message || '');
     } else {
-      el.innerHTML = '<span class="marker">●</span> OKNEXUS : ' + escapeHtml(message || '');
+      el.innerHTML = '<span class="marker">●</span> ' + escapeHtml(message || '');
     }
   }
+  function showStatus(kind, message) { showStatusIn('statusLine', kind, message); }
   function escapeHtml(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function escapeAttr(s) { return escapeHtml(s); }
   function truncate(s, n) { return (s && s.length > n) ? s.slice(0, n) + '…' : (s || ''); }
@@ -1203,6 +1204,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   $('settingsBtn').addEventListener('click', function () {
     $('endpointInput').value = state.settings.endpoint;
     $('demoSwitch').classList.toggle('on', state.settings.demoMode);
+    $('settingsStatusLine').innerHTML = '';
     modal.classList.add('open');
   });
   modal.addEventListener('click', function (e) { if (e.target === modal) modal.classList.remove('open'); });
@@ -1216,11 +1218,11 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   });
   $('testConnBtn').addEventListener('click', function () {
     var ep = $('endpointInput').value.trim();
-    if (!ep) { showStatus('error', '엔드포인트 URL을 먼저 입력하세요.'); return; }
-    showStatus('loading', '연동 테스트 중');
+    if (!ep) { showStatusIn('settingsStatusLine', 'error', '엔드포인트 URL을 먼저 입력하세요.'); return; }
+    showStatusIn('settingsStatusLine', 'loading', '연동 테스트 중');
     fetch(ep, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ engine: 'ping', prompt: 'ping', brands: [] }) })
-      .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); showStatus('ok', '연동 성공'); })
-      .catch(function (err) { showStatus('error', '연동 실패 - ' + err.message); });
+      .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); showStatusIn('settingsStatusLine', 'ok', '연동 성공'); })
+      .catch(function (err) { showStatusIn('settingsStatusLine', 'error', '연동 실패 - ' + err.message); });
   });
 
   /* ---------------- init ---------------- */
