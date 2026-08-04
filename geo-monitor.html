@@ -18,6 +18,7 @@
     --bg: #0A0A0A;
     --surface: #141414;
     --surface-2: #1C1C1C;
+    --surface-3: #232323;
     --amber: #ADADB4;
     --orange: #FF571F;
     --cream: #FFFFFF;
@@ -26,6 +27,8 @@
     --line: #FFFFFF14;
     --line-amber: #ADADB433;
     --white-strong: #FFFFFF;
+    --owned: #6FA8DC;
+    --social: #B48EAD;
     --font-hud: 'Space Grotesk', sans-serif;
     --font-kr: 'OKLight', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
     --radius: 3px;
@@ -40,13 +43,11 @@
     font-weight: 300;
     -webkit-font-smoothing: antialiased;
   }
-  body {
-    min-height: 100vh;
-  }
+  body { min-height: 100vh; }
   a { color: var(--orange); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  .shell { max-width: 1180px; margin: 0 auto; padding: 28px 20px 80px; }
+  .shell { max-width: 1280px; margin: 0 auto; padding: 28px 20px 80px; }
 
   header.top {
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -63,34 +64,30 @@
   .conn-pill.live .pip { background: var(--orange); box-shadow: 0 0 6px 1px #FF571F99; }
   .conn-pill.live { color: var(--cream); border-color: #FF571F44; }
 
-  .icon-btn { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); width: 34px; height: 34px; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color .15s, color .15s; }
+  .icon-btn { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); width: 34px; height: 34px; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color .15s, color .15s; flex-shrink:0; }
   .icon-btn:hover { border-color: #FF571F66; color: var(--cream); }
   .icon-btn:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
 
   /* ---------- tabs ---------- */
-  .tab-nav { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .tab-nav { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 20px; flex-wrap:wrap; }
   .tab-btn {
     font-family: var(--font-hud); font-size: 11.5px; letter-spacing: 0.08em;
     padding: 11px 18px; background: transparent; border: none; color: var(--cream-faint);
     cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    display: flex; align-items: center; gap: 7px;
   }
   .tab-btn:hover { color: var(--cream-dim); }
   .tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); }
+  .tab-badge { font-family: var(--font-hud); font-size: 9.5px; background: var(--surface-3); color: var(--cream-dim); border-radius: 8px; padding: 1px 6px; }
+  .tab-btn.active .tab-badge { color: var(--orange); }
   .tab-content { display: none; }
   .tab-content.active { display: block; }
 
-  /* ---------- shared filter bar ---------- */
-  .filter-bar { display: flex; gap: 20px; align-items: center; margin-bottom: 22px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
-  .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .filter-label { font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.08em; color: var(--cream-faint); margin-right: 2px; }
-  .cat-chip { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.05em; padding: 6px 12px; border-radius: 14px; border: 1px solid var(--line); color: var(--cream-faint); cursor: pointer; background: transparent; }
-  .cat-chip.on { color: var(--bg); background: var(--amber); border-color: var(--amber); }
-  .date-sep { color: var(--cream-faint); font-size: 12px; }
-
   section.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 22px 22px 24px; margin-bottom: 24px; }
   .panel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; gap: 10px; flex-wrap: wrap; }
-  .panel-head h2 { font-family: var(--font-hud); font-size: 12.5px; letter-spacing: 0.14em; color: var(--amber); margin: 0; font-weight: 600; }
+  .panel-head h2 { font-family: var(--font-hud); font-size: 12.5px; letter-spacing: 0.14em; color: var(--cream-dim); margin: 0; font-weight: 600; }
   .panel-head p.desc { font-size: 12.5px; color: var(--cream-faint); margin: 4px 0 0; }
+  .toolbar-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
   input[type=text], input[type=url], input[type=date], input[type=number], select {
     background: var(--surface-2); border: 1px solid var(--line); color: var(--cream);
@@ -107,27 +104,90 @@
   .btn-ghost:hover { border-color: #FF571F66; color: var(--cream); }
   .btn-sm { padding: 6px 11px; font-size: 10px; }
 
-  /* ---------- prompt registry (탭2) ---------- */
-  .search-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-  .search-row input[type=text] { flex: 1; min-width: 200px; }
-  .add-row { display: grid; grid-template-columns: 130px 130px 1fr auto; gap: 10px; margin-bottom: 10px; }
-  @media (max-width: 800px) { .add-row { grid-template-columns: 1fr 1fr; } }
+  /* ---------- dropdown component ---------- */
+  .dd { position: relative; }
+  .dd-trigger {
+    display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--line);
+    color: var(--cream); font-family: var(--font-kr); font-size: 12.5px; padding: 9px 12px; border-radius: var(--radius);
+    cursor: pointer; white-space: nowrap;
+  }
+  .dd-trigger:hover { border-color: #FFFFFF33; }
+  .dd-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+  .dd-caret { color: var(--cream-faint); font-size: 9px; margin-left: 2px; }
+  .dd-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; min-width: 200px; z-index: 30;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 10px 30px #00000080; display: none; padding: 6px; max-height: 320px; overflow-y: auto;
+  }
+  .dd.open .dd-menu { display: block; }
+  .dd-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--radius); font-size: 13px; color: var(--cream-dim); cursor: pointer; }
+  .dd-item:hover { background: var(--surface-3); color: var(--cream); }
+  .dd-item.sel { color: var(--orange); }
+  .dd-presets { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
+  .dd-custom-range { display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .dd-custom-range input { width: 128px; padding: 7px 8px; font-size: 12px; }
 
-  .prompt-list { display: flex; flex-direction: column; gap: 10px; max-height: 640px; overflow-y: auto; padding-right: 4px; }
-  .prompt-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 13px 14px; display: flex; flex-direction: column; gap: 10px; }
-  .prompt-card .ptext { font-size: 13.5px; line-height: 1.5; }
-  .badge-row { display: flex; gap: 6px; }
-  .cat-badge { font-family: var(--font-hud); font-size: 9px; letter-spacing: 0.05em; color: var(--bg); background: var(--cream-dim); padding: 2px 7px; border-radius: 8px; }
-  .type-badge { font-family: var(--font-hud); font-size: 9px; letter-spacing: 0.05em; color: var(--amber); border: 1px solid var(--line-amber); padding: 2px 7px; border-radius: 8px; }
-  .prompt-card .pmeta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  .engine-toggles { display: flex; gap: 6px; }
-  .engine-chip { font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.05em; padding: 5px 9px; border-radius: 12px; border: 1px solid var(--line); color: var(--cream-faint); cursor: pointer; user-select: none; background: transparent; }
-  .engine-chip.on { color: var(--bg); background: var(--cream-dim); border-color: var(--cream-dim); }
-  .row-actions { display: flex; gap: 8px; margin-left: auto; }
-  .icon-del { background: transparent; border: none; color: var(--cream-faint); cursor: pointer; font-size: 15px; padding: 2px 6px; }
-  .icon-del:hover { color: var(--orange); }
-  .empty-hint { font-size: 12.5px; color: var(--cream-faint); padding: 18px 4px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); }
-  .count-note { font-size: 11.5px; color: var(--cream-faint); margin-bottom: 12px; }
+  /* ---------- hero share panel ---------- */
+  .hero-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: stretch; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+  .hero-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; flex-wrap: wrap; gap: 12px; }
+  .hero-value { font-family: var(--font-hud); font-size: 40px; font-weight: 700; color: var(--cream); line-height: 1; }
+  .hero-label { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.1em; color: var(--cream-faint); margin-top: 6px; }
+  .view-toggle { display: flex; gap: 2px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 3px; }
+  .view-toggle button { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 4px; border: none; background: transparent; color: var(--cream-faint); cursor: pointer; }
+  .view-toggle button.active { background: var(--surface-3); color: var(--cream); }
+  .hero-caption { font-size: 11px; color: var(--cream-faint); margin-top: 10px; line-height: 1.6; }
+  .chart-tooltip {
+    position: absolute; pointer-events: none; background: var(--surface-3); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 8px 10px; font-size: 11px; color: var(--cream-dim); z-index: 10;
+    box-shadow: 0 6px 18px #00000080; white-space: nowrap; display: none;
+  }
+  .chart-tooltip .tt-date { font-family: var(--font-hud); color: var(--cream); font-size: 10.5px; margin-bottom: 4px; }
+  .chart-tooltip .tt-row { display: flex; align-items: center; gap: 6px; }
+  .chart-tooltip .tt-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .chart-wrap { position: relative; }
+
+  /* ---------- rank list (brand ranking with pagination) ---------- */
+  .rank-list { display: flex; flex-direction: column; gap: 4px; }
+  .rank-row { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-radius: var(--radius); }
+  .rank-row:hover { background: #FFFFFF08; }
+  .rank-num { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--font-hud); font-size: 10.5px; color: var(--cream-dim); flex-shrink: 0; }
+  .rank-row.is-own .rank-num { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 600; }
+  .rank-name { flex: 1; font-size: 13px; color: var(--cream-dim); }
+  .rank-row.is-own .rank-name { color: var(--cream); font-weight: 600; }
+  .rank-pct { font-family: var(--font-hud); font-size: 12.5px; color: var(--cream-dim); }
+  .rank-row.is-own .rank-pct { color: var(--orange); }
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+  .pagination button { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); border-radius: var(--radius); padding: 5px 12px; font-size: 11.5px; cursor: pointer; }
+  .pagination button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .pagination span { font-family: var(--font-hud); font-size: 11px; color: var(--cream-faint); }
+
+  /* ---------- rank grid (model / group top-5) ---------- */
+  .rank-grid { display: grid; grid-template-columns: 160px repeat(5, 1fr); gap: 0; border-top: 1px solid var(--line); }
+  .rank-grid-row { display: contents; }
+  .rg-cell { padding: 14px 12px; border-bottom: 1px solid var(--line); }
+  .rg-head-cell { font-family: var(--font-hud); font-size: 9.5px; letter-spacing: 0.06em; color: var(--cream-faint); padding: 10px 12px; }
+  .rg-model-cell { display: flex; align-items: center; gap: 8px; font-family: var(--font-hud); font-size: 12px; color: var(--cream); }
+  .rg-rank-badge { font-family: var(--font-hud); font-size: 9px; background: var(--surface-3); color: var(--orange); padding: 2px 6px; border-radius: 8px; }
+  .rg-brand { font-size: 12.5px; color: var(--cream); margin-bottom: 3px; }
+  .rg-brand.is-own { color: var(--orange); font-weight: 600; }
+  .rg-share { font-family: var(--font-hud); font-size: 11px; color: var(--cream-faint); }
+  .rg-sub { font-size: 10.5px; color: var(--cream-faint); }
+  @media (max-width: 900px) { .rank-grid { grid-template-columns: 1fr; } .rg-cell { border-bottom: none; } .rg-model-cell { border-top: 1px solid var(--line); padding-top: 16px; } }
+
+  /* ---------- agents tab ---------- */
+  .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 800px) { .agent-grid { grid-template-columns: 1fr; } }
+  .agent-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: 6px; padding: 16px; }
+  .agent-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .agent-name { font-family: var(--font-hud); font-size: 13px; letter-spacing: 0.04em; color: var(--cream); }
+  .agent-status { font-size: 11px; color: var(--cream-faint); margin-bottom: 12px; display:flex; align-items:center; gap:6px; }
+  .agent-status .pip { width: 6px; height: 6px; border-radius: 50%; background: #5A5A5D; }
+  .agent-status.on .pip { background: var(--orange); }
+  .switch { width: 38px; height: 20px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); position: relative; cursor: pointer; flex-shrink: 0; }
+  .switch .knob { width: 14px; height: 14px; border-radius: 50%; background: var(--cream-faint); position: absolute; top: 2px; left: 2px; transition: transform .15s, background .15s; }
+  .switch.on { border-color: #FF571F66; }
+  .switch.on .knob { transform: translateX(18px); background: var(--orange); }
 
   /* ---------- brand manager ---------- */
   .brand-manager { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
@@ -137,7 +197,43 @@
   .brand-add { display: flex; gap: 6px; }
   .brand-add input { width: 140px; padding: 6px 10px; font-size: 12px; }
 
-  /* ---------- radar / scan ---------- */
+  /* ---------- autogen card ---------- */
+  .autogen-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: 6px; padding: 16px; margin-bottom: 18px; }
+  .autogen-head { display: flex; justify-content: space-between; align-items: flex-start; cursor: pointer; }
+  .autogen-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-hud); font-size: 12.5px; color: var(--cream); }
+  .autogen-desc { font-size: 11.5px; color: var(--cream-faint); margin-top: 4px; }
+  .autogen-remain { font-size: 11px; color: var(--cream-faint); margin: 10px 0 8px; }
+  .autogen-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+  .autogen-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); font-size: 12.5px; }
+  .autogen-row .ag-idx { color: var(--cream-faint); font-family: var(--font-hud); font-size: 11px; width: 16px; flex-shrink:0; }
+  .autogen-row .ag-text { flex: 1; color: var(--cream-dim); }
+  .autogen-row .ag-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  /* ---------- prompt data table ---------- */
+  .data-table-wrap { overflow-x: auto; }
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.data-table th { text-align: left; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.06em; color: var(--cream-faint); font-weight: 500; padding: 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.data-table td { padding: 10px; border-bottom: 1px solid var(--line); color: var(--cream-dim); vertical-align: middle; }
+  table.data-table tr:hover td { background: #FFFFFF06; }
+  table.data-table tr.own-row td:first-child { color: var(--orange); }
+  .cell-mono { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; color: var(--cream); }
+  .cell-snippet { max-width: 320px; color: var(--cream-faint); }
+  .dot-badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 10px; background: var(--surface-3); color: var(--cream-dim); white-space: nowrap; }
+  .dot-badge .d { width: 6px; height: 6px; border-radius: 50%; }
+  .pct-pill { font-family: var(--font-hud); font-size: 11px; padding: 3px 9px; border-radius: 10px; background: var(--surface-3); color: var(--cream-dim); }
+  .pct-pill.hi { color: var(--orange); }
+  .model-icons { display: flex; gap: 4px; }
+  .model-dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--line); }
+  .model-dot.on { background: var(--cream-dim); border-color: var(--cream-dim); }
+  .row-icon-btn { background: transparent; border: none; color: var(--cream-faint); cursor: pointer; font-size: 13px; padding: 3px 5px; }
+  .row-icon-btn:hover { color: var(--orange); }
+  input[type=checkbox] { accent-color: var(--orange); width: 15px; height: 15px; cursor: pointer; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable .sort-arrow { margin-left: 3px; opacity: 0.6; }
+
+  .empty-hint { font-size: 12.5px; color: var(--cream-faint); padding: 18px 4px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); }
+
+  /* ---------- radar / scan (unchanged visual language) ---------- */
   .scan-grid { display: grid; grid-template-columns: 260px 1fr; gap: 26px; align-items: center; }
   @media (max-width: 720px) { .scan-grid { grid-template-columns: 1fr; } }
   .radar-wrap { display: flex; justify-content: center; }
@@ -173,9 +269,9 @@
   .rc-tag.own { color: var(--orange); border-color: #FF571F66; }
   .rc-empty { color: var(--cream-faint); font-size: 11.5px; }
 
-  /* ---------- share bars ---------- */
+  /* ---------- source share bars (site ranking) ---------- */
   .share-list { display: flex; flex-direction: column; gap: 10px; }
-  .share-row { display: grid; grid-template-columns: 130px 1fr 54px; gap: 12px; align-items: center; }
+  .share-row { display: grid; grid-template-columns: 150px 1fr 54px; gap: 12px; align-items: center; }
   .share-row .brand-name { font-size: 12.5px; color: var(--cream); }
   .share-row.is-own .brand-name { color: var(--orange); font-weight: 600; }
   .share-track { height: 10px; background: var(--surface-2); border-radius: 5px; overflow: hidden; border: 1px solid var(--line); }
@@ -183,50 +279,36 @@
   .share-row.is-own .share-fill { background: var(--orange); box-shadow: 0 0 8px #FF571F80; }
   .share-pct { font-family: var(--font-hud); font-size: 11.5px; text-align: right; color: var(--cream-dim); }
 
-  /* ---------- tables ---------- */
-  table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  table.data-table th { text-align: left; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.06em; color: var(--cream-faint); font-weight: 500; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-  table.data-table td { padding: 9px 10px; border-bottom: 1px solid #FF571F14; color: var(--cream-dim); vertical-align: top; }
-  table.data-table tr:hover td { background: #FF571F08; }
-  table.data-table tr.own-row td { color: var(--cream); }
-  table.data-table tr.own-row td:first-child { color: var(--orange); font-weight: 600; }
-  .cell-mono { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; color: var(--cream); }
-  .cell-snippet { max-width: 300px; color: var(--cream-faint); }
+  /* ---------- sub-tabs (사이트/페이지) ---------- */
+  .subtabs { display: flex; gap: 4px; margin-bottom: 18px; }
+  .subtab-btn { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.05em; padding: 7px 14px; border-radius: 14px; border: 1px solid var(--line); background: transparent; color: var(--cream-faint); cursor: pointer; }
+  .subtab-btn.active { background: var(--surface-3); color: var(--cream); border-color: var(--line); }
+  .subtab-content { display: none; }
+  .subtab-content.active { display: block; }
 
-  .table-tools { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; }
-  .trend-legend { display: flex; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--cream-dim); font-family: var(--font-hud); letter-spacing: 0.04em; }
+  /* ---------- domain trend legend ---------- */
+  .trend-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .trend-total { font-size: 11.5px; color: var(--cream-faint); }
+  .legend-list { display: flex; gap: 16px; margin: 12px 0 4px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--cream-dim); }
   .legend-swatch { width: 10px; height: 3px; border-radius: 2px; }
-
-  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
-  @media (max-width: 720px) { .kpi-row { grid-template-columns: 1fr; } }
-  .kpi-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 14px 16px; }
-  .kpi-card .kpi-label { font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.07em; color: var(--cream-faint); margin-bottom: 8px; }
-  .kpi-card .kpi-value { font-family: var(--font-hud); font-size: 24px; color: var(--orange); font-weight: 600; }
-  .kpi-card .kpi-sub { font-size: 11px; color: var(--cream-faint); margin-top: 4px; }
+  .cat-pill { font-family: var(--font-hud); font-size: 8.5px; padding: 1px 6px; border-radius: 6px; }
+  .cat-pill.owned { background: #6FA8DC26; color: var(--owned); }
+  .cat-pill.earned { background: #FFFFFF14; color: var(--cream-dim); }
+  .cat-pill.social { background: #B48EAD26; color: var(--social); }
 
   /* ---------- modal ---------- */
   .modal-backdrop { position: fixed; inset: 0; background: #0A0A0Acc; display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
   .modal-backdrop.open { display: flex; }
   .modal { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 24px; max-width: 480px; width: 100%; max-height: 88vh; overflow-y: auto; }
-  .modal h3 { font-family: var(--font-hud); font-size: 13px; letter-spacing: 0.1em; color: var(--amber); margin: 0 0 16px; }
+  .modal h3 { font-family: var(--font-hud); font-size: 13px; letter-spacing: 0.1em; color: var(--cream-dim); margin: 0 0 16px; }
   .field { margin-bottom: 16px; }
   .field label { display: block; font-size: 11.5px; color: var(--cream-dim); margin-bottom: 6px; }
-  .field input[type=text], .field input[type=url], .field select, .field input[type=number] { width: 100%; }
+  .field input[type=text], .field input[type=url] { width: 100%; }
   .field .hint { font-size: 11px; color: var(--cream-faint); margin-top: 6px; line-height: 1.5; }
-  .field-row { display: flex; gap: 10px; }
-  .field-row .field { flex: 1; }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .toggle-row label { font-size: 12.5px; color: var(--cream-dim); }
-  .switch { width: 38px; height: 20px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); position: relative; cursor: pointer; flex-shrink: 0; }
-  .switch .knob { width: 14px; height: 14px; border-radius: 50%; background: var(--cream-faint); position: absolute; top: 2px; left: 2px; transition: transform .15s, background .15s; }
-  .switch.on { border-color: #FF571F66; }
-  .switch.on .knob { transform: translateX(18px); background: var(--orange); }
   .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-
-  .gen-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; margin: 14px 0; }
-  .gen-item { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: var(--cream-dim); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; }
-  .gen-item input[type=checkbox] { margin-top: 3px; accent-color: var(--orange); flex-shrink: 0; }
 
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-thumb { background: #FF571F33; border-radius: 4px; }
@@ -249,130 +331,150 @@
       <span class="sub">BRAND EXPOSURE TRACKER</span>
     </div>
     <div class="status-cluster">
-      <div class="conn-pill" id="connPill"><span class="pip"></span><span id="connLabel">연동 안 됨 · 데모</span></div>
+      <div class="conn-pill" id="connPill"><span class="pip"></span><span id="connLabel">데모 모드</span></div>
       <button class="icon-btn" id="settingsBtn" title="설정" aria-label="설정 열기">⚙</button>
     </div>
   </header>
 
   <nav class="tab-nav" role="tablist">
     <button class="tab-btn active" data-tab="share" role="tab">노출 점유율</button>
+    <button class="tab-btn" data-tab="agents" role="tab">분석 에이전트 <span class="tab-badge" id="agentBadge">3</span></button>
     <button class="tab-btn" data-tab="prompts" role="tab">프롬프트</button>
     <button class="tab-btn" data-tab="sources" role="tab">인용출처</button>
   </nav>
 
-  <!-- shared filter bar (share / sources 탭에서 사용) -->
-  <div class="filter-bar" id="sharedFilterBar">
-    <div class="filter-group">
-      <span class="filter-label">카테고리</span>
-      <span id="catChipsShared"></span>
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">기간</span>
-      <input type="date" id="dateFrom">
-      <span class="date-sep">→</span>
-      <input type="date" id="dateTo">
-      <button class="btn btn-ghost btn-sm" id="clearDateBtn">초기화</button>
-    </div>
-  </div>
-
   <!-- ================= TAB: 노출 점유율 ================= -->
   <div class="tab-content active" id="tab-share">
+    <div class="toolbar-row" style="justify-content:flex-end; margin-bottom:16px;">
+      <div class="dd" data-dd="catShare">
+        <button type="button" class="dd-trigger"><span class="dd-dot"></span><span class="dd-label">전체 카테고리</span><span class="dd-caret">▾</span></button>
+        <div class="dd-menu"></div>
+      </div>
+      <div class="dd" data-dd="dateShare">
+        <button type="button" class="dd-trigger">📅 <span class="dd-label">최근 10일</span><span class="dd-caret">▾</span></button>
+        <div class="dd-menu"></div>
+      </div>
+    </div>
 
-    <div class="kpi-row" id="kpiRow"></div>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div>
-          <h2>SHARE OF VOICE</h2>
-          <p class="desc">필터된 스캔 결과 중 각 브랜드가 언급된 비중입니다.</p>
+    <div class="hero-grid">
+      <section class="panel">
+        <div class="hero-head">
+          <div>
+            <div class="hero-value" id="heroValue">0%</div>
+            <div class="hero-label">SHARE OF VOICE</div>
+          </div>
+          <div class="view-toggle" id="heroViewToggle">
+            <button data-mode="total" class="active">전체</button>
+            <button data-mode="byEngine">엔진별</button>
+            <button data-mode="rank">순위</button>
+          </div>
         </div>
+        <div class="chart-wrap" id="heroChartWrap"></div>
+        <div class="hero-caption" id="heroCaption"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><h2>브랜드 랭킹</h2><p class="desc">AI 대화에서 가장 많이 언급된 브랜드 랭킹</p></div></div>
+        <div class="rank-list" id="brandRankList"></div>
+        <div class="pagination" id="brandRankPagination"></div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>모델별 순위</h2><p class="desc">AI 모델별로 본 경쟁 노출 순위</p></div></div>
+      <div class="rank-grid" id="modelRankGrid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>프롬프트 그룹별 순위</h2><p class="desc">그룹 단위로 본 OK저축은행의 경쟁 노출 순위</p></div></div>
+      <div class="rank-grid" id="groupRankGrid"></div>
+    </section>
+  </div>
+
+  <!-- ================= TAB: 분석 에이전트 ================= -->
+  <div class="tab-content" id="tab-agents">
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>분석 에이전트</h2><p class="desc">이 대시보드가 실제로 질의하는 AI 모델을 관리합니다. 꺼두면 스캔에서 제외됩니다.</p></div>
+        <button class="btn btn-ghost btn-sm" id="openSettingsFromAgents">연동 설정</button>
       </div>
+      <div class="agent-grid" id="agentGrid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>추적 브랜드</h2><p class="desc">노출 점유율 · 랭킹 계산에 포함할 브랜드입니다. OK저축은행은 항상 고정됩니다.</p></div></div>
       <div class="brand-manager" id="brandManager"></div>
-      <div class="share-list" id="shareList" style="margin-top:14px;"></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>브랜드 랭킹</h2><p class="desc">언급 수 기준 전체 브랜드 순위입니다.</p></div>
-      </div>
-      <table class="data-table" id="brandRankTable">
-        <thead><tr><th>순위</th><th>브랜드</th><th>언급 수</th><th>점유율</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>모델별 순위</h2><p class="desc">각 엔진(모델)에서 OK저축은행이 다른 브랜드 대비 몇 위인지 보여줍니다.</p></div>
-      </div>
-      <table class="data-table" id="modelRankTable">
-        <thead><tr><th>엔진</th><th>OK저축은행 순위</th><th>언급 수</th><th>점유율</th><th>스캔 수</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>프롬프트 그룹별 순위</h2><p class="desc">질문 유형(그룹)별로 OK저축은행 노출 점유율을 비교합니다.</p></div>
-      </div>
-      <table class="data-table" id="groupRankTable">
-        <thead><tr><th>순위</th><th>프롬프트 그룹</th><th>OK저축은행 순위</th><th>언급 수</th><th>점유율</th><th>스캔 수</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>MENTION TREND</h2><p class="desc">시간에 따른 OK저축은행 언급률 추세 (엔진별, 카테고리 필터만 적용).</p></div>
-      </div>
-      <div class="trend-legend">
-        <div class="legend-item"><span class="legend-swatch" style="background:#FFFFFF99"></span>GPT</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:#ADADB4"></span>GEMINI</div>
-        <div class="legend-item"><span class="legend-swatch" style="background:#FF571F"></span>CLAUDE</div>
-      </div>
-      <div id="trendChartWrap"></div>
     </section>
   </div>
 
   <!-- ================= TAB: 프롬프트 ================= -->
   <div class="tab-content" id="tab-prompts">
-
     <section class="panel">
       <div class="panel-head">
-        <div>
-          <h2>PROMPT REGISTRY</h2>
-          <p class="desc" id="promptCountDesc"></p>
+        <div><h2>프롬프트</h2><p class="desc" id="promptCountDesc"></p></div>
+        <div class="toolbar-row">
+          <div class="dd" data-dd="catPrompts">
+            <button type="button" class="dd-trigger"><span class="dd-dot"></span><span class="dd-label">전체 카테고리</span><span class="dd-caret">▾</span></button>
+            <div class="dd-menu"></div>
+          </div>
+          <div class="dd" data-dd="datescanPrompts">
+            <button type="button" class="dd-trigger">📅 <span class="dd-label">최근 10일</span><span class="dd-caret">▾</span></button>
+            <div class="dd-menu"></div>
+          </div>
+          <div class="dd" data-dd="modelPrompts">
+            <button type="button" class="dd-trigger"><span class="dd-label">전체 모델</span><span class="dd-caret">▾</span></button>
+            <div class="dd-menu"></div>
+          </div>
+          <button class="icon-btn" id="exportCsvBtn" title="CSV 내보내기">⬇</button>
         </div>
-        <button class="btn btn-ghost btn-sm" id="openGenBtn">✦ 자동 생성</button>
       </div>
 
-      <div class="search-row">
-        <input type="text" id="searchInput" placeholder="프롬프트 검색...">
-        <select id="filterCatSelect">
-          <option value="all">전체 카테고리</option>
-        </select>
-        <select id="filterTypeSelect">
-          <option value="all">전체 유형</option>
-        </select>
+      <div class="autogen-card">
+        <div class="autogen-head" id="autogenHead">
+          <div>
+            <div class="autogen-title">✦ 프롬프트 자동 생성</div>
+            <div class="autogen-desc">브랜드 기반으로 오늘의 추천 프롬프트를 자동 생성합니다.</div>
+          </div>
+          <span id="autogenChevron" style="color:var(--cream-faint); font-size:12px;">▾</span>
+        </div>
+        <div id="autogenBody">
+          <div class="autogen-remain" id="autogenRemain"></div>
+          <div class="autogen-list" id="autogenList"></div>
+        </div>
       </div>
 
-      <div class="add-row">
+      <div class="search-row" style="display:flex; gap:10px; margin-bottom:14px;">
+        <input type="text" id="searchInput" placeholder="프롬프트 검색..." style="flex:1;">
+        <button class="btn btn-primary btn-sm" id="addPromptToggleBtn">+ 프롬프트 추가</button>
+      </div>
+      <div class="add-row" id="addRow" style="display:none; grid-template-columns: 130px 130px 1fr auto; gap: 10px; margin-bottom: 14px;">
         <select id="inputCategory"></select>
         <select id="inputType"></select>
         <input type="text" id="inputPrompt" placeholder="새 프롬프트 입력...">
-        <button class="btn btn-primary" id="addPromptBtn">+ 등록</button>
+        <button class="btn btn-primary" id="addPromptBtn">등록</button>
       </div>
 
-      <div class="count-note" id="promptListMeta"></div>
-      <div class="prompt-list" id="promptList"></div>
+      <div class="data-table-wrap">
+        <table class="data-table" id="promptsTable">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="selectAllPrompts"></th>
+              <th>프롬프트</th>
+              <th>그룹</th>
+              <th>모델</th>
+              <th>노출 점유율</th>
+              <th class="sortable" id="sortByDate">생성일 <span class="sort-arrow">↓</span></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="promptsTableBody"></tbody>
+        </table>
+      </div>
     </section>
 
     <section class="panel">
       <div class="panel-head">
-        <div>
-          <h2>SCAN</h2>
-          <p class="desc">선택한 프롬프트를 각 엔진에 실제로 질의해 브랜드 언급 여부를 확인합니다.</p>
-        </div>
+        <div><h2>SCAN</h2><p class="desc">선택한 프롬프트를 각 엔진에 실제로 질의해 브랜드 언급 여부를 확인합니다.</p></div>
       </div>
       <div class="scan-grid">
         <div class="radar-wrap">
@@ -401,47 +503,62 @@
         </div>
       </div>
     </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>SCAN LOG</h2><p class="desc">모든 스캔 기록입니다.</p></div>
-      </div>
-      <div class="table-tools">
-        <select id="filterEngine">
-          <option value="all">전체 엔진</option>
-          <option value="gpt">GPT</option>
-          <option value="gemini">GEMINI</option>
-          <option value="claude">CLAUDE</option>
-        </select>
-        <button class="btn btn-ghost btn-sm" id="clearLogBtn">기록 초기화</button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="data-table" id="historyTable">
-          <thead><tr><th>시간</th><th>프롬프트</th><th>엔진</th><th>언급 브랜드</th><th>스니펫</th></tr></thead>
-          <tbody id="historyBody"></tbody>
-        </table>
-      </div>
-    </section>
   </div>
 
   <!-- ================= TAB: 인용출처 ================= -->
   <div class="tab-content" id="tab-sources">
     <section class="panel">
       <div class="panel-head">
-        <div><h2>인용 출처 순위</h2><p class="desc">응답에서 인용된 사이트를 빈도순으로 표시합니다.</p></div>
+        <div><h2>인용 출처</h2><p class="desc">AI 모델이 인용한 도메인과 페이지를 분석합니다.</p></div>
       </div>
-      <div class="share-list" id="sourceShareList"></div>
-    </section>
+      <div class="toolbar-row" style="margin-bottom:18px;">
+        <div class="dd" data-dd="catSources">
+          <button type="button" class="dd-trigger"><span class="dd-dot"></span><span class="dd-label">전체 카테고리</span><span class="dd-caret">▾</span></button>
+          <div class="dd-menu"></div>
+        </div>
+        <div class="dd" data-dd="modelSources">
+          <button type="button" class="dd-trigger"><span class="dd-label">전체 모델</span><span class="dd-caret">▾</span></button>
+          <div class="dd-menu"></div>
+        </div>
+        <div class="dd" data-dd="sourceCatSources">
+          <button type="button" class="dd-trigger"><span class="dd-label">전체 출처유형</span><span class="dd-caret">▾</span></button>
+          <div class="dd-menu"></div>
+        </div>
+        <div class="dd" data-dd="dateSources">
+          <button type="button" class="dd-trigger">📅 <span class="dd-label">최근 10일</span><span class="dd-caret">▾</span></button>
+          <div class="dd-menu"></div>
+        </div>
+        <input type="text" id="sourceSearchInput" placeholder="사이트/페이지 검색..." style="flex:1; min-width:180px;">
+      </div>
 
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>인용 상세</h2><p class="desc">사이트, 페이지, 관련 프롬프트와 엔진을 확인할 수 있습니다.</p></div>
+      <div class="subtabs">
+        <button class="subtab-btn active" data-subtab="site">사이트</button>
+        <button class="subtab-btn" data-subtab="page">페이지</button>
       </div>
-      <div style="overflow-x:auto;">
-        <table class="data-table" id="sourceDetailTable">
-          <thead><tr><th>시간</th><th>사이트</th><th>페이지</th><th>프롬프트</th><th>엔진</th></tr></thead>
-          <tbody id="sourceDetailBody"></tbody>
-        </table>
+
+      <div class="subtab-content active" id="subtab-site">
+        <div class="trend-meta">
+          <div style="font-family:var(--font-hud); font-size:12px; color:var(--cream-dim); letter-spacing:0.04em;">Domain SoV Trend</div>
+          <div class="trend-total" id="trendTotalMeta"></div>
+        </div>
+        <div class="chart-wrap" id="domainTrendWrap"></div>
+        <div class="legend-list" id="domainLegend"></div>
+
+        <div style="margin-top:18px;" class="data-table-wrap">
+          <table class="data-table" id="sourceSiteTable">
+            <thead><tr><th></th><th>사이트</th><th>카테고리</th><th>모델</th><th>점유율</th></tr></thead>
+            <tbody id="sourceSiteBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="subtab-content" id="subtab-page">
+        <div class="data-table-wrap">
+          <table class="data-table" id="sourcePageTable">
+            <thead><tr><th>시간</th><th>사이트</th><th>페이지</th><th>프롬프트</th><th>엔진</th></tr></thead>
+            <tbody id="sourcePageBody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
   </div>
@@ -454,7 +571,7 @@
     <h3>연동 설정</h3>
     <div class="field">
       <label for="endpointInput">워커 엔드포인트 URL</label>
-      <input type="url" id="endpointInput" placeholder="https://oko-proxy.okgroup0425.workers.dev/geo-check">
+      <input type="url" id="endpointInput" placeholder="https://your-worker.workers.dev/geo-check">
       <div class="hint">대시보드는 { engine, prompt, brands: [...] } 를 이 엔드포인트로 POST합니다. 워커는 서버 사이드에서 GPT/Gemini/Claude를 호출하고, 각 브랜드의 언급 여부·위치·감성과 인용 출처(sources: [{site,url,title}])를 분석해 반환해야 합니다. API 키는 브라우저에 두지 않습니다.</div>
     </div>
     <div class="toggle-row">
@@ -466,33 +583,6 @@
       <button class="btn btn-primary btn-sm" id="saveSettingsBtn">저장</button>
     </div>
     <div class="status-line" id="settingsStatusLine" style="margin-top:12px;"></div>
-  </div>
-</div>
-
-<!-- ================= auto-generate modal ================= -->
-<div class="modal-backdrop" id="genModalBackdrop">
-  <div class="modal">
-    <h3>프롬프트 자동 생성</h3>
-    <div class="field-row">
-      <div class="field">
-        <label for="genCategory">카테고리</label>
-        <select id="genCategory"></select>
-      </div>
-      <div class="field">
-        <label for="genType">유형</label>
-        <select id="genType"></select>
-      </div>
-    </div>
-    <div class="field">
-      <label for="genCount">생성 개수</label>
-      <input type="number" id="genCount" value="5" min="1" max="20">
-    </div>
-    <button class="btn btn-ghost btn-sm" id="runGenBtn">생성</button>
-    <div class="gen-list" id="genList"></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost btn-sm" id="cancelGenBtn">취소</button>
-      <button class="btn btn-primary btn-sm" id="addGenBtn">선택 항목 추가</button>
-    </div>
   </div>
 </div>
 
@@ -510,6 +600,10 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var ENGINE_COLOR = { gpt: '#FFFFFF99', gemini: '#ADADB4', claude: '#FF571F' };
   var DEFAULT_BRANDS = ['OK저축은행', 'SBI저축은행', '웰컴저축은행', '페퍼저축은행', '애큐온저축은행'];
   var OWN_BRAND = 'OK저축은행';
+  var OWN_DOMAINS = ['oksavingsbank.com', 'okfg.co.kr', 'okgroup-uxui.github.io'];
+  var SOCIAL_DOMAINS = ['youtube.com', 'instagram.com', 'facebook.com', 'tiktok.com', 'x.com', 'twitter.com', 'blog.naver.com'];
+  var BRAND_RANK_PAGE_SIZE = 7;
+  var DAILY_GEN_QUOTA = 10;
 
   var TYPES = [];
   PROMPTS_SEED.forEach(function (r) { if (TYPES.indexOf(r.type) === -1) TYPES.push(r.type); });
@@ -519,6 +613,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var LS_BRANDS = 'geo_monitor_brands_v2';
   var LS_RESULTS = 'geo_monitor_results_v2';
   var LS_SETTINGS = 'geo_monitor_settings_v2';
+  var LS_ACTIVE_ENGINES = 'geo_monitor_active_engines_v3';
+  var LS_GENQUEUE = 'geo_monitor_genqueue_v3';
 
   function load(key, fallback) {
     try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
@@ -526,10 +622,11 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   }
   function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
 
   function seedPrompts() {
     return PROMPTS_SEED.map(function (r) {
-      return { id: 'p' + r.no, no: r.no, category: r.category, type: r.type, text: r.text, intent: r.intent, engines: ENGINES.slice() };
+      return { id: 'p' + r.no, no: r.no, category: r.category, type: r.type, text: r.text, intent: r.intent, engines: ENGINES.slice(), createdAt: Date.now() - (200 - r.no) * 86400000 };
     });
   }
 
@@ -538,68 +635,143 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     brands: load(LS_BRANDS, DEFAULT_BRANDS.slice()),
     results: load(LS_RESULTS, []),
     settings: load(LS_SETTINGS, { endpoint: '', demoMode: true }),
-    filters: { categories: {}, dateFrom: '', dateTo: '' },
-    promptFilter: { category: 'all', type: 'all', search: '' }
+    activeEngines: load(LS_ACTIVE_ENGINES, { gpt: true, gemini: true, claude: true }),
+    genQueue: load(LS_GENQUEUE, null),
+    filters: {
+      share: { category: 'all', datePreset: '10d', dateFrom: '', dateTo: '' },
+      prompts: { category: 'all', datePreset: '10d', dateFrom: '', dateTo: '', model: 'all', search: '' },
+      sources: { category: 'all', datePreset: '10d', dateFrom: '', dateTo: '', model: 'all', sourceCategory: 'all', search: '' }
+    },
+    heroMode: 'total',
+    brandRankPage: 1,
+    promptSort: { key: 'createdAt', dir: 'desc' },
+    selectedPrompts: {},
+    selectedDomains: {},
+    activeSubtab: 'site'
   };
-  CATEGORIES.forEach(function (c) { state.filters.categories[c] = true; });
   if (!state.prompts.length) state.prompts = seedPrompts();
+  if (!state.brands.length) state.brands = DEFAULT_BRANDS.slice();
 
   var $ = function (id) { return document.getElementById(id); };
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function truncate(s, n) { return (s && s.length > n) ? s.slice(0, n) + '…' : (s || ''); }
+  function domainFrom(url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return url || '알수없음'; } }
+  function sourceCategory(domain) {
+    if (OWN_DOMAINS.indexOf(domain) > -1) return 'owned';
+    if (SOCIAL_DOMAINS.indexOf(domain) > -1) return 'social';
+    return 'earned';
+  }
+  var SOURCE_CAT_LABEL = { owned: 'Owned', earned: 'Earned', social: 'Social' };
 
-  /* ---------------- tabs ---------------- */
-  document.querySelectorAll('.tab-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
-      document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
-      btn.classList.add('active');
-      $('tab-' + btn.dataset.tab).classList.add('active');
-      $('sharedFilterBar').style.display = (btn.dataset.tab === 'prompts') ? 'none' : 'flex';
-      if (btn.dataset.tab === 'share') renderShareTab();
-      if (btn.dataset.tab === 'sources') renderSourcesTab();
+  function presetToRange(preset) {
+    var now = new Date();
+    var to = now.toISOString().slice(0, 10);
+    var from = '';
+    if (preset === 'today') { from = to; }
+    else if (preset === '7d') { from = new Date(now.getTime() - 6 * 86400000).toISOString().slice(0, 10); }
+    else if (preset === '10d') { from = new Date(now.getTime() - 9 * 86400000).toISOString().slice(0, 10); }
+    else if (preset === '30d') { from = new Date(now.getTime() - 29 * 86400000).toISOString().slice(0, 10); }
+    else if (preset === 'all') { from = ''; to = ''; }
+    return { from: from, to: to };
+  }
+  var PRESET_LABEL = { today: '오늘', '7d': '최근 7일', '10d': '최근 10일', '30d': '최근 30일', all: '전체 기간', custom: '직접 설정' };
+
+  /* ---------------- generic dropdown component ---------------- */
+  function closeAllDropdowns() { document.querySelectorAll('.dd.open').forEach(function (d) { d.classList.remove('open'); }); }
+  document.addEventListener('click', function (e) { if (!e.target.closest('.dd')) closeAllDropdowns(); });
+
+  function bindTrigger(root) {
+    root.querySelector('.dd-trigger').addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isOpen = root.classList.contains('open');
+      closeAllDropdowns();
+      if (!isOpen) root.classList.add('open');
     });
-  });
-
-  /* ---------------- shared filter bar ---------------- */
-  function renderSharedCatChips() {
-    var wrap = $('catChipsShared');
-    wrap.innerHTML = '';
-    CATEGORIES.forEach(function (c) {
-      var chip = document.createElement('span');
-      chip.className = 'cat-chip' + (state.filters.categories[c] ? ' on' : '');
-      chip.textContent = c;
-      chip.addEventListener('click', function () {
-        state.filters.categories[c] = !state.filters.categories[c];
-        renderSharedCatChips();
-        refreshActiveTab();
+  }
+  function categoryDotColor(cat) { return cat === 'OK 브랜드' ? '#FF571F' : (cat === '수신상품' ? '#ADADB4' : (cat === '여신상품' ? '#6FA8DC' : '#5A5A5D')); }
+  function initListDropdown(key, items, initialValue, onChange, dotFn) {
+    var root = document.querySelector('[data-dd="' + key + '"]');
+    if (!root) return;
+    var trigger = root.querySelector('.dd-trigger');
+    var menu = root.querySelector('.dd-menu');
+    menu.innerHTML = items.map(function (it) {
+      return '<div class="dd-item" data-value="' + escapeHtml(it.value) + '">' + escapeHtml(it.label) + '</div>';
+    }).join('');
+    function setLabel(v) {
+      var it = items.find(function (x) { return x.value === v; }) || items[0];
+      trigger.querySelector('.dd-label').textContent = it.label;
+      var dotEl = trigger.querySelector('.dd-dot');
+      if (dotEl) {
+        if (dotFn) { dotEl.style.background = dotFn(v); dotEl.style.opacity = '1'; }
+        else dotEl.style.opacity = (v === 'all') ? '0.3' : '1';
+      }
+    }
+    setLabel(initialValue);
+    bindTrigger(root);
+    menu.querySelectorAll('.dd-item').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var v = item.dataset.value;
+        setLabel(v);
+        root.classList.remove('open');
+        onChange(v);
       });
-      wrap.appendChild(chip);
     });
   }
-  $('dateFrom').addEventListener('change', function () { state.filters.dateFrom = this.value; refreshActiveTab(); });
-  $('dateTo').addEventListener('change', function () { state.filters.dateTo = this.value; refreshActiveTab(); });
-  $('clearDateBtn').addEventListener('click', function () {
-    state.filters.dateFrom = ''; state.filters.dateTo = '';
-    $('dateFrom').value = ''; $('dateTo').value = '';
-    refreshActiveTab();
-  });
-  function refreshActiveTab() {
-    var active = document.querySelector('.tab-btn.active').dataset.tab;
-    if (active === 'share') renderShareTab();
-    if (active === 'sources') renderSourcesTab();
+  function initDateDropdown(key, filterObj, onChange) {
+    var root = document.querySelector('[data-dd="' + key + '"]');
+    if (!root) return;
+    var trigger = root.querySelector('.dd-trigger');
+    var menu = root.querySelector('.dd-menu');
+    var presets = ['today', '7d', '10d', '30d', 'all', 'custom'];
+    menu.innerHTML =
+      '<div class="dd-presets">' + presets.map(function (p) {
+        return '<div class="dd-item preset-item" data-preset="' + p + '">' + PRESET_LABEL[p] + '</div>';
+      }).join('') + '</div>' +
+      '<div class="dd-custom-range"><input type="date" class="dd-from"><span style="color:var(--cream-faint);">→</span><input type="date" class="dd-to"></div>';
+    var fromInput = menu.querySelector('.dd-from');
+    var toInput = menu.querySelector('.dd-to');
+    fromInput.value = filterObj.dateFrom || '';
+    toInput.value = filterObj.dateTo || '';
+    function refreshUI() {
+      menu.querySelectorAll('.preset-item').forEach(function (el) { el.classList.toggle('sel', el.dataset.preset === filterObj.datePreset); });
+      if (filterObj.datePreset === 'custom') {
+        trigger.querySelector('.dd-label').textContent = (filterObj.dateFrom || '…') + ' ~ ' + (filterObj.dateTo || '…');
+      } else {
+        trigger.querySelector('.dd-label').textContent = PRESET_LABEL[filterObj.datePreset];
+      }
+    }
+    refreshUI();
+    bindTrigger(root);
+    menu.querySelectorAll('.preset-item').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var p = el.dataset.preset;
+        filterObj.datePreset = p;
+        if (p !== 'custom') {
+          var r = presetToRange(p);
+          filterObj.dateFrom = r.from; filterObj.dateTo = r.to;
+          fromInput.value = r.from; toInput.value = r.to;
+          root.classList.remove('open');
+          refreshUI();
+          onChange();
+        } else { refreshUI(); }
+      });
+    });
+    fromInput.addEventListener('change', function () { filterObj.dateFrom = this.value; filterObj.datePreset = 'custom'; refreshUI(); onChange(); });
+    toInput.addEventListener('change', function () { filterObj.dateTo = this.value; filterObj.datePreset = 'custom'; refreshUI(); onChange(); });
   }
 
-  /* ---------------- filtering helpers ---------------- */
-  function categoryFilteredResults() {
-    return state.results.filter(function (r) { return state.filters.categories[r.category]; });
-  }
-  function filteredResults() {
-    return categoryFilteredResults().filter(function (r) {
-      if (state.filters.dateFrom && r.ts < new Date(state.filters.dateFrom).getTime()) return false;
-      if (state.filters.dateTo && r.ts > (new Date(state.filters.dateTo).getTime() + 86399999)) return false;
+  /* ---------------- filtering ---------------- */
+  function resultsByFilter(f) {
+    return state.results.filter(function (r) {
+      if (f.category && f.category !== 'all' && r.category !== f.category) return false;
+      if (f.dateFrom && r.ts < new Date(f.dateFrom).getTime()) return false;
+      if (f.dateTo && r.ts > (new Date(f.dateTo).getTime() + 86399999)) return false;
+      if (f.model && f.model !== 'all' && r.engine !== f.model) return false;
       return true;
     });
   }
-
   function computeShare(results) {
     var counts = {}; state.brands.forEach(function (b) { counts[b] = 0; });
     var total = 0;
@@ -608,10 +780,240 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         if (h.mentioned && counts.hasOwnProperty(h.brand)) { counts[h.brand]++; total++; }
       });
     });
-    return state.brands.map(function (b) {
-      return { brand: b, count: counts[b], share: total ? (counts[b] / total * 100) : 0 };
-    }).sort(function (a, b) { return b.count - a.count; });
+    return state.brands.map(function (b) { return { brand: b, count: counts[b], share: total ? (counts[b] / total * 100) : 0 }; })
+      .sort(function (a, b) { return b.count - a.count; });
   }
+
+  /* ---------------- generic line chart with tooltip ---------------- */
+  function renderLineChart(wrapId, series, opts) {
+    opts = opts || {};
+    var width = 1000, height = opts.height || 220, pad = 36;
+    var wrap = $(wrapId);
+    var nonEmpty = series.filter(function (s) { return s.points && s.points.length; });
+    if (!nonEmpty.length || nonEmpty.every(function (s) { return s.points.length < 2; })) {
+      wrap.innerHTML = '<div class="empty-hint">' + (opts.emptyText || '아직 그릴 만큼 데이터가 쌓이지 않았습니다.') + '</div>';
+      return;
+    }
+    var allTs = [];
+    nonEmpty.forEach(function (s) { s.points.forEach(function (p) { allTs.push(p.ts); }); });
+    var minTs = Math.min.apply(null, allTs), maxTs = Math.max.apply(null, allTs);
+    var span = Math.max(maxTs - minTs, 1);
+    function x(ts) { return pad + ((ts - minTs) / span) * (width - pad * 2); }
+    var yMin = opts.yDomain[0], yMax = opts.yDomain[1];
+    var invert = !!opts.yInvert;
+    function y(v) {
+      var t = (v - yMin) / (yMax - yMin);
+      return invert ? (height - pad) - t * (height - 2 * pad) : pad + t * (height - 2 * pad);
+    }
+    var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width:100%;height:auto;display:block;" id="' + wrapId + 'Svg">';
+    (opts.gridlines || []).forEach(function (g) {
+      var gy = y(g.value);
+      svg += '<line x1="' + pad + '" y1="' + gy + '" x2="' + (width - pad) + '" y2="' + gy + '" stroke="#FFFFFF14" stroke-width="1"/>';
+      svg += '<text x="' + (pad - 8) + '" y="' + (gy + 3) + '" font-size="9" fill="#FFFFFF66" text-anchor="end">' + escapeHtml(g.label) + '</text>';
+    });
+    nonEmpty.forEach(function (s) {
+      if (s.points.length < 2) {
+        var p0 = s.points[0];
+        svg += '<circle cx="' + x(p0.ts).toFixed(1) + '" cy="' + y(p0.value).toFixed(1) + '" r="3.5" fill="' + s.color + '"/>';
+        return;
+      }
+      var d = s.points.map(function (pt, i) { return (i === 0 ? 'M' : 'L') + x(pt.ts).toFixed(1) + ',' + y(pt.value).toFixed(1); }).join(' ');
+      svg += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="2"/>';
+      var last = s.points[s.points.length - 1];
+      svg += '<circle cx="' + x(last.ts).toFixed(1) + '" cy="' + y(last.value).toFixed(1) + '" r="3.5" fill="' + s.color + '"/>';
+    });
+    svg += '<rect x="0" y="0" width="' + width + '" height="' + height + '" fill="transparent" id="' + wrapId + 'Hitbox" style="cursor:crosshair;"/>';
+    svg += '</svg><div class="chart-tooltip" id="' + wrapId + 'Tooltip"></div>';
+    wrap.style.position = 'relative';
+    wrap.innerHTML = svg;
+    var svgEl = $(wrapId + 'Svg'), tooltip = $(wrapId + 'Tooltip'), hitbox = $(wrapId + 'Hitbox');
+    hitbox.addEventListener('mousemove', function (e) {
+      var rect = svgEl.getBoundingClientRect();
+      var relXpx = e.clientX - rect.left;
+      var relX = relXpx / rect.width * width;
+      var ts = minTs + ((relX - pad) / (width - pad * 2)) * span;
+      ts = Math.max(minTs, Math.min(maxTs, ts));
+      var rows = nonEmpty.map(function (s) {
+        var val = s.points[0];
+        for (var i = 0; i < s.points.length; i++) { if (s.points[i].ts <= ts) val = s.points[i]; else break; }
+        return { label: s.label, color: s.color, value: val.value, catLabel: s.catLabel };
+      });
+      var dateLabel = new Date(ts).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' });
+      var html = '<div class="tt-date">' + dateLabel + '</div>';
+      rows.forEach(function (r) {
+        html += '<div class="tt-row" style="justify-content:space-between; gap:14px;"><span><span class="tt-dot" style="background:' + r.color + '"></span> ' + escapeHtml(r.label) + (r.catLabel ? ' <span class="cat-pill ' + r.catLabel + '">' + SOURCE_CAT_LABEL[r.catLabel] + '</span>' : '') + '</span><b>' + (opts.valueFmt ? opts.valueFmt(r.value) : r.value) + '</b></div>';
+      });
+      if (opts.totalFmt) html += '<div style="margin-top:6px; padding-top:6px; border-top:1px solid var(--line); color:var(--cream-faint);">' + opts.totalFmt() + '</div>';
+      tooltip.innerHTML = html;
+      tooltip.style.display = 'block';
+      var left = relXpx + 14;
+      if (left > rect.width - 170) left = relXpx - 170;
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = '6px';
+    });
+    hitbox.addEventListener('mouseleave', function () { tooltip.style.display = 'none'; });
+  }
+
+  /* ---------------- share tab: hero + rankings ---------------- */
+  function renderHeroChart(results) {
+    var sorted = results.slice().sort(function (a, b) { return a.ts - b.ts; });
+    if (state.heroMode === 'byEngine') {
+      var byEngine = {}; ENGINES.forEach(function (e) { byEngine[e] = []; });
+      sorted.forEach(function (r) {
+        var arr = byEngine[r.engine];
+        var mc = arr.length ? arr[arr.length - 1].mc : 0;
+        var ownHit = r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; });
+        mc += ownHit ? 1 : 0;
+        arr.push({ ts: r.ts, value: mc / (arr.length + 1) * 100, mc: mc });
+      });
+      var series = ENGINES.map(function (e) { return { label: ENGINE_LABEL[e], color: ENGINE_COLOR[e], points: byEngine[e] }; });
+      renderLineChart('heroChartWrap', series, { yDomain: [0, 100], yInvert: true, gridlines: [{ value: 0, label: '0%' }, { value: 50, label: '50%' }, { value: 100, label: '100%' }], valueFmt: function (v) { return v.toFixed(1) + '%'; } });
+    } else if (state.heroMode === 'rank') {
+      var pts = []; var running = [];
+      sorted.forEach(function (r) {
+        running.push(r);
+        var sd = computeShare(running);
+        var idx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
+        pts.push({ ts: r.ts, value: idx > -1 ? idx + 1 : sd.length });
+      });
+      var N = Math.max(state.brands.length, 1);
+      renderLineChart('heroChartWrap', [{ label: OWN_BRAND, color: '#FF571F', points: pts }],
+        { yDomain: [1, N], yInvert: false, gridlines: [{ value: 1, label: '1위' }, { value: Math.max(Math.ceil(N / 2), 1), label: Math.ceil(N / 2) + '위' }, { value: N, label: N + '위' }], valueFmt: function (v) { return '#' + v; } });
+    } else {
+      var arr = []; var mc = 0;
+      sorted.forEach(function (r, i) {
+        var ownHit = r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; });
+        mc += ownHit ? 1 : 0;
+        arr.push({ ts: r.ts, value: mc / (i + 1) * 100 });
+      });
+      renderLineChart('heroChartWrap', [{ label: OWN_BRAND, color: '#FF571F', points: arr }],
+        { yDomain: [0, 100], yInvert: true, gridlines: [{ value: 0, label: '0%' }, { value: 50, label: '50%' }, { value: 100, label: '100%' }], valueFmt: function (v) { return v.toFixed(1) + '%'; } });
+    }
+  }
+
+  function renderBrandRankList(shareData) {
+    var totalPages = Math.max(Math.ceil(shareData.length / BRAND_RANK_PAGE_SIZE), 1);
+    if (state.brandRankPage > totalPages) state.brandRankPage = totalPages;
+    var start = (state.brandRankPage - 1) * BRAND_RANK_PAGE_SIZE;
+    var pageItems = shareData.slice(start, start + BRAND_RANK_PAGE_SIZE);
+    var listEl = $('brandRankList');
+    listEl.innerHTML = '';
+    if (!shareData.length || !shareData.some(function (s) { return s.count > 0; })) {
+      listEl.innerHTML = '<div class="empty-hint">조건에 맞는 스캔 데이터가 없습니다.</div>';
+    } else {
+      pageItems.forEach(function (s, i) {
+        var rank = start + i + 1;
+        var row = document.createElement('div');
+        row.className = 'rank-row' + (s.brand === OWN_BRAND ? ' is-own' : '');
+        row.innerHTML = '<span class="rank-num">' + rank + '</span><span class="rank-name">' + escapeHtml(s.brand) + '</span><span class="rank-pct">' + s.share.toFixed(2) + '%</span>';
+        listEl.appendChild(row);
+      });
+    }
+    var pag = $('brandRankPagination');
+    pag.innerHTML =
+      '<button id="rankPrevBtn" ' + (state.brandRankPage <= 1 ? 'disabled' : '') + '>이전</button>' +
+      '<span>페이지 ' + state.brandRankPage + ' of ' + totalPages + '</span>' +
+      '<button id="rankNextBtn" ' + (state.brandRankPage >= totalPages ? 'disabled' : '') + '>다음</button>';
+    var prevBtn = $('rankPrevBtn'), nextBtn = $('rankNextBtn');
+    if (prevBtn) prevBtn.addEventListener('click', function () { state.brandRankPage--; renderShareTab(); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { state.brandRankPage++; renderShareTab(); });
+  }
+
+  function topNCell(entry) {
+    if (!entry) return '<div class="rg-brand" style="color:var(--cream-faint);">—</div>';
+    return '<div class="rg-brand' + (entry.brand === OWN_BRAND ? ' is-own' : '') + '">' + escapeHtml(entry.brand) + '</div><div class="rg-share">' + entry.share.toFixed(2) + '%</div>';
+  }
+
+  function renderModelRankGrid() {
+    var f = state.filters.share;
+    var grid = $('modelRankGrid');
+    var rows = ENGINES.map(function (eng) {
+      var er = resultsByFilter(Object.assign({}, f, { model: eng }));
+      var sd = computeShare(er);
+      var ownIdx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
+      return { engine: eng, scans: er.length, ownRank: er.length ? ownIdx + 1 : null, top5: sd.slice(0, 5) };
+    });
+    var hasAny = rows.some(function (r) { return r.scans > 0; });
+    if (!hasAny) { grid.innerHTML = '<div class="empty-hint" style="grid-column:1/-1;">데이터 없음</div>'; return; }
+    var html = '<div class="rg-head-cell">모델</div>';
+    for (var i = 1; i <= 5; i++) html += '<div class="rg-head-cell">#' + i + '</div>';
+    rows.forEach(function (r) {
+      html += '<div class="rg-cell rg-model-cell">' + ENGINE_LABEL[r.engine] + (r.ownRank ? ' <span class="rg-rank-badge">' + r.ownRank + '위</span>' : '') + '</div>';
+      for (var i = 0; i < 5; i++) html += '<div class="rg-cell">' + topNCell(r.top5[i]) + '</div>';
+    });
+    grid.innerHTML = html;
+  }
+
+  function renderGroupRankGrid() {
+    var f = state.filters.share;
+    var allResults = resultsByFilter(f);
+    var types = []; allResults.forEach(function (r) { if (types.indexOf(r.type) === -1) types.push(r.type); });
+    var grid = $('groupRankGrid');
+    if (!types.length) { grid.innerHTML = '<div class="empty-hint" style="grid-column:1/-1;">데이터 없음</div>'; return; }
+    var rows = types.map(function (t) {
+      var tr = allResults.filter(function (r) { return r.type === t; });
+      var sd = computeShare(tr);
+      var ownIdx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
+      var promptCount = state.prompts.filter(function (p) { return p.type === t; }).length;
+      return { type: t, scans: tr.length, ownRank: tr.length ? ownIdx + 1 : null, top5: sd.slice(0, 5), promptCount: promptCount };
+    }).sort(function (a, b) { return (a.ownRank || 999) - (b.ownRank || 999); });
+    var html = '<div class="rg-head-cell">그룹</div>';
+    for (var i = 1; i <= 5; i++) html += '<div class="rg-head-cell">#' + i + '</div>';
+    rows.forEach(function (r) {
+      html += '<div class="rg-cell rg-model-cell" style="flex-direction:column; align-items:flex-start; gap:2px;">' +
+        '<span>' + escapeHtml(r.type) + (r.ownRank ? ' <span class="rg-rank-badge">' + r.ownRank + '위</span>' : '') + '</span>' +
+        '<span class="rg-sub">프롬프트 ' + r.promptCount + '개</span></div>';
+      for (var i = 0; i < 5; i++) html += '<div class="rg-cell">' + topNCell(r.top5[i]) + '</div>';
+    });
+    grid.innerHTML = html;
+  }
+
+  function renderShareTab() {
+    var f = state.filters.share;
+    var results = resultsByFilter(f);
+    var shareData = computeShare(results);
+    var ownEntry = shareData.find(function (x) { return x.brand === OWN_BRAND; }) || { count: 0, share: 0 };
+    $('heroValue').textContent = results.length ? ownEntry.share.toFixed(1) + '%' : '0%';
+    renderHeroChart(results);
+    var catLabel = f.category === 'all' ? '전체 카테고리' : f.category;
+    $('heroCaption').textContent = '삭제된 프롬프트를 포함한 전체 데이터 기준 · ' + catLabel + ' 그룹 · ' + PRESET_LABEL[f.datePreset] + ' 기준';
+    renderBrandRankList(shareData);
+    renderModelRankGrid();
+    renderGroupRankGrid();
+  }
+
+  /* ---------------- agents tab ---------------- */
+  var AGENT_DESC = { gpt: 'OpenAI GPT 계열 모델에 프롬프트를 질의합니다.', gemini: 'Google Gemini 모델에 프롬프트를 질의합니다.', claude: 'Anthropic Claude 모델에 프롬프트를 질의합니다.' };
+  function renderAgentsTab() {
+    var grid = $('agentGrid');
+    grid.innerHTML = '';
+    ENGINES.forEach(function (eng) {
+      var isOn = !!state.activeEngines[eng];
+      var connected = !!state.settings.endpoint && !state.settings.demoMode;
+      var statusText = state.settings.demoMode || !state.settings.endpoint ? '데모 데이터로 응답' : (connected ? '실제 연동됨' : '연동 안 됨');
+      var card = document.createElement('div');
+      card.className = 'agent-card';
+      card.innerHTML =
+        '<div class="agent-card-head"><span class="agent-name">' + ENGINE_LABEL[eng] + '</span><div class="switch' + (isOn ? ' on' : '') + '" data-engine="' + eng + '"><div class="knob"></div></div></div>' +
+        '<div class="agent-status' + (isOn ? ' on' : '') + '"><span class="pip"></span>' + statusText + '</div>' +
+        '<div style="font-size:11.5px; color:var(--cream-faint); line-height:1.5;">' + AGENT_DESC[eng] + '</div>';
+      grid.appendChild(card);
+    });
+    grid.querySelectorAll('.switch').forEach(function (sw) {
+      sw.addEventListener('click', function () {
+        var eng = this.dataset.engine;
+        state.activeEngines[eng] = !state.activeEngines[eng];
+        save(LS_ACTIVE_ENGINES, state.activeEngines);
+        renderAgentsTab();
+        updateAgentBadge();
+      });
+    });
+  }
+  function updateAgentBadge() {
+    var onCount = ENGINES.filter(function (e) { return state.activeEngines[e]; }).length;
+    $('agentBadge').textContent = onCount;
+  }
+  $('openSettingsFromAgents').addEventListener('click', function () { $('settingsBtn').click(); });
 
   /* ---------------- brand manager ---------------- */
   function renderBrandManager() {
@@ -620,13 +1022,10 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     state.brands.forEach(function (b) {
       var chip = document.createElement('span');
       chip.className = 'brand-chip' + (b === OWN_BRAND ? ' own' : '');
-      var span = document.createElement('span');
-      span.textContent = b;
-      chip.appendChild(span);
+      var span = document.createElement('span'); span.textContent = b; chip.appendChild(span);
       if (b !== OWN_BRAND) {
         var del = document.createElement('button');
-        del.textContent = '✕';
-        del.setAttribute('aria-label', b + ' 삭제');
+        del.textContent = '✕'; del.setAttribute('aria-label', b + ' 삭제');
         del.addEventListener('click', function () {
           state.brands = state.brands.filter(function (x) { return x !== b; });
           save(LS_BRANDS, state.brands);
@@ -636,407 +1035,202 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       }
       wrap.appendChild(chip);
     });
-    var addWrap = document.createElement('span');
-    addWrap.className = 'brand-add';
-    var input = document.createElement('input');
-    input.type = 'text'; input.placeholder = '경쟁 브랜드 추가';
-    var btn = document.createElement('button');
-    btn.className = 'btn btn-ghost btn-sm'; btn.textContent = '+ 추가';
+    var addWrap = document.createElement('span'); addWrap.className = 'brand-add';
+    var input = document.createElement('input'); input.type = 'text'; input.placeholder = '경쟁 브랜드 추가';
+    var btn = document.createElement('button'); btn.className = 'btn btn-ghost btn-sm'; btn.textContent = '+ 추가';
     btn.addEventListener('click', function () {
       var v = input.value.trim();
       if (!v || state.brands.indexOf(v) > -1) return;
-      state.brands.push(v);
-      save(LS_BRANDS, state.brands);
-      input.value = '';
+      state.brands.push(v); save(LS_BRANDS, state.brands); input.value = '';
       renderBrandManager(); renderShareTab();
     });
-    addWrap.appendChild(input); addWrap.appendChild(btn);
-    wrap.appendChild(addWrap);
+    addWrap.appendChild(input); addWrap.appendChild(btn); wrap.appendChild(addWrap);
   }
 
-  /* ---------------- share tab render ---------------- */
-  function renderShareTab() {
-    var fr = filteredResults();
-    var shareData = computeShare(fr);
+  /* ---------------- tabs wiring ---------------- */
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      $('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'share') renderShareTab();
+      if (btn.dataset.tab === 'agents') renderAgentsTab();
+      if (btn.dataset.tab === 'prompts') renderPromptsTable();
+      if (btn.dataset.tab === 'sources') renderSourcesTab();
+    });
+  });
 
-    // KPI row
-    var totalScans = fr.length;
-    var ownEntry = shareData.find(function (x) { return x.brand === OWN_BRAND; }) || { count: 0, share: 0 };
-    var ownRank = shareData.findIndex(function (x) { return x.brand === OWN_BRAND; }) + 1;
-    $('kpiRow').innerHTML =
-      kpiCard('총 스캔 수', totalScans, '필터 조건 기준') +
-      kpiCard('OK저축은행 점유율', ownEntry.share.toFixed(1) + '%', ownEntry.count + '회 언급') +
-      kpiCard('OK저축은행 랭킹', totalScans ? ('#' + ownRank + ' / ' + shareData.length) : '—', '전체 추적 브랜드 중');
-
-    // share bars
-    var maxShare = Math.max.apply(null, shareData.map(function (x) { return x.share; }).concat([1]));
-    var listEl = $('shareList');
+  /* ---------------- autogen queue (daily quota) ---------------- */
+  var GEN_TEMPLATES = [
+    '{brand} 관련해서 요즘 평가 어때? 실제로 써본 사람 후기 있어?',
+    '{brand} 다른 경쟁 서비스랑 비교하면 어떤 점이 달라?',
+    '{brand} 처음 이용하려는데 주의할 점이나 확인해야 할 조건 있어?',
+    '{brand} 이용 중인데 추가로 활용하면 좋은 서비스나 혜택 있어?',
+    '{brand} 관련 최근 이슈나 눈에 띄는 변화 있어?',
+    '{brand} 모바일 앱으로 처리할 수 있는 업무 범위가 어디까지야?',
+    '{brand} 고객센터 상담 연결이나 응대 속도는 어때?',
+    '{brand} 관련 상품 중 요즘 가장 추천할 만한 건 뭐야?',
+    '{brand} 이용 조건이 신용점수나 소득에 따라 어떻게 달라져?',
+    '{brand} 비슷한 니즈를 가진 다른 금융사와 비교했을 때 강점이 뭐야?'
+  ];
+  function ensureGenQueue() {
+    var today = todayStr();
+    if (!state.genQueue || state.genQueue.date !== today) {
+      var items = [];
+      for (var i = 0; i < DAILY_GEN_QUOTA; i++) {
+        items.push({ id: uid(), text: GEN_TEMPLATES[i % GEN_TEMPLATES.length].replace('{brand}', OWN_BRAND) });
+      }
+      state.genQueue = { date: today, items: items };
+      save(LS_GENQUEUE, state.genQueue);
+    }
+  }
+  function renderAutogen() {
+    ensureGenQueue();
+    $('autogenRemain').textContent = '오늘의 추천 프롬프트 (' + state.genQueue.items.length + '개 남음)';
+    var listEl = $('autogenList');
     listEl.innerHTML = '';
-    if (!totalScans) {
-      listEl.innerHTML = '<div class="empty-hint">조건에 맞는 스캔 데이터가 없습니다. 프롬프트 탭에서 스캔을 실행해보세요.</div>';
-    } else {
-      shareData.forEach(function (s) {
-        var row = document.createElement('div');
-        row.className = 'share-row' + (s.brand === OWN_BRAND ? ' is-own' : '');
-        row.innerHTML =
-          '<span class="brand-name">' + escapeHtml(s.brand) + '</span>' +
-          '<span class="share-track"><span class="share-fill" style="width:' + (maxShare ? (s.share / maxShare * 100) : 0) + '%"></span></span>' +
-          '<span class="share-pct">' + s.share.toFixed(1) + '%</span>';
-        listEl.appendChild(row);
-      });
-    }
-
-    // brand rank table
-    var brtBody = document.querySelector('#brandRankTable tbody');
-    brtBody.innerHTML = '';
-    if (!totalScans) {
-      brtBody.innerHTML = '<tr><td colspan="4" class="empty-hint" style="border:none;">데이터 없음</td></tr>';
-    } else {
-      shareData.forEach(function (s, i) {
-        var tr = document.createElement('tr');
-        if (s.brand === OWN_BRAND) tr.className = 'own-row';
-        tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + escapeHtml(s.brand) + '</td><td>' + s.count + '</td><td>' + s.share.toFixed(1) + '%</td>';
-        brtBody.appendChild(tr);
-      });
-    }
-
-    // model rank table
-    var modelRows = ENGINES.map(function (eng) {
-      var er = fr.filter(function (r) { return r.engine === eng; });
-      var sd = computeShare(er);
-      var idx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
-      var own = sd[idx] || { count: 0, share: 0 };
-      return { engine: eng, scans: er.length, rank: er.length ? (idx + 1) : null, share: own.share, count: own.count };
-    }).sort(function (a, b) { return b.share - a.share; });
-    var mrtBody = document.querySelector('#modelRankTable tbody');
-    mrtBody.innerHTML = '';
-    modelRows.forEach(function (m) {
-      var tr = document.createElement('tr');
-      tr.innerHTML = '<td class="cell-mono">' + ENGINE_LABEL[m.engine] + '</td><td>' + (m.rank ? ('#' + m.rank) : '—') + '</td><td>' + m.count + '</td><td>' + m.share.toFixed(1) + '%</td><td>' + m.scans + '</td>';
-      mrtBody.appendChild(tr);
-    });
-
-    // group (유형) rank table
-    var types = [];
-    fr.forEach(function (r) { if (types.indexOf(r.type) === -1) types.push(r.type); });
-    var groupRows = types.map(function (t) {
-      var tr2 = fr.filter(function (r) { return r.type === t; });
-      var sd = computeShare(tr2);
-      var idx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
-      var own = sd[idx] || { count: 0, share: 0 };
-      return { type: t, scans: tr2.length, rank: tr2.length ? (idx + 1) : null, share: own.share, count: own.count };
-    }).sort(function (a, b) { return b.share - a.share; });
-    var grtBody = document.querySelector('#groupRankTable tbody');
-    grtBody.innerHTML = '';
-    if (!groupRows.length) {
-      grtBody.innerHTML = '<tr><td colspan="6" class="empty-hint" style="border:none;">데이터 없음</td></tr>';
-    } else {
-      groupRows.forEach(function (g, i) {
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + escapeHtml(g.type) + '</td><td>' + (g.rank ? ('#' + g.rank) : '—') + '</td><td>' + g.count + '</td><td>' + g.share.toFixed(1) + '%</td><td>' + g.scans + '</td>';
-        grtBody.appendChild(tr);
-      });
-    }
-
-    renderTrendChart();
-  }
-  function kpiCard(label, value, sub) {
-    return '<div class="kpi-card"><div class="kpi-label">' + label + '</div><div class="kpi-value">' + value + '</div><div class="kpi-sub">' + sub + '</div></div>';
-  }
-
-  /* ---------------- trend chart ---------------- */
-  function renderTrendChart() {
-    var width = 1000, height = 200, pad = 30;
-    var data = categoryFilteredResults();
-    var byEngine = {}; ENGINES.forEach(function (e) { byEngine[e] = []; });
-    data.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (r) {
-      var arr = byEngine[r.engine];
-      var mentionedCount = arr.length ? arr[arr.length - 1].mentionedCount : 0;
-      var ownHit = r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; });
-      mentionedCount += ownHit ? 1 : 0;
-      var count = arr.length + 1;
-      arr.push({ ts: r.ts, rate: (mentionedCount / count) * 100, mentionedCount: mentionedCount });
-    });
-    var hasData = ENGINES.some(function (e) { return byEngine[e].length >= 2; });
-    var wrap = $('trendChartWrap');
-    if (!hasData) {
-      wrap.innerHTML = '<div class="empty-hint">아직 트렌드를 그릴 만큼 데이터가 쌓이지 않았습니다. 스캔을 2회 이상 실행해보세요.</div>';
+    if (!state.genQueue.items.length) {
+      listEl.innerHTML = '<div class="empty-hint">오늘의 추천 프롬프트를 모두 검토했습니다. 내일 새로 채워집니다.</div>';
       return;
     }
-    var allTs = [];
-    ENGINES.forEach(function (e) { byEngine[e].forEach(function (pt) { allTs.push(pt.ts); }); });
-    var minTs = Math.min.apply(null, allTs), maxTs = Math.max.apply(null, allTs);
-    var span = Math.max(maxTs - minTs, 1);
-    function x(ts) { return pad + ((ts - minTs) / span) * (width - pad * 2); }
-    function y(rate) { return height - pad - (rate / 100) * (height - pad * 2); }
-    var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width:100%;height:auto;font-family:Orbitron,sans-serif;">';
-    [0, 50, 100].forEach(function (v) {
-      svg += '<line x1="' + pad + '" y1="' + y(v) + '" x2="' + (width - pad) + '" y2="' + y(v) + '" stroke="#FF571F1a" stroke-width="1"/>';
-      svg += '<text x="' + (pad - 8) + '" y="' + (y(v) + 3) + '" font-size="9" fill="#FFFFFF66" text-anchor="end">' + v + '%</text>';
-    });
-    ENGINES.forEach(function (eng) {
-      var pts = byEngine[eng];
-      if (pts.length < 2) return;
-      var d = pts.map(function (pt, i) { return (i === 0 ? 'M' : 'L') + x(pt.ts).toFixed(1) + ',' + y(pt.rate).toFixed(1); }).join(' ');
-      svg += '<path d="' + d + '" fill="none" stroke="' + ENGINE_COLOR[eng] + '" stroke-width="2"/>';
-      var last = pts[pts.length - 1];
-      svg += '<circle cx="' + x(last.ts).toFixed(1) + '" cy="' + y(last.rate).toFixed(1) + '" r="3.5" fill="' + ENGINE_COLOR[eng] + '"/>';
-    });
-    svg += '</svg>';
-    wrap.innerHTML = svg;
-  }
-
-  /* ---------------- sources tab ---------------- */
-  function domainFrom(url) {
-    try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return url || '알수없음'; }
-  }
-  function computeSources(results) {
-    var map = {};
-    results.forEach(function (r) {
-      (r.sources || []).forEach(function (s) {
-        var site = s.site || domainFrom(s.url) || '알수없음';
-        if (!map[site]) map[site] = { site: site, count: 0, pages: [] };
-        map[site].count++;
-        map[site].pages.push({ url: s.url, title: s.title, ts: r.ts, promptText: r.promptText, engine: r.engine });
+    state.genQueue.items.forEach(function (item, i) {
+      var row = document.createElement('div');
+      row.className = 'autogen-row';
+      row.innerHTML = '<span class="ag-idx">' + (i + 1) + '.</span><span class="ag-text">' + escapeHtml(item.text) + '</span>' +
+        '<span class="ag-actions"><button class="btn btn-primary btn-sm" data-act="add">+ Add</button><button class="btn btn-ghost btn-sm" data-act="del">✕ Delete</button></span>';
+      row.querySelector('[data-act="add"]').addEventListener('click', function () {
+        var maxNo = state.prompts.reduce(function (m, p) { return Math.max(m, p.no || 0); }, 0);
+        state.prompts.push({ id: uid(), no: maxNo + 1, category: 'OK 브랜드', type: '브랜드 질문', text: item.text, intent: '자동 생성', engines: ENGINES.slice(), createdAt: Date.now() });
+        save(LS_PROMPTS, state.prompts);
+        state.genQueue.items = state.genQueue.items.filter(function (x) { return x.id !== item.id; });
+        save(LS_GENQUEUE, state.genQueue);
+        renderAutogen(); renderPromptsTable();
       });
-    });
-    return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return b.count - a.count; });
-  }
-  function renderSourcesTab() {
-    var fr = filteredResults();
-    var sourceData = computeSources(fr);
-    var maxCount = Math.max.apply(null, sourceData.map(function (x) { return x.count; }).concat([1]));
-
-    var listEl = $('sourceShareList');
-    listEl.innerHTML = '';
-    if (!sourceData.length) {
-      listEl.innerHTML = '<div class="empty-hint">인용 출처 데이터가 없습니다. 스캔 결과에 출처가 포함되면 여기 표시됩니다.</div>';
-    } else {
-      sourceData.forEach(function (s) {
-        var row = document.createElement('div');
-        row.className = 'share-row';
-        row.innerHTML =
-          '<span class="brand-name">' + escapeHtml(s.site) + '</span>' +
-          '<span class="share-track"><span class="share-fill" style="width:' + (s.count / maxCount * 100) + '%"></span></span>' +
-          '<span class="share-pct">' + s.count + '</span>';
-        listEl.appendChild(row);
+      row.querySelector('[data-act="del"]').addEventListener('click', function () {
+        state.genQueue.items = state.genQueue.items.filter(function (x) { return x.id !== item.id; });
+        save(LS_GENQUEUE, state.genQueue);
+        renderAutogen();
       });
-    }
-
-    var detailBody = $('sourceDetailBody');
-    detailBody.innerHTML = '';
-    var allPages = [];
-    sourceData.forEach(function (s) { s.pages.forEach(function (p) { allPages.push({ site: s.site, page: p }); }); });
-    allPages.sort(function (a, b) { return b.page.ts - a.page.ts; });
-    if (!allPages.length) {
-      detailBody.innerHTML = '<tr><td colspan="5" class="empty-hint" style="border:none;">데이터 없음</td></tr>';
-    } else {
-      allPages.slice(0, 200).forEach(function (item) {
-        var tr = document.createElement('tr');
-        var timeStr = new Date(item.page.ts).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-        var pageCell = item.page.url
-          ? '<a href="' + escapeAttr(item.page.url) + '" target="_blank" rel="noopener">' + escapeHtml(item.page.title || item.page.url) + '</a>'
-          : escapeHtml(item.page.title || '-');
-        tr.innerHTML =
-          '<td>' + timeStr + '</td>' +
-          '<td class="cell-mono">' + escapeHtml(item.site) + '</td>' +
-          '<td class="cell-snippet">' + pageCell + '</td>' +
-          '<td class="cell-snippet">' + escapeHtml(truncate(item.page.promptText, 40)) + '</td>' +
-          '<td class="cell-mono">' + ENGINE_LABEL[item.page.engine] + '</td>';
-        detailBody.appendChild(tr);
-      });
-    }
-  }
-
-  /* ---------------- prompt registry (탭2) ---------------- */
-  function populateSelect(sel, options, withAll, allLabel) {
-    sel.innerHTML = '';
-    if (withAll) {
-      var optAll = document.createElement('option'); optAll.value = 'all'; optAll.textContent = allLabel;
-      sel.appendChild(optAll);
-    }
-    options.forEach(function (o) {
-      var opt = document.createElement('option'); opt.value = o; opt.textContent = o;
-      sel.appendChild(opt);
+      listEl.appendChild(row);
     });
   }
-  populateSelect($('filterCatSelect'), CATEGORIES, true, '전체 카테고리');
-  populateSelect($('filterTypeSelect'), TYPES, true, '전체 유형');
-  populateSelect($('inputCategory'), CATEGORIES, false);
-  populateSelect($('inputType'), TYPES, false);
-  populateSelect($('genCategory'), CATEGORIES, false);
-  populateSelect($('genType'), TYPES, false);
+  var autogenCollapsed = false;
+  $('autogenHead').addEventListener('click', function () {
+    autogenCollapsed = !autogenCollapsed;
+    $('autogenBody').style.display = autogenCollapsed ? 'none' : 'block';
+    $('autogenChevron').textContent = autogenCollapsed ? '▸' : '▾';
+  });
 
-  $('searchInput').addEventListener('input', function () { state.promptFilter.search = this.value.trim().toLowerCase(); renderPromptList(); });
-  $('filterCatSelect').addEventListener('change', function () { state.promptFilter.category = this.value; renderPromptList(); });
-  $('filterTypeSelect').addEventListener('change', function () { state.promptFilter.type = this.value; renderPromptList(); });
-
-  function renderPromptList() {
-    var listEl = $('promptList');
-    var pf = state.promptFilter;
+  /* ---------------- prompts table ---------------- */
+  function promptShare(p, model) {
+    var rs = state.results.filter(function (r) { return r.promptId === p.id && (model === 'all' || r.engine === model); });
+    if (!rs.length) return null;
+    var mentioned = rs.filter(function (r) { return r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; }); }).length;
+    return mentioned / rs.length * 100;
+  }
+  function renderPromptsTable() {
+    var pf = state.filters.prompts;
     var visible = state.prompts.filter(function (p) {
       if (pf.category !== 'all' && p.category !== pf.category) return false;
-      if (pf.type !== 'all' && p.type !== pf.type) return false;
       if (pf.search && p.text.toLowerCase().indexOf(pf.search) === -1) return false;
       return true;
     });
-    $('promptListMeta').textContent = '전체 ' + state.prompts.length + '개 중 ' + visible.length + '개 표시';
-    $('promptCountDesc').textContent = '추적할 질문과 브랜드는 좌측 상단에서 관리합니다. 현재 ' + state.prompts.length + '개 프롬프트 등록됨.';
-    listEl.innerHTML = '';
+    visible.sort(function (a, b) {
+      var av = state.promptSort.key === 'createdAt' ? a.createdAt : a[state.promptSort.key];
+      var bv = state.promptSort.key === 'createdAt' ? b.createdAt : b[state.promptSort.key];
+      return state.promptSort.dir === 'asc' ? av - bv : bv - av;
+    });
+    $('promptCountDesc').textContent = '전체 ' + state.prompts.length + '개 중 ' + visible.length + '개 표시';
+    var body = $('promptsTableBody');
+    body.innerHTML = '';
     if (!visible.length) {
-      listEl.innerHTML = '<div class="empty-hint">조건에 맞는 프롬프트가 없습니다.</div>';
+      body.innerHTML = '<tr><td colspan="7" class="empty-hint" style="border:none;">조건에 맞는 프롬프트가 없습니다.</td></tr>';
       return;
     }
     visible.forEach(function (p) {
-      var card = document.createElement('div');
-      card.className = 'prompt-card';
-
-      var badgeRow = document.createElement('div');
-      badgeRow.className = 'badge-row';
-      badgeRow.innerHTML = '<span class="cat-badge">' + escapeHtml(p.category) + '</span><span class="type-badge">' + escapeHtml(p.type) + '</span>';
-      card.appendChild(badgeRow);
-
-      var ptext = document.createElement('div');
-      ptext.className = 'ptext';
-      ptext.textContent = p.text;
-      card.appendChild(ptext);
-
-      var meta = document.createElement('div');
-      meta.className = 'pmeta';
-
-      var toggles = document.createElement('div');
-      toggles.className = 'engine-toggles';
-      ENGINES.forEach(function (eng) {
-        var chip = document.createElement('span');
-        chip.className = 'engine-chip' + (p.engines.indexOf(eng) > -1 ? ' on' : '');
-        chip.textContent = ENGINE_LABEL[eng];
-        chip.addEventListener('click', function () {
-          var idx = p.engines.indexOf(eng);
-          if (idx > -1) p.engines.splice(idx, 1); else p.engines.push(eng);
-          save(LS_PROMPTS, state.prompts);
-          renderPromptList();
-        });
-        toggles.appendChild(chip);
-      });
-      meta.appendChild(toggles);
-
-      var actions = document.createElement('div');
-      actions.className = 'row-actions';
-      var scanBtn = document.createElement('button');
-      scanBtn.className = 'btn btn-primary btn-sm';
-      scanBtn.textContent = '스캔';
-      scanBtn.addEventListener('click', function () { runScan(p); });
-      actions.appendChild(scanBtn);
-      var delBtn = document.createElement('button');
-      delBtn.className = 'icon-del';
-      delBtn.setAttribute('aria-label', '프롬프트 삭제');
-      delBtn.textContent = '✕';
-      delBtn.addEventListener('click', function () {
+      var share = promptShare(p, pf.model);
+      var tr = document.createElement('tr');
+      var catDotColor = p.category === 'OK 브랜드' ? '#FF571F' : (p.category === '수신상품' ? '#ADADB4' : '#6FA8DC');
+      tr.innerHTML =
+        '<td><input type="checkbox" class="row-check" data-id="' + p.id + '" ' + (state.selectedPrompts[p.id] ? 'checked' : '') + '></td>' +
+        '<td class="cell-snippet" style="max-width:360px;">' + escapeHtml(truncate(p.text, 60)) + '</td>' +
+        '<td><span class="dot-badge"><span class="d" style="background:' + catDotColor + '"></span>' + escapeHtml(p.category) + '</span></td>' +
+        '<td><span class="model-icons">' + ENGINES.map(function (e) { return '<span class="model-dot' + (p.engines.indexOf(e) > -1 ? ' on' : '') + '" title="' + ENGINE_LABEL[e] + '"></span>'; }).join('') + '</span></td>' +
+        '<td>' + (share === null ? '<span class="pct-pill">—</span>' : '<span class="pct-pill' + (share >= 50 ? ' hi' : '') + '">' + share.toFixed(1) + '%</span>') + '</td>' +
+        '<td>' + new Date(p.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + '</td>' +
+        '<td><button class="row-icon-btn" data-act="scan" title="스캔">▶</button><button class="row-icon-btn" data-act="del" title="삭제">✕</button></td>';
+      tr.querySelector('[data-act="scan"]').addEventListener('click', function () { runScan(p); });
+      tr.querySelector('[data-act="del"]').addEventListener('click', function () {
         state.prompts = state.prompts.filter(function (x) { return x.id !== p.id; });
+        delete state.selectedPrompts[p.id];
         save(LS_PROMPTS, state.prompts);
-        renderPromptList();
+        renderPromptsTable();
       });
-      actions.appendChild(delBtn);
-      meta.appendChild(actions);
-      card.appendChild(meta);
-      listEl.appendChild(card);
+      tr.querySelector('.row-check').addEventListener('change', function () {
+        if (this.checked) state.selectedPrompts[p.id] = true; else delete state.selectedPrompts[p.id];
+      });
+      body.appendChild(tr);
     });
   }
+  $('sortByDate').addEventListener('click', function () {
+    state.promptSort.dir = state.promptSort.dir === 'asc' ? 'desc' : 'asc';
+    this.querySelector('.sort-arrow').textContent = state.promptSort.dir === 'asc' ? '↑' : '↓';
+    renderPromptsTable();
+  });
+  $('selectAllPrompts').addEventListener('change', function () {
+    var checked = this.checked;
+    document.querySelectorAll('#promptsTableBody .row-check').forEach(function (cb) {
+      cb.checked = checked;
+      if (checked) state.selectedPrompts[cb.dataset.id] = true; else delete state.selectedPrompts[cb.dataset.id];
+    });
+  });
+  $('searchInput').addEventListener('input', function () { state.filters.prompts.search = this.value.trim().toLowerCase(); renderPromptsTable(); });
+  $('addPromptToggleBtn').addEventListener('click', function () {
+    var row = $('addRow');
+    row.style.display = row.style.display === 'none' ? 'grid' : 'none';
+  });
+
+  function populateSelect(sel, options) {
+    sel.innerHTML = '';
+    options.forEach(function (o) { var opt = document.createElement('option'); opt.value = o; opt.textContent = o; sel.appendChild(opt); });
+  }
+  populateSelect($('inputCategory'), CATEGORIES);
+  populateSelect($('inputType'), TYPES);
 
   $('addPromptBtn').addEventListener('click', function () {
     var text = $('inputPrompt').value.trim();
     if (!text) return;
     var maxNo = state.prompts.reduce(function (m, p) { return Math.max(m, p.no || 0); }, 0);
-    state.prompts.push({
-      id: uid(), no: maxNo + 1,
-      category: $('inputCategory').value, type: $('inputType').value,
-      text: text, intent: '', engines: ENGINES.slice()
-    });
+    state.prompts.push({ id: uid(), no: maxNo + 1, category: $('inputCategory').value, type: $('inputType').value, text: text, intent: '', engines: ENGINES.slice(), createdAt: Date.now() });
     save(LS_PROMPTS, state.prompts);
     $('inputPrompt').value = '';
-    renderPromptList();
+    renderPromptsTable();
   });
 
-  /* ---------------- auto-generate ---------------- */
-  var genModal = $('genModalBackdrop');
-  var genCandidates = [];
-  $('openGenBtn').addEventListener('click', function () { genModal.classList.add('open'); $('genList').innerHTML = ''; genCandidates = []; });
-  $('cancelGenBtn').addEventListener('click', function () { genModal.classList.remove('open'); });
-  genModal.addEventListener('click', function (e) { if (e.target === genModal) genModal.classList.remove('open'); });
-
-  var GEN_TEMPLATES = {
-    '브랜드 질문': ['{brand} 이용 후기 어때?', '{brand} 요즘 평가 어때?', '{brand} 다른 사람들은 왜 선택해?'],
-    '비교 질문': ['{brand}이랑 경쟁사 중 어디가 나아?', '{brand} 업계 내 위치가 어느 정도야?'],
-    '업권 질문': ['이 업권에서 요즘 주목할 만한 곳 있어?', '이 업권 고르는 기준이 뭐야?'],
-    '전체 상품': ['이 상품 요즘 추천할 만한 곳 있어?', '이 상품 고를 때 뭘 봐야 해?'],
-    '조합 질문': ['여러 조건을 종합해서 추천해줄 곳 있어?'],
-    '대출 비교': ['대출 비교할 때 어떤 서비스가 편해?'],
-    '페르소나 질문': ['특정 상황에 맞는 상품 추천해줘.']
-  };
-  $('runGenBtn').addEventListener('click', function () {
-    var category = $('genCategory').value;
-    var type = $('genType').value;
-    var count = Math.max(1, Math.min(20, parseInt($('genCount').value, 10) || 5));
-    if (state.settings.demoMode || !state.settings.endpoint) {
-      genCandidates = mockGenerate(category, type, count);
-      renderGenList();
-    } else {
-      fetch(state.settings.endpoint, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'generate-prompts', category: category, type: type, count: count })
-      }).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-        .then(function (data) {
-          genCandidates = (data.prompts || []).map(function (p) { return { text: p.text, category: category, type: type }; });
-          renderGenList();
-        })
-        .catch(function (err) { $('genList').innerHTML = '<div class="empty-hint">생성 실패 - ' + escapeHtml(err.message) + '</div>'; });
-    }
-  });
-  function mockGenerate(category, type, count) {
-    var templates = GEN_TEMPLATES[type] || ['{brand} 관련 질문 예시'];
-    var out = [];
-    for (var i = 0; i < count; i++) {
-      var tpl = templates[i % templates.length];
-      var text = '(데모) ' + tpl.replace('{brand}', OWN_BRAND) + ' #' + (i + 1);
-      out.push({ text: text, category: category, type: type });
-    }
-    return out;
-  }
-  function renderGenList() {
-    var listEl = $('genList');
-    listEl.innerHTML = '';
-    if (!genCandidates.length) { listEl.innerHTML = '<div class="empty-hint">생성된 항목이 없습니다.</div>'; return; }
-    genCandidates.forEach(function (c, i) {
-      var item = document.createElement('label');
-      item.className = 'gen-item';
-      item.innerHTML = '<input type="checkbox" checked data-idx="' + i + '"><span>' + escapeHtml(c.text) + '</span>';
-      listEl.appendChild(item);
+  $('exportCsvBtn').addEventListener('click', function () {
+    var rows = [['No', '카테고리', '유형', '프롬프트', '모델', '생성일']];
+    state.prompts.forEach(function (p) {
+      rows.push([p.no, p.category, p.type, p.text, p.engines.map(function (e) { return ENGINE_LABEL[e]; }).join('/'), new Date(p.createdAt).toISOString().slice(0, 10)]);
     });
-  }
-  $('addGenBtn').addEventListener('click', function () {
-    var checked = Array.prototype.slice.call($('genList').querySelectorAll('input[type=checkbox]:checked'));
-    var maxNo = state.prompts.reduce(function (m, p) { return Math.max(m, p.no || 0); }, 0);
-    checked.forEach(function (cb, i) {
-      var c = genCandidates[parseInt(cb.dataset.idx, 10)];
-      state.prompts.push({ id: uid(), no: maxNo + i + 1, category: c.category, type: c.type, text: c.text, intent: '', engines: ENGINES.slice() });
-    });
-    save(LS_PROMPTS, state.prompts);
-    renderPromptList();
-    genModal.classList.remove('open');
+    var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = 'geo-prompts.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   });
 
   /* ---------------- radar ---------------- */
   function setNodeState(engine, cls) {
     var g = $('node-' + engine); if (!g) return;
-    g.querySelector('.node-dot').className = 'node-dot ' + cls;
+    g.querySelector('.node-dot').setAttribute('class', 'node-dot ' + cls);
   }
   function resetRadar() { ENGINES.forEach(function (e) { setNodeState(e, 'idle'); }); }
   function setSweeping(on) { $('radarSweep').classList.toggle('spinning', on); }
 
   /* ---------------- status line ---------------- */
   function showStatusIn(elId, kind, message) {
-    var el = $(elId);
-    if (!el) return;
+    var el = $(elId); if (!el) return;
     if (kind === 'loading') {
       el.innerHTML = '<span class="marker">●</span> <span class="bounce-dots"><span></span><span></span><span></span></span> ' + escapeHtml(message || '');
     } else {
@@ -1044,9 +1238,6 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     }
   }
   function showStatus(kind, message) { showStatusIn('statusLine', kind, message); }
-  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function escapeAttr(s) { return escapeHtml(s); }
-  function truncate(s, n) { return (s && s.length > n) ? s.slice(0, n) + '…' : (s || ''); }
 
   /* ---------------- engine call ---------------- */
   function callEngine(engine, prompt, brands) {
@@ -1071,7 +1262,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     return new Promise(function (resolve) {
       var delay = 450 + Math.random() * 750;
       setTimeout(function () {
-        var brandHits = brands.map(function (b, i) {
+        var brandHits = brands.map(function (b) {
           var prob = (b === OWN_BRAND) ? 0.55 : 0.3;
           var mentioned = Math.random() < prob;
           var sentiments = ['positive', 'neutral', 'negative'];
@@ -1084,7 +1275,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         });
         var sources = [];
         if (Math.random() > 0.4) {
-          var demoSites = ['blog.naver.com', 'brunch.co.kr', 'tistory.com', 'news.naver.com'];
+          var demoSites = ['tistory.com', 'naver.com', 'banksalad.com', 'daum.net', 'oksavingsbank.com', 'youtube.com', 'korea.kr'];
           var n = 1 + Math.floor(Math.random() * 2);
           for (var i = 0; i < n; i++) {
             var site = demoSites[Math.floor(Math.random() * demoSites.length)];
@@ -1098,14 +1289,15 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   /* ---------------- scan flow ---------------- */
   function runScan(p) {
-    if (!p.engines.length) { showStatus('error', '이 프롬프트에 선택된 엔진이 없습니다.'); return; }
+    var effEngines = p.engines.filter(function (e) { return state.activeEngines[e]; });
+    if (!effEngines.length) { showStatus('error', '이 프롬프트에 활성화된 엔진이 없습니다. (분석 에이전트 탭 확인)'); return; }
     $('scanTarget').innerHTML = '"' + escapeHtml(p.text) + '"';
     $('resultCards').innerHTML = '';
     resetRadar(); setSweeping(true);
-    p.engines.forEach(function (e) { setNodeState(e, 'scanning'); });
-    showStatus('loading', '엔진 ' + p.engines.map(function (e) { return ENGINE_LABEL[e]; }).join(', ') + ' 질의 중');
+    effEngines.forEach(function (e) { setNodeState(e, 'scanning'); });
+    showStatus('loading', '엔진 ' + effEngines.map(function (e) { return ENGINE_LABEL[e]; }).join(', ') + ' 질의 중');
 
-    var tasks = p.engines.map(function (engine) {
+    var tasks = effEngines.map(function (engine) {
       return callEngine(engine, p.text, state.brands)
         .then(function (result) {
           var ownHit = result.brandHits.find(function (h) { return h.brand === OWN_BRAND; });
@@ -1151,52 +1343,156 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   }
   function sentLabel(s) { return { positive: '▲긍정', neutral: '●중립', negative: '▼부정' }[s] || '●중립'; }
 
-  /* ---------------- history / logging ---------------- */
   function logResult(p, engine, brandHits, sources) {
-    state.results.push({
-      id: uid(), ts: Date.now(), promptId: p.id, promptText: p.text, category: p.category, type: p.type,
-      engine: engine, brandHits: brandHits, sources: sources || []
-    });
+    state.results.push({ id: uid(), ts: Date.now(), promptId: p.id, promptText: p.text, category: p.category, type: p.type, engine: engine, brandHits: brandHits, sources: sources || [] });
     save(LS_RESULTS, state.results);
-    renderHistory();
-    refreshActiveTab();
+    renderPromptsTable();
   }
-  function renderHistory() {
-    var filter = $('filterEngine').value;
-    var rows = state.results.slice().sort(function (a, b) { return b.ts - a.ts; })
-      .filter(function (r) { return filter === 'all' || r.engine === filter; });
-    var body = $('historyBody');
+
+  /* ---------------- citations tab ---------------- */
+  var domainSelectionInit = false;
+  function computeSources(results) {
+    var map = {};
+    var total = 0;
+    results.forEach(function (r) {
+      (r.sources || []).forEach(function (s) {
+        var site = s.site || domainFrom(s.url) || '알수없음';
+        if (!map[site]) map[site] = { site: site, count: 0, category: sourceCategory(site), pages: [] };
+        map[site].count++;
+        total++;
+        map[site].pages.push({ url: s.url, title: s.title, ts: r.ts, promptText: r.promptText, engine: r.engine, site: site });
+      });
+    });
+    var list = Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return b.count - a.count; });
+    list.forEach(function (s) { s.share = total ? (s.count / total * 100) : 0; });
+    return { list: list, total: total };
+  }
+  function sourcesFilteredResults() {
+    var f = state.filters.sources;
+    var rs = resultsByFilter(f);
+    if (f.sourceCategory && f.sourceCategory !== 'all') {
+      rs = rs.map(function (r) { return Object.assign({}, r, { sources: (r.sources || []).filter(function (s) { return sourceCategory(s.site || domainFrom(s.url)) === f.sourceCategory; }) }); });
+    }
+    if (f.search) {
+      var q = f.search.toLowerCase();
+      rs = rs.map(function (r) { return Object.assign({}, r, { sources: (r.sources || []).filter(function (s) { return (s.site || '').toLowerCase().indexOf(q) > -1 || (s.title || '').toLowerCase().indexOf(q) > -1 || (s.url || '').toLowerCase().indexOf(q) > -1; }) }); });
+    }
+    return rs;
+  }
+  function renderDomainTrend(results, sourceData) {
+    var domains = sourceData.list.slice(0, 8);
+    if (!domainSelectionInit && domains.length) {
+      state.selectedDomains = {};
+      domains.slice(0, 5).forEach(function (d) { state.selectedDomains[d.site] = true; });
+      domainSelectionInit = true;
+    }
+    var selected = domains.filter(function (d) { return state.selectedDomains[d.site]; });
+    var colorPalette = ['#FF571F', '#ADADB4', '#6FA8DC', '#B48EAD', '#FFFFFF99', '#7FBF7F', '#D4A24C', '#5FA8A0'];
+    var colorOf = {}; domains.forEach(function (d, i) { colorOf[d.site] = colorPalette[i % colorPalette.length]; });
+
+    var sorted = results.slice().sort(function (a, b) { return a.ts - b.ts; });
+    var running = {}; selected.forEach(function (d) { running[d.site] = 0; });
+    var runningTotal = 0;
+    var pointsBySite = {}; selected.forEach(function (d) { pointsBySite[d.site] = []; });
+    sorted.forEach(function (r) {
+      (r.sources || []).forEach(function (s) {
+        var site = s.site || domainFrom(s.url);
+        runningTotal++;
+        if (running.hasOwnProperty(site)) running[site]++;
+      });
+      selected.forEach(function (d) {
+        pointsBySite[d.site].push({ ts: r.ts, value: runningTotal ? (running[d.site] / runningTotal * 100) : 0 });
+      });
+    });
+    var series = selected.map(function (d) { return { label: d.site, color: colorOf[d.site], catLabel: d.category, points: pointsBySite[d.site] }; });
+    renderLineChart('domainTrendWrap', series, {
+      yDomain: [0, Math.max(20, Math.ceil((selected[0] ? selected[0].share : 10) / 5) * 5 + 5)], yInvert: true,
+      gridlines: [{ value: 0, label: '0%' }, { value: 10, label: '10%' }, { value: 20, label: '20%' }],
+      valueFmt: function (v) { return v.toFixed(1) + '%'; },
+      totalFmt: function () { return '총 인용: ' + sourceData.total + '건'; },
+      emptyText: '인용 출처 데이터가 없습니다.'
+    });
+    $('trendTotalMeta').textContent = '업데이트: ' + new Date().toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' · 총 인용 ' + sourceData.total + '건';
+
+    var legend = $('domainLegend');
+    legend.innerHTML = domains.map(function (d) {
+      return '<span class="legend-item"><span class="legend-swatch" style="background:' + colorOf[d.site] + '"></span>' + escapeHtml(d.site) + ' <span class="cat-pill ' + d.category + '">' + SOURCE_CAT_LABEL[d.category] + '</span></span>';
+    }).join('');
+    return colorOf;
+  }
+  function renderSourceSiteTable(sourceData, colorOf) {
+    var body = $('sourceSiteBody');
     body.innerHTML = '';
-    if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="5" class="empty-hint" style="border:none;">아직 스캔 기록이 없습니다.</td></tr>';
+    if (!sourceData.list.length) {
+      body.innerHTML = '<tr><td colspan="5" class="empty-hint" style="border:none;">데이터 없음</td></tr>';
       return;
     }
-    rows.forEach(function (r) {
-      var mentioned = r.brandHits.filter(function (h) { return h.mentioned; }).map(function (h) { return h.brand; });
-      var snippetSrc = r.brandHits.find(function (h) { return h.mentioned && h.snippet; });
+    sourceData.list.forEach(function (s) {
       var tr = document.createElement('tr');
+      var checked = !!state.selectedDomains[s.site];
       tr.innerHTML =
-        '<td>' + new Date(r.ts).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) + '</td>' +
-        '<td class="cell-snippet">' + escapeHtml(truncate(r.promptText, 36)) + '</td>' +
-        '<td class="cell-mono">' + ENGINE_LABEL[r.engine] + '</td>' +
-        '<td>' + (mentioned.length ? escapeHtml(mentioned.join(', ')) : '—') + '</td>' +
-        '<td class="cell-snippet">' + escapeHtml(truncate(snippetSrc ? snippetSrc.snippet : '', 50)) + '</td>';
+        '<td><input type="checkbox" class="domain-check" data-site="' + escapeHtml(s.site) + '" ' + (checked ? 'checked' : '') + '></td>' +
+        '<td class="cell-mono">' + (colorOf[s.site] ? '<span class="legend-swatch" style="background:' + colorOf[s.site] + '; display:inline-block; margin-right:6px;"></span>' : '') + escapeHtml(s.site) + '</td>' +
+        '<td><span class="cat-pill ' + s.category + '">' + SOURCE_CAT_LABEL[s.category] + '</span></td>' +
+        '<td><span class="model-icons">' + ENGINES.map(function () { return '<span class="model-dot on"></span>'; }).join('') + '</span></td>' +
+        '<td>' + s.share.toFixed(1) + '%</td>';
+      body.appendChild(tr);
+    });
+    body.querySelectorAll('.domain-check').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        state.selectedDomains[this.dataset.site] = this.checked;
+        renderSourcesTab(true);
+      });
+    });
+  }
+  function renderSourcePageTable(results) {
+    var body = $('sourcePageBody');
+    var allPages = [];
+    results.forEach(function (r) { (r.sources || []).forEach(function (s) { allPages.push({ site: s.site || domainFrom(s.url), url: s.url, title: s.title, ts: r.ts, promptText: r.promptText, engine: r.engine }); }); });
+    allPages.sort(function (a, b) { return b.ts - a.ts; });
+    body.innerHTML = '';
+    if (!allPages.length) { body.innerHTML = '<tr><td colspan="5" class="empty-hint" style="border:none;">데이터 없음</td></tr>'; return; }
+    allPages.slice(0, 300).forEach(function (item) {
+      var tr = document.createElement('tr');
+      var timeStr = new Date(item.ts).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      var pageCell = item.url ? '<a href="' + escapeHtml(item.url) + '" target="_blank" rel="noopener">' + escapeHtml(item.title || item.url) + '</a>' : escapeHtml(item.title || '-');
+      tr.innerHTML = '<td>' + timeStr + '</td><td class="cell-mono">' + escapeHtml(item.site) + '</td><td class="cell-snippet">' + pageCell + '</td><td class="cell-snippet">' + escapeHtml(truncate(item.promptText, 36)) + '</td><td class="cell-mono">' + ENGINE_LABEL[item.engine] + '</td>';
       body.appendChild(tr);
     });
   }
-  $('filterEngine').addEventListener('change', renderHistory);
-  $('clearLogBtn').addEventListener('click', function () {
-    if (!confirm('모든 스캔 기록을 삭제할까요?')) return;
-    state.results = [];
-    save(LS_RESULTS, state.results);
-    renderHistory(); refreshActiveTab();
+  function renderSourcesTab(keepSelection) {
+    if (!keepSelection) domainSelectionInit = false;
+    var results = sourcesFilteredResults();
+    var sourceData = computeSources(results);
+    var colorOf = renderDomainTrend(results, sourceData);
+    renderSourceSiteTable(sourceData, colorOf);
+    renderSourcePageTable(results);
+  }
+  document.querySelectorAll('.subtab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.subtab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.subtab-content').forEach(function (c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      $('subtab-' + btn.dataset.subtab).classList.add('active');
+    });
+  });
+  $('sourceSearchInput').addEventListener('input', function () { state.filters.sources.search = this.value.trim().toLowerCase(); renderSourcesTab(); });
+
+  /* ---------------- hero view toggle ---------------- */
+  document.querySelectorAll('#heroViewToggle button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#heroViewToggle button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.heroMode = btn.dataset.mode;
+      renderShareTab();
+    });
   });
 
   /* ---------------- connection status ---------------- */
   function refreshConnStatus() {
     var live = !!state.settings.endpoint && !state.settings.demoMode;
     $('connPill').classList.toggle('live', live);
-    $('connLabel').textContent = live ? '연동됨' : (state.settings.demoMode ? '연동 안 됨 · 데모' : '엔드포인트 미설정');
+    $('connLabel').textContent = live ? '연동됨' : '데모 모드';
   }
 
   /* ---------------- settings modal ---------------- */
@@ -1208,7 +1504,13 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     modal.classList.add('open');
   });
   modal.addEventListener('click', function (e) { if (e.target === modal) modal.classList.remove('open'); });
-  $('demoSwitch').addEventListener('click', function () { this.classList.toggle('on'); });
+  $('demoSwitch').addEventListener('click', function () {
+    this.classList.toggle('on');
+    state.settings.demoMode = this.classList.contains('on');
+    save(LS_SETTINGS, state.settings);
+    refreshConnStatus();
+    showStatusIn('settingsStatusLine', 'ok', state.settings.demoMode ? '데모 모드 켜짐 (바로 적용됨)' : '데모 모드 꺼짐 (바로 적용됨)');
+  });
   $('saveSettingsBtn').addEventListener('click', function () {
     state.settings.endpoint = $('endpointInput').value.trim();
     state.settings.demoMode = $('demoSwitch').classList.contains('on');
@@ -1226,10 +1528,33 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   });
 
   /* ---------------- init ---------------- */
-  renderSharedCatChips();
+  [state.filters.share, state.filters.prompts, state.filters.sources].forEach(function (f) {
+    var r = presetToRange(f.datePreset);
+    f.dateFrom = r.from; f.dateTo = r.to;
+  });
+
+  initListDropdown('catShare', [{ value: 'all', label: '전체 카테고리' }].concat(CATEGORIES.map(function (c) { return { value: c, label: c }; })),
+    state.filters.share.category, function (v) { state.filters.share.category = v; renderShareTab(); }, categoryDotColor);
+  initDateDropdown('dateShare', state.filters.share, function () { renderShareTab(); });
+
+  initListDropdown('catPrompts', [{ value: 'all', label: '전체 카테고리' }].concat(CATEGORIES.map(function (c) { return { value: c, label: c }; })),
+    state.filters.prompts.category, function (v) { state.filters.prompts.category = v; renderPromptsTable(); }, categoryDotColor);
+  initDateDropdown('datescanPrompts', state.filters.prompts, function () { renderPromptsTable(); });
+  initListDropdown('modelPrompts', [{ value: 'all', label: '전체 모델' }].concat(ENGINES.map(function (e) { return { value: e, label: ENGINE_LABEL[e] }; })),
+    state.filters.prompts.model, function (v) { state.filters.prompts.model = v; renderPromptsTable(); });
+
+  initListDropdown('catSources', [{ value: 'all', label: '전체 카테고리' }].concat(CATEGORIES.map(function (c) { return { value: c, label: c }; })),
+    state.filters.sources.category, function (v) { state.filters.sources.category = v; renderSourcesTab(); }, categoryDotColor);
+  initListDropdown('modelSources', [{ value: 'all', label: '전체 모델' }].concat(ENGINES.map(function (e) { return { value: e, label: ENGINE_LABEL[e] }; })),
+    state.filters.sources.model, function (v) { state.filters.sources.model = v; renderSourcesTab(); });
+  initListDropdown('sourceCatSources', [{ value: 'all', label: '전체 출처유형' }, { value: 'owned', label: 'Owned' }, { value: 'earned', label: 'Earned' }, { value: 'social', label: 'Social' }],
+    state.filters.sources.sourceCategory, function (v) { state.filters.sources.sourceCategory = v; renderSourcesTab(); });
+  initDateDropdown('dateSources', state.filters.sources, function () { renderSourcesTab(); });
+
+  updateAgentBadge();
   renderBrandManager();
-  renderPromptList();
-  renderHistory();
+  renderAutogen();
+  renderPromptsTable();
   renderShareTab();
   refreshConnStatus();
 
