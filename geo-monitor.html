@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEO MONITOR · OKNEXUS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'OKLight';
+    src: url('/imagesAI/fonts/Ok-Light.woff') format('woff');
+    font-weight: 300;
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #06070d;
+    --surface: #0B0D14;
+    --surface-2: #101322;
+    --amber: #e07d08;
+    --orange: #FF571F;
+    --cream: #F1E9DC;
+    --cream-dim: #F1E9DC99;
+    --cream-faint: #F1E9DC4d;
+    --line: #FF571F26;
+    --line-amber: #e07d0833;
+    --font-hud: 'Orbitron', sans-serif;
+    --font-kr: 'OKLight', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    --radius: 3px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--font-kr);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, #e07d0814, transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, #FF571F0f, transparent 60%);
+  }
+  a { color: var(--orange); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .shell { max-width: 1180px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  header.top {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding-bottom: 22px; border-bottom: 1px solid var(--line); margin-bottom: 22px; flex-wrap: wrap;
+  }
+  .brand-mark { display: flex; align-items: baseline; gap: 10px; }
+  .brand-mark .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 10px 2px #FF571F80; display: inline-block; transform: translateY(-2px); }
+  .brand-mark h1 { font-family: var(--font-hud); font-size: 20px; letter-spacing: 0.12em; margin: 0; font-weight: 600; }
+  .brand-mark span.sub { font-size: 11px; letter-spacing: 0.18em; color: var(--cream-dim); font-family: var(--font-hud); }
+
+  .status-cluster { display: flex; align-items: center; gap: 14px; }
+  .conn-pill { display: flex; align-items: center; gap: 7px; font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.08em; padding: 7px 12px; border: 1px solid var(--line); border-radius: 20px; color: var(--cream-dim); }
+  .conn-pill .pip { width: 6px; height: 6px; border-radius: 50%; background: #6b6458; }
+  .conn-pill.live .pip { background: var(--orange); box-shadow: 0 0 6px 1px #FF571F99; }
+  .conn-pill.live { color: var(--cream); border-color: #FF571F44; }
+
+  .icon-btn { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); width: 34px; height: 34px; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color .15s, color .15s; }
+  .icon-btn:hover { border-color: #FF571F66; color: var(--cream); }
+  .icon-btn:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+  /* ---------- tabs ---------- */
+  .tab-nav { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .tab-btn {
+    font-family: var(--font-hud); font-size: 11.5px; letter-spacing: 0.08em;
+    padding: 11px 18px; background: transparent; border: none; color: var(--cream-faint);
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--cream-dim); }
+  .tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ---------- shared filter bar ---------- */
+  .filter-bar { display: flex; gap: 20px; align-items: center; margin-bottom: 22px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
+  .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .filter-label { font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.08em; color: var(--cream-faint); margin-right: 2px; }
+  .cat-chip { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.05em; padding: 6px 12px; border-radius: 14px; border: 1px solid var(--line); color: var(--cream-faint); cursor: pointer; background: transparent; }
+  .cat-chip.on { color: var(--bg); background: var(--amber); border-color: var(--amber); }
+  .date-sep { color: var(--cream-faint); font-size: 12px; }
+
+  section.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 22px 22px 24px; margin-bottom: 24px; }
+  .panel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; gap: 10px; flex-wrap: wrap; }
+  .panel-head h2 { font-family: var(--font-hud); font-size: 12.5px; letter-spacing: 0.14em; color: var(--amber); margin: 0; font-weight: 600; }
+  .panel-head p.desc { font-size: 12.5px; color: var(--cream-faint); margin: 4px 0 0; }
+
+  input[type=text], input[type=url], input[type=date], input[type=number], select {
+    background: var(--surface-2); border: 1px solid var(--line); color: var(--cream);
+    font-family: var(--font-kr); font-size: 13.5px; padding: 10px 12px; border-radius: var(--radius);
+  }
+  input::placeholder { color: #F1E9DC4a; }
+  input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.75) sepia(1) saturate(6) hue-rotate(-10deg); cursor: pointer; }
+
+  .btn { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.08em; border-radius: var(--radius); border: 1px solid transparent; cursor: pointer; padding: 10px 16px; white-space: nowrap; transition: filter .15s, opacity .15s; }
+  .btn-primary { background: var(--orange); color: #0B0D14; font-weight: 600; }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); }
+  .btn-ghost:hover { border-color: #FF571F66; color: var(--cream); }
+  .btn-sm { padding: 6px 11px; font-size: 10px; }
+
+  /* ---------- prompt registry (탭2) ---------- */
+  .search-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .search-row input[type=text] { flex: 1; min-width: 200px; }
+  .add-row { display: grid; grid-template-columns: 130px 130px 1fr auto; gap: 10px; margin-bottom: 10px; }
+  @media (max-width: 800px) { .add-row { grid-template-columns: 1fr 1fr; } }
+
+  .prompt-list { display: flex; flex-direction: column; gap: 10px; max-height: 640px; overflow-y: auto; padding-right: 4px; }
+  .prompt-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 13px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .prompt-card .ptext { font-size: 13.5px; line-height: 1.5; }
+  .badge-row { display: flex; gap: 6px; }
+  .cat-badge { font-family: var(--font-hud); font-size: 9px; letter-spacing: 0.05em; color: var(--bg); background: var(--cream-dim); padding: 2px 7px; border-radius: 8px; }
+  .type-badge { font-family: var(--font-hud); font-size: 9px; letter-spacing: 0.05em; color: var(--amber); border: 1px solid var(--line-amber); padding: 2px 7px; border-radius: 8px; }
+  .prompt-card .pmeta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .engine-toggles { display: flex; gap: 6px; }
+  .engine-chip { font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.05em; padding: 5px 9px; border-radius: 12px; border: 1px solid var(--line); color: var(--cream-faint); cursor: pointer; user-select: none; background: transparent; }
+  .engine-chip.on { color: var(--bg); background: var(--cream-dim); border-color: var(--cream-dim); }
+  .row-actions { display: flex; gap: 8px; margin-left: auto; }
+  .icon-del { background: transparent; border: none; color: var(--cream-faint); cursor: pointer; font-size: 15px; padding: 2px 6px; }
+  .icon-del:hover { color: var(--orange); }
+  .empty-hint { font-size: 12.5px; color: var(--cream-faint); padding: 18px 4px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); }
+  .count-note { font-size: 11.5px; color: var(--cream-faint); margin-bottom: 12px; }
+
+  /* ---------- brand manager ---------- */
+  .brand-manager { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
+  .brand-chip { display: flex; align-items: center; gap: 6px; font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; padding: 5px 10px; border-radius: 12px; border: 1px solid var(--line-amber); color: var(--amber); }
+  .brand-chip.own { border-color: #FF571F66; color: var(--orange); }
+  .brand-chip button { background: none; border: none; color: inherit; cursor: pointer; font-size: 11px; padding: 0; line-height: 1; }
+  .brand-add { display: flex; gap: 6px; }
+  .brand-add input { width: 140px; padding: 6px 10px; font-size: 12px; }
+
+  /* ---------- radar / scan ---------- */
+  .scan-grid { display: grid; grid-template-columns: 260px 1fr; gap: 26px; align-items: center; }
+  @media (max-width: 720px) { .scan-grid { grid-template-columns: 1fr; } }
+  .radar-wrap { display: flex; justify-content: center; }
+  .radar-svg { width: 220px; height: 220px; }
+  .radar-ring { fill: none; stroke: #FF571F1f; stroke-width: 1; }
+  .radar-sweep { transform-origin: 120px 120px; opacity: 0.85; }
+  .radar-sweep.spinning { animation: sweep 1.6s linear infinite; }
+  @keyframes sweep { to { transform: rotate(360deg); } }
+  .node-label { font-family: var(--font-hud); font-size: 9.5px; letter-spacing: 0.05em; fill: var(--cream-dim); text-anchor: middle; }
+  .node-dot { transition: fill .3s, r .3s, filter .3s; }
+  .node-dot.idle { fill: #1c1f2c; stroke: #FF571F55; stroke-width: 1.5; }
+  .node-dot.scanning { fill: #1c1f2c; stroke: var(--amber); stroke-width: 1.5; animation: pulse 0.9s ease-in-out infinite; }
+  @keyframes pulse { 50% { stroke-width: 3; filter: drop-shadow(0 0 4px #e07d08); } }
+  .node-dot.hit { fill: var(--orange); stroke: var(--orange); filter: drop-shadow(0 0 8px #FF571Fa0); }
+  .node-dot.miss { fill: transparent; stroke: #F1E9DC33; stroke-width: 1.5; }
+
+  .scan-side { display: flex; flex-direction: column; gap: 14px; }
+  .scan-target { font-size: 12.5px; color: var(--cream-dim); border-left: 2px solid var(--orange); padding-left: 10px; line-height: 1.5; }
+  .scan-target b { color: var(--cream); font-weight: 400; }
+  .status-line { font-family: var(--font-hud); font-size: 11.5px; letter-spacing: 0.03em; color: var(--cream-dim); display: flex; align-items: center; gap: 8px; min-height: 20px; }
+  .status-line .marker { color: var(--orange); }
+  .bounce-dots { display: inline-flex; gap: 3px; }
+  .bounce-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--orange); animation: bounce 1s infinite ease-in-out; }
+  .bounce-dots span:nth-child(2) { animation-delay: .15s; }
+  .bounce-dots span:nth-child(3) { animation-delay: .3s; }
+  @keyframes bounce { 0%,80%,100%{ transform: translateY(0); opacity:.5 } 40%{ transform: translateY(-4px); opacity:1 } }
+
+  .result-cards { display: flex; flex-direction: column; gap: 10px; }
+  .result-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 12px; font-size: 12px; }
+  .result-card .rc-head { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.06em; color: var(--cream-dim); margin-bottom: 8px; }
+  .rc-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .rc-tag { font-size: 10px; color: var(--cream-faint); border: 1px solid var(--line); padding: 2px 6px; border-radius: 10px; }
+  .rc-tag.own { color: var(--orange); border-color: #FF571F66; }
+  .rc-empty { color: var(--cream-faint); font-size: 11.5px; }
+
+  /* ---------- share bars ---------- */
+  .share-list { display: flex; flex-direction: column; gap: 10px; }
+  .share-row { display: grid; grid-template-columns: 130px 1fr 54px; gap: 12px; align-items: center; }
+  .share-row .brand-name { font-size: 12.5px; color: var(--cream); }
+  .share-row.is-own .brand-name { color: var(--orange); font-weight: 600; }
+  .share-track { height: 10px; background: var(--surface-2); border-radius: 5px; overflow: hidden; border: 1px solid var(--line); }
+  .share-fill { height: 100%; border-radius: 5px; background: var(--cream-faint); }
+  .share-row.is-own .share-fill { background: var(--orange); box-shadow: 0 0 8px #FF571F80; }
+  .share-pct { font-family: var(--font-hud); font-size: 11.5px; text-align: right; color: var(--cream-dim); }
+
+  /* ---------- tables ---------- */
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.data-table th { text-align: left; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.06em; color: var(--cream-faint); font-weight: 500; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  table.data-table td { padding: 9px 10px; border-bottom: 1px solid #FF571F14; color: var(--cream-dim); vertical-align: top; }
+  table.data-table tr:hover td { background: #FF571F08; }
+  table.data-table tr.own-row td { color: var(--cream); }
+  table.data-table tr.own-row td:first-child { color: var(--orange); font-weight: 600; }
+  .cell-mono { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; color: var(--cream); }
+  .cell-snippet { max-width: 300px; color: var(--cream-faint); }
+
+  .table-tools { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; }
+  .trend-legend { display: flex; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--cream-dim); font-family: var(--font-hud); letter-spacing: 0.04em; }
+  .legend-swatch { width: 10px; height: 3px; border-radius: 2px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+  @media (max-width: 720px) { .kpi-row { grid-template-columns: 1fr; } }
+  .kpi-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 14px 16px; }
+  .kpi-card .kpi-label { font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.07em; color: var(--cream-faint); margin-bottom: 8px; }
+  .kpi-card .kpi-value { font-family: var(--font-hud); font-size: 24px; color: var(--orange); font-weight: 600; }
+  .kpi-card .kpi-sub { font-size: 11px; color: var(--cream-faint); margin-top: 4px; }
+
+  /* ---------- modal ---------- */
+  .modal-backdrop { position: fixed; inset: 0; background: #06070dcc; display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal-backdrop.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 24px; max-width: 480px; width: 100%; max-height: 88vh; overflow-y: auto; }
+  .modal h3 { font-family: var(--font-hud); font-size: 13px; letter-spacing: 0.1em; color: var(--amber); margin: 0 0 16px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 11.5px; color: var(--cream-dim); margin-bottom: 6px; }
+  .field input[type=text], .field input[type=url], .field select, .field input[type=number] { width: 100%; }
+  .field .hint { font-size: 11px; color: var(--cream-faint); margin-top: 6px; line-height: 1.5; }
+  .field-row { display: flex; gap: 10px; }
+  .field-row .field { flex: 1; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .toggle-row label { font-size: 12.5px; color: var(--cream-dim); }
+  .switch { width: 38px; height: 20px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); position: relative; cursor: pointer; flex-shrink: 0; }
+  .switch .knob { width: 14px; height: 14px; border-radius: 50%; background: var(--cream-faint); position: absolute; top: 2px; left: 2px; transition: transform .15s, background .15s; }
+  .switch.on { border-color: #FF571F66; }
+  .switch.on .knob { transform: translateX(18px); background: var(--orange); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+
+  .gen-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; margin: 14px 0; }
+  .gen-item { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: var(--cream-dim); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; }
+  .gen-item input[type=checkbox] { margin-top: 3px; accent-color: var(--orange); flex-shrink: 0; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #FF571F33; border-radius: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .radar-sweep.spinning { animation: none; }
+    .node-dot.scanning { animation: none; }
+    .bounce-dots span { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <header class="top">
+    <div class="brand-mark">
+      <span class="dot"></span>
+      <h1>GEO MONITOR</h1>
+      <span class="sub">OKNEXUS · PROMPT INTELLIGENCE</span>
+    </div>
+    <div class="status-cluster">
+      <div class="conn-pill" id="connPill"><span class="pip"></span><span id="connLabel">연동 안 됨 · 데모</span></div>
+      <button class="icon-btn" id="settingsBtn" title="설정" aria-label="설정 열기">⚙</button>
+    </div>
+  </header>
+
+  <nav class="tab-nav" role="tablist">
+    <button class="tab-btn active" data-tab="share" role="tab">노출 점유율</button>
+    <button class="tab-btn" data-tab="prompts" role="tab">프롬프트</button>
+    <button class="tab-btn" data-tab="sources" role="tab">인용출처</button>
+  </nav>
+
+  <!-- shared filter bar (share / sources 탭에서 사용) -->
+  <div class="filter-bar" id="sharedFilterBar">
+    <div class="filter-group">
+      <span class="filter-label">카테고리</span>
+      <span id="catChipsShared"></span>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">기간</span>
+      <input type="date" id="dateFrom">
+      <span class="date-sep">→</span>
+      <input type="date" id="dateTo">
+      <button class="btn btn-ghost btn-sm" id="clearDateBtn">초기화</button>
+    </div>
+  </div>
+
+  <!-- ================= TAB: 노출 점유율 ================= -->
+  <div class="tab-content active" id="tab-share">
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>SHARE OF VOICE</h2>
+          <p class="desc">필터된 스캔 결과 중 각 브랜드가 언급된 비중입니다.</p>
+        </div>
+      </div>
+      <div class="brand-manager" id="brandManager"></div>
+      <div class="share-list" id="shareList" style="margin-top:14px;"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>브랜드 랭킹</h2><p class="desc">언급 수 기준 전체 브랜드 순위입니다.</p></div>
+      </div>
+      <table class="data-table" id="brandRankTable">
+        <thead><tr><th>순위</th><th>브랜드</th><th>언급 수</th><th>점유율</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>모델별 순위</h2><p class="desc">각 엔진(모델)에서 OK저축은행이 다른 브랜드 대비 몇 위인지 보여줍니다.</p></div>
+      </div>
+      <table class="data-table" id="modelRankTable">
+        <thead><tr><th>엔진</th><th>OK저축은행 순위</th><th>언급 수</th><th>점유율</th><th>스캔 수</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>프롬프트 그룹별 순위</h2><p class="desc">질문 유형(그룹)별로 OK저축은행 노출 점유율을 비교합니다.</p></div>
+      </div>
+      <table class="data-table" id="groupRankTable">
+        <thead><tr><th>순위</th><th>프롬프트 그룹</th><th>OK저축은행 순위</th><th>언급 수</th><th>점유율</th><th>스캔 수</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>MENTION TREND</h2><p class="desc">시간에 따른 OK저축은행 언급률 추세 (엔진별, 카테고리 필터만 적용).</p></div>
+      </div>
+      <div class="trend-legend">
+        <div class="legend-item"><span class="legend-swatch" style="background:#F1E9DC99"></span>GPT</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#e07d08"></span>GEMINI</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#FF571F"></span>CLAUDE</div>
+      </div>
+      <div id="trendChartWrap"></div>
+    </section>
+  </div>
+
+  <!-- ================= TAB: 프롬프트 ================= -->
+  <div class="tab-content" id="tab-prompts">
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>PROMPT REGISTRY</h2>
+          <p class="desc" id="promptCountDesc"></p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="openGenBtn">✦ 자동 생성</button>
+      </div>
+
+      <div class="search-row">
+        <input type="text" id="searchInput" placeholder="프롬프트 검색...">
+        <select id="filterCatSelect">
+          <option value="all">전체 카테고리</option>
+        </select>
+        <select id="filterTypeSelect">
+          <option value="all">전체 유형</option>
+        </select>
+      </div>
+
+      <div class="add-row">
+        <select id="inputCategory"></select>
+        <select id="inputType"></select>
+        <input type="text" id="inputPrompt" placeholder="새 프롬프트 입력...">
+        <button class="btn btn-primary" id="addPromptBtn">+ 등록</button>
+      </div>
+
+      <div class="count-note" id="promptListMeta"></div>
+      <div class="prompt-list" id="promptList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>SCAN</h2>
+          <p class="desc">선택한 프롬프트를 각 엔진에 실제로 질의해 브랜드 언급 여부를 확인합니다.</p>
+        </div>
+      </div>
+      <div class="scan-grid">
+        <div class="radar-wrap">
+          <svg class="radar-svg" viewBox="0 0 240 240">
+            <circle class="radar-ring" cx="120" cy="120" r="100"></circle>
+            <circle class="radar-ring" cx="120" cy="120" r="70"></circle>
+            <circle class="radar-ring" cx="120" cy="120" r="40"></circle>
+            <g class="radar-sweep" id="radarSweep">
+              <path d="M120,120 L120,20 A100,100 0 0,1 190,50 Z" fill="url(#sweepGrad)"></path>
+            </g>
+            <defs>
+              <linearGradient id="sweepGrad" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0%" stop-color="#FF571F" stop-opacity="0"></stop>
+                <stop offset="100%" stop-color="#FF571F" stop-opacity="0.35"></stop>
+              </linearGradient>
+            </defs>
+            <g id="node-gpt"><circle class="node-dot idle" cx="70" cy="72" r="9"></circle><text class="node-label" x="70" y="52">GPT</text></g>
+            <g id="node-gemini"><circle class="node-dot idle" cx="170" cy="72" r="9"></circle><text class="node-label" x="170" y="52">GEMINI</text></g>
+            <g id="node-claude"><circle class="node-dot idle" cx="120" cy="185" r="9"></circle><text class="node-label" x="120" y="205">CLAUDE</text></g>
+          </svg>
+        </div>
+        <div class="scan-side">
+          <div class="scan-target" id="scanTarget">프롬프트 목록에서 <b>스캔</b>을 눌러 시작하세요.</div>
+          <div class="status-line" id="statusLine"></div>
+          <div class="result-cards" id="resultCards"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>SCAN LOG</h2><p class="desc">모든 스캔 기록입니다.</p></div>
+      </div>
+      <div class="table-tools">
+        <select id="filterEngine">
+          <option value="all">전체 엔진</option>
+          <option value="gpt">GPT</option>
+          <option value="gemini">GEMINI</option>
+          <option value="claude">CLAUDE</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="clearLogBtn">기록 초기화</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="historyTable">
+          <thead><tr><th>시간</th><th>프롬프트</th><th>엔진</th><th>언급 브랜드</th><th>스니펫</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= TAB: 인용출처 ================= -->
+  <div class="tab-content" id="tab-sources">
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>인용 출처 순위</h2><p class="desc">응답에서 인용된 사이트를 빈도순으로 표시합니다.</p></div>
+      </div>
+      <div class="share-list" id="sourceShareList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>인용 상세</h2><p class="desc">사이트, 페이지, 관련 프롬프트와 엔진을 확인할 수 있습니다.</p></div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table" id="sourceDetailTable">
+          <thead><tr><th>시간</th><th>사이트</th><th>페이지</th><th>프롬프트</th><th>엔진</th></tr></thead>
+          <tbody id="sourceDetailBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<!-- ================= settings modal ================= -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h3>연동 설정</h3>
+    <div class="field">
+      <label for="endpointInput">워커 엔드포인트 URL</label>
+      <input type="url" id="endpointInput" placeholder="https://oko-proxy.okgroup0425.workers.dev/geo-check">
+      <div class="hint">대시보드는 { engine, prompt, brands: [...] } 를 이 엔드포인트로 POST합니다. 워커는 서버 사이드에서 GPT/Gemini/Claude를 호출하고, 각 브랜드의 언급 여부·위치·감성과 인용 출처(sources: [{site,url,title}])를 분석해 반환해야 합니다. API 키는 브라우저에 두지 않습니다.</div>
+    </div>
+    <div class="toggle-row">
+      <label>데모 모드 (엔드포인트 없이 임의 데이터로 미리보기)</label>
+      <div class="switch" id="demoSwitch"><div class="knob"></div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" id="testConnBtn">연동 테스트</button>
+      <button class="btn btn-primary btn-sm" id="saveSettingsBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= auto-generate modal ================= -->
+<div class="modal-backdrop" id="genModalBackdrop">
+  <div class="modal">
+    <h3>프롬프트 자동 생성</h3>
+    <div class="field-row">
+      <div class="field">
+        <label for="genCategory">카테고리</label>
+        <select id="genCategory"></select>
+      </div>
+      <div class="field">
+        <label for="genType">유형</label>
+        <select id="genType"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="genCount">생성 개수</label>
+      <input type="number" id="genCount" value="5" min="1" max="20">
+    </div>
+    <button class="btn btn-ghost btn-sm" id="runGenBtn">생성</button>
+    <div class="gen-list" id="genList"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" id="cancelGenBtn">취소</button>
+      <button class="btn btn-primary btn-sm" id="addGenBtn">선택 항목 추가</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행에 대해 알려줘","intent":"브랜드 기본 인지"},{"no":2,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 처음 들어봤는데 어떤 서비스 하는 곳이야?","intent":"브랜드 첫 접촉"},{"no":3,"category":"OK 브랜드","type":"브랜드 질문","text":"OK금융그룹에 어떤 금융 서비스들이 있어? 은행 말고도 있어?","intent":"그룹 서비스 인지"},{"no":4,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 평판 어때?","intent":"브랜드 평판 탐색"},{"no":5,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 비대면 서비스 잘 돼 있어? 앱으로 다 할 수 있어?","intent":"디지털 채널 탐색"},{"no":6,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 최근 뉴스나 이슈 있어? 믿을 만한 곳이야?","intent":"최신 브랜드 인식"},{"no":7,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 고객센터 연결 잘 돼? 서비스 어때?","intent":"CS 품질 탐색"},{"no":8,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 믿을 만해?","intent":"신뢰도 직접 질문"},{"no":9,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 안전해?","intent":"안전성 직접 질문"},{"no":10,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 쓰는 사람들 후기 어때?","intent":"사용자 후기"},{"no":11,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 장단점 알려줘","intent":"장단점 직접 탐색"},{"no":12,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 예금자보호 얼마까지 돼? 1억 원 넘는 금액은 어떻게 해?","intent":"예금자보호 고려"},{"no":13,"category":"OK 브랜드","type":"브랜드 질문","text":"직장인인데 급여 통장을 저축은행으로 바꾸려고 해. OK저축은행 괜찮아?","intent":"급여 통장 고려"},{"no":14,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 오프라인 지점 있어? 비대면만 되는 거야?","intent":"채널 접근성 고려"},{"no":15,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행이 다른 저축은행보다 나은 점이 뭐야? 왜 OK를 선택해야 해?","intent":"브랜드 차별점 고려"},{"no":16,"category":"OK 브랜드","type":"브랜드 질문","text":"저축은행 처음 쓰는데 OK저축은행으로 시작해도 괜찮아? 주의할 점 있어?","intent":"신규 고객 고려"},{"no":17,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 가입 방법 알려줘","intent":"가입 전환"},{"no":18,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 계좌 개설 비대면으로 돼?","intent":"비대면 개설"},{"no":19,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 고객센터 전화번호 알려줘","intent":"직접 연락"},{"no":20,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 앱으로 계좌 개설하려는데 필요한 서류나 절차 어떻게 돼? 외국인도 돼?","intent":"가입 실행 단계"},{"no":21,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행이랑 카카오뱅크 동시에 쓰는 사람 있어? 어떻게 쓰면 효율적이야?","intent":"멀티뱅킹 결정"},{"no":22,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 처음 가입하면 이벤트나 혜택 있어? 신규 고객 프로모션 알려줘","intent":"신규 혜택 확인"},{"no":23,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 앱 설치하고 첫 거래까지 얼마나 걸려? 당일에 다 할 수 있어?","intent":"가입 속도 확인"},{"no":24,"category":"OK 브랜드","type":"브랜드 질문","text":"OK저축은행 계좌 만들고 싶은데 신분증 없어도 돼? 본인인증 방법 알려줘","intent":"가입 장벽 확인"},{"no":25,"category":"OK 브랜드","type":"비교 질문","text":"저축은행이랑 시중은행 차이가 뭐야? 저축은행 써도 괜찮아?","intent":"저축은행 카테고리 인지"},{"no":26,"category":"OK 브랜드","type":"비교 질문","text":"2금융권이랑 1금융권 차이가 뭐야? 저축은행은 몇 금융권이야?","intent":"금융권 카테고리 인지"},{"no":27,"category":"OK 브랜드","type":"비교 질문","text":"저축은행 브랜드 비교해줘","intent":"브랜드 비교 탐색"},{"no":28,"category":"OK 브랜드","type":"비교 질문","text":"OK저축은행이랑 SBI저축은행 비교해줘. 규모나 서비스 면에서 어때?","intent":"주요 경쟁사 비교"},{"no":29,"category":"OK 브랜드","type":"비교 질문","text":"OK저축은행이랑 웰컴저축은행 중에 어디가 나아?","intent":"주거래 비교 고려"},{"no":30,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 유명한 곳 어디어디야?","intent":"업계 내 브랜드 노출"},{"no":31,"category":"OK 브랜드","type":"업권 질문","text":"국내 저축은행 종류 알려줘","intent":"저축은행 시장 인지"},{"no":32,"category":"OK 브랜드","type":"업권 질문","text":"저축은행도 예금자보호 돼?","intent":"안전성 인식"},{"no":33,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 규모 순위 알려줘. 자산 기준으로 어디가 커?","intent":"업계 규모 포지션"},{"no":34,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 업계에서 오래되고 안정적인 곳 어디야?","intent":"안정성·역사 인지"},{"no":35,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 중에 앱 잘 만든 곳 어디야?","intent":"디지털 경쟁력"},{"no":36,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 고객 만족도 높은 곳 알려줘","intent":"고객 만족 탐색"},{"no":37,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 선택할 때 뭘 기준으로 봐야 해? 체크리스트 알려줘","intent":"선택 기준 탐색"},{"no":38,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 중에 중저신용자 대상 서비스 잘하는 곳 어디야?","intent":"타겟 고객 포지션"},{"no":39,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 업계 1위 어디야?","intent":"업계 순위 포지션"},{"no":40,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 주거래로 써도 괜찮아?","intent":"주거래 적합성"},{"no":41,"category":"OK 브랜드","type":"업권 질문","text":"저축은행 파산하면 내 돈 어떻게 돼?","intent":"재무 안정성 고려"},{"no":42,"category":"OK 브랜드","type":"조합 질문","text":"OK저축은행 앱 실제로 써봤어? 이체나 조회 편해? 다른 저축은행 앱이랑 비교하면?","intent":"앱 UX 실사용 고려"},{"no":43,"category":"OK 브랜드","type":"조합 질문","text":"비대면으로 계좌 개설하고 모바일 뱅킹 서비스도 편리한 저축은행을 찾고 있어요. 앱 사용성이나 디지털 서비스 면에서 괜찮은 곳들 추천해 주세요.","intent":"여러 질문 조합 답변 확인"},{"no":44,"category":"OK 브랜드","type":"조합 질문","text":"생활비 관리, 비상금 보관, 목돈 예치까지 두루 활용하기 좋은 저축은행은 어떤 곳인가요?","intent":"여러 질문 조합 답변 확인"},{"no":45,"category":"OK 브랜드","type":"조합 질문","text":"저축은행 중에서 규모가 큰 곳은 어디인가요? 자산 규모나 인지도 기준으로 함께 설명해 주세요.","intent":"여러 질문 조합 답변 확인"},{"no":46,"category":"OK 브랜드","type":"조합 질문","text":"저축은행은 믿고 거래해도 괜찮은 곳인가요? 회사 규모, 운영 기간, 예금자보호, 고객 이용 편의성 기준으로 알려주세요.","intent":"여러 질문 조합 답변 확인"},{"no":47,"category":"OK 브랜드","type":"조합 질문","text":"모바일로 간편하게 계좌 개설하고 싶은데, 저축은행 중에서 비대면 서비스 잘되어 있고 사용하기 편한 앱 제공하는 곳들 추천해 주세요.","intent":"여러 질문 조합 답변 확인"},{"no":48,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 예금 금리 얼마야?","intent":"OK 금리 직접 탐색"},{"no":49,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 예금 상품 종류 알려줘. 정기예금 말고 다른 것도 있어?","intent":"OK 수신 상품 탐색"},{"no":50,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 파킹통장 있어? 금리랑 조건 알려줘","intent":"OK 파킹통장 탐색"},{"no":51,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 적금 상품 금리랑 우대조건 알려줘","intent":"OK 적금 탐색"},{"no":52,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행은 비대면이랑 오프라인 금리 달라?","intent":"채널별 금리 탐색"},{"no":53,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 적금 추천해줘","intent":"OK 적금 추천"},{"no":54,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 예금 가입 방법 알려줘","intent":"가입 전환"},{"no":55,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 적금 비대면으로 가입 돼?","intent":"비대면 가입"},{"no":56,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 예금 이율 지금 얼마야?","intent":"현재 금리 확인"},{"no":57,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 파킹통장 가입 조건 알려줘","intent":"파킹통장 가입"},{"no":58,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 예금 만기 자동 연장 돼?","intent":"만기 처리 확인"},{"no":59,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 정기예금 지금 금리 얼마야? 앱으로 가입하면 우대금리 더 줘?","intent":"가입 직전 금리 확인"},{"no":60,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 앱으로 적금 가입하는 절차 알려줘. 처음 써보는데 어렵지 않아?","intent":"가입 절차 확인"},{"no":61,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 예금 가입하면 이자 언제 줘? 만기 때 한번에 줘 아니면 매달 줘?","intent":"이자 지급 방식 확인"},{"no":62,"category":"수신상품","type":"브랜드 상품","text":"OK저축은행 예금 가입 후 혹시 중도에 급하면 어떻게 해? 중도해지 절차랑 이자 손실 얼마야?","intent":"리스크 최종 확인"},{"no":63,"category":"수신상품","type":"비교 질문","text":"OK저축은행이랑 웰컴저축은행 예금, 적금, 파킹통장 상품 어디가 더 나아?","intent":"경쟁사 대비 고려"},{"no":64,"category":"수신상품","type":"비교 질문","text":"OK저축은행이랑 SBI저축은행 예금, 적금, 파킹통장 상품 어디가 더 나아?","intent":"경쟁사 대비 고려"},{"no":65,"category":"수신상품","type":"비교 질문","text":"CMA랑 저축은행 파킹통장 중 고민 중인데, 단기 자금 관리용으로는 어떤 쪽이 더 유리한가요?","intent":"CMA 비교"},{"no":66,"category":"수신상품","type":"업권 상품","text":"저축은행 예금 금리 알려줘","intent":"저축은행 금리 인지"},{"no":67,"category":"수신상품","type":"업권 상품","text":"저축은행 파킹통장 금리 비교해줘","intent":"파킹통장 비교"},{"no":68,"category":"수신상품","type":"업권 상품","text":"적금 금리 제일 높은 저축은행 어디야?","intent":"적금 금리 탐색"},{"no":69,"category":"수신상품","type":"업권 상품","text":"저축은행 정기예금 금리 Top5 알려줘.","intent":"금리 순위 탐색"},{"no":70,"category":"수신상품","type":"업권 상품","text":"저축은행 예금 중도해지하면 이자 얼마나 손해야?","intent":"중도해지 조건 탐색"},{"no":71,"category":"수신상품","type":"전체 상품","text":"금리 높은 예금 상품 추천해줘","intent":"수신 일반 인지"},{"no":72,"category":"수신상품","type":"전체 상품","text":"고금리 적금 상품 추천해줘","intent":"적금 인지"},{"no":73,"category":"수신상품","type":"전체 상품","text":"금리 좋은 파킹통장 추천해줘","intent":"파킹통장 인지"},{"no":74,"category":"수신상품","type":"전체 상품","text":"예금 금리 높은 금융사 추천해줘","intent":"금리 경쟁력 인지"},{"no":75,"category":"수신상품","type":"전체 상품","text":"요즘 금리 좋은 적금이나 예금 상품 뭐가 있어? 시중은행이랑 저축은행 다 포함해서","intent":"수신 시장 전반 인지"},{"no":76,"category":"수신상품","type":"전체 상품","text":"파킹통장이 뭐야? 일반 예금이랑 뭐가 달라?","intent":"파킹통장 개념 인지"},{"no":77,"category":"수신상품","type":"전체 상품","text":"예금이랑 적금 차이가 뭐야? 어떤 게 더 유리해?","intent":"상품 기초 인지"},{"no":78,"category":"수신상품","type":"전체 상품","text":"요즘 금리가 어떻게 돼? 예금 넣기 좋은 시기야?","intent":"금리 환경 인지"},{"no":79,"category":"수신상품","type":"전체 상품","text":"고금리 예금 찾는 방법 알려줘. 어디서 비교하면 돼?","intent":"수신 비교 채널 인지"},{"no":80,"category":"수신상품","type":"전체 상품","text":"청년 대상 특판 적금 상품 있어? 정부 지원 상품도 알려줘","intent":"청년 수신 상품 인지"},{"no":81,"category":"수신상품","type":"전체 상품","text":"비과세 예금 상품이 뭐야? 일반 예금이랑 세금 차이가 얼마나 나?","intent":"절세 상품 인지"},{"no":82,"category":"수신상품","type":"전체 상품","text":"1년 정기예금 금리 높은 곳 어디야?","intent":"기간별 비교"},{"no":83,"category":"수신상품","type":"전체 상품","text":"예금 금리 비교할 때 세후 이자로 계산하면 얼마야? 이자소득세 얼마 떼?","intent":"세후 수익 비교"},{"no":84,"category":"수신상품","type":"전체 상품","text":"요즘 특판 예금 있어? 특판 이벤트 상품 알려줘","intent":"특판 상품 탐색"},{"no":85,"category":"수신상품","type":"전체 상품","text":"예금 1년이랑 2년 중에 어느 게 나아?","intent":"기간 선택 고려"},{"no":86,"category":"수신상품","type":"전체 상품","text":"연말정산 앞두고 세금 아낄 수 있는 예금 적금 상품 있어?","intent":"절세 연계 고려"},{"no":87,"category":"수신상품","type":"조합 질문","text":"저축은행 예금이 시중은행보다 금리 높은 이유가 뭐야? 그만큼 위험하지 않아?","intent":"여러 질문 조합 답변 확인"},{"no":88,"category":"수신상품","type":"페르소나 질문","text":"직장인인데 매달 30만 원씩 1년 넣을 적금 찾고 있어. 금리 높고 중도해지도 되는 곳 있어?","intent":"직장인 적금 시나리오"},{"no":89,"category":"수신상품","type":"페르소나 질문","text":"목돈 3000만 원 1년 예금 넣으려는데 저축은행 중에 금리 제일 높은 데 어디야? 예금자보호도 되는지 알고 싶어","intent":"고액 예금 시나리오"},{"no":90,"category":"수신상품","type":"페르소나 질문","text":"1억 원 이상 예금 넣고 싶은데 저축은행 예금자보호 한도 초과분 어떻게 해?","intent":"고액 예금자보호 고려"},{"no":91,"category":"수신상품","type":"페르소나 질문","text":"육아휴직 중인데 여윳돈 2000만 원 굴리고 싶어. OK저축은행 어떤 상품이 제일 나아?","intent":"생애주기 시나리오"},{"no":92,"category":"수신상품","type":"페르소나 질문","text":"퇴직금 5000만 원 받았는데 안전하게 굴리고 싶어. 어디가 좋아?","intent":"퇴직금 운용 시나리오"},{"no":93,"category":"수신상품","type":"페르소나 질문","text":"아이 교육비 마련을 위해 매월 적금을 넣으려고 하는데, 저축은행 적금 중에서 중도인출이나 추가납입이 자유로운 상품들 어디가 있을까요?","intent":"아이 적금 시나리오"},{"no":94,"category":"수신상품","type":"페르소나 질문","text":"비상금 통장으로 쓸 파킹통장을 만들려는데, 저축은행과 인터넷은행 중에서 금리와 입출금 편의성을 종합적으로 고려했을 때 어느 쪽이 더 나을까요?","intent":"비상금 통장 시나리오"},{"no":95,"category":"수신상품","type":"페르소나 질문","text":"소액으로 시작할 수 있는 저축은행 적금상품이 있나요? 부담 없이 시작하기 좋은 상품 추천해 주세요.","intent":"소액 적금 시나리오"},{"no":96,"category":"수신상품","type":"페르소나 질문","text":"사회초년생인데 매달 30만 원씩 저축하려고 해요. 저축은행 적금상품 중 금리 좋은 곳 추천해 주세요.","intent":"사회초년생 적금 시나리오"},{"no":97,"category":"수신상품","type":"페르소나 질문","text":"단기간 예치할 수 있는 저축은행 예금상품이 있나요? 3개월~6개월 기준으로 추천해 주세요.","intent":"단기 예금 시나리오"},{"no":98,"category":"수신상품","type":"페르소나 질문","text":"생활비 통장과 여유자금 통장을 분리해서 쓰고 싶은데, 저축은행 입출금통장 중 어떤 상품이 활용하기 좋을까요?","intent":"통장 쪼개기 시나리오"},{"no":99,"category":"여신상품","type":"대출 비교","text":"대출 비교 서비스 추천해줘. 어디서 한 번에 비교할 수 있어?","intent":"대출 비교 채널 인지"},{"no":100,"category":"여신상품","type":"대출 비교","text":"대출 비교 앱 추천해줘.","intent":"비교 플랫폼 탐색"},{"no":101,"category":"여신상품","type":"대출 비교","text":"신용대출 비교 플랫폼 추천해줘. 핀다랑 토스 말고 다른 것도 있어?","intent":"플랫폼 탐색"},{"no":102,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 상품 종류 알려줘","intent":"OK 여신 상품 인지"},{"no":103,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 신용대출 금리 얼마야?","intent":"OK 금리 탐색"},{"no":104,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 비상금대출이랑 신용대출 차이 알려줘. 어떤 게 나에게 맞아?","intent":"OK 상품 탐색"},{"no":105,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 모바일 대출 가능해? 한도 조회는 신용점수에 영향 줘?","intent":"비대면 대출 탐색"},{"no":106,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 전세자금대출이나 햇살론 취급해? 정책 대출도 있어?","intent":"정책 대출 탐색"},{"no":107,"category":"여신상품","type":"브랜드 상품","text":"신용점수 낮아도 OK저축은행 대출 돼?","intent":"중저신용 고려"},{"no":108,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 한도 얼마나 나와?","intent":"한도 고려"},{"no":109,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 이자 얼마야?","intent":"금리 고려"},{"no":110,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 조건 알려줘","intent":"조건 고려"},{"no":111,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 비대면으로 돼?","intent":"비대면 신청"},{"no":112,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 한도 조회 방법 알려줘","intent":"한도 조회"},{"no":113,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 승인 얼마나 걸려?","intent":"승인 속도"},{"no":114,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 비상금대출 한도랑 금리 알려줘.","intent":"대출 직전 확인"},{"no":115,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행에서 대출 받고 싶은데 앱으로 바로 신청 가능해? 승인 얼마나 걸려?","intent":"대출 실행 직전"},{"no":116,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 신청하는데 서류 뭐 필요해? 재직증명서 꼭 내야 해?","intent":"서류 확인"},{"no":117,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 금리 낮추는 방법 있어? 우대금리 받으려면 어떻게 해야 해?","intent":"금리 최적화"},{"no":118,"category":"여신상품","type":"브랜드 상품","text":"OK저축은행 대출 중도상환하면 수수료 얼마야? 빨리 갚는 게 이득이야?","intent":"상환 전략 확인"},{"no":119,"category":"여신상품","type":"비교 질문","text":"카드론과 현금서비스의 차이가 무엇인가요?","intent":"개념 차이 인지"},{"no":120,"category":"여신상품","type":"비교 질문","text":"OK저축은행이랑 SBI저축은행 중에 어디서 대출받는 게 나아? 지금 바로 신청할 거야","intent":"최종 결정 단계"},{"no":121,"category":"여신상품","type":"비교 질문","text":"OK저축은행이랑 웰컴저축은행 중에 어디서 대출받는 게 나아? 지금 바로 신청할 거야","intent":"최종 결정 단계"},{"no":122,"category":"여신상품","type":"업권 상품","text":"2금융권 대출 어디가 좋아 추천해줘","intent":"여신 일반 인지"},{"no":123,"category":"여신상품","type":"업권 상품","text":"저축은행 신용대출 금리 어느 정도야?","intent":"금리 수준 인지"},{"no":124,"category":"여신상품","type":"업권 상품","text":"1금융권 대출 거절됐어. 2금융권에서 대출받으면 신용점수 많이 떨어져?","intent":"2금융권 대출 인지"},{"no":125,"category":"여신상품","type":"업권 상품","text":"신용대출 처음 받아보는데 저축은행에서 받으면 어떤 점이 좋고 나빠?","intent":"저축은행 여신 인지"},{"no":126,"category":"여신상품","type":"업권 상품","text":"저축은행 대출 DSR 규제 어떻게 적용돼? 한도에 영향 있어?","intent":"규제 환경 인지"},{"no":127,"category":"여신상품","type":"업권 상품","text":"저축은행 대출 금리 비교해줘","intent":"금리 비교"},{"no":128,"category":"여신상품","type":"업권 상품","text":"대출 한도 잘 나오는 저축은행 어디야?","intent":"한도 탐색"},{"no":129,"category":"여신상품","type":"업권 상품","text":"저축은행 신용대출 금리 Top5 알려줘.","intent":"금리 순위 탐색"},{"no":130,"category":"여신상품","type":"업권 상품","text":"저축은행 대출 중에 중도상환수수료 없는 상품 있어?","intent":"중도상환 조건 탐색"},{"no":131,"category":"여신상품","type":"업권 상품","text":"저축은행 대출 받으면 신용점수 얼마나 떨어져? 나중에 1금융권 가는 데 영향 있어?","intent":"신용점수 영향 고려"},{"no":132,"category":"여신상품","type":"전체 상품","text":"신용점수 낮아도 대출 되는 곳 있어?","intent":"중저신용 니즈"},{"no":133,"category":"여신상품","type":"전체 상품","text":"비대면 대출 가능한 금융사 추천해줘","intent":"비대면 대출 인지"},{"no":134,"category":"여신상품","type":"전체 상품","text":"대출 잘 나오는 금융사 추천해줘","intent":"대출 용이성 인지"},{"no":135,"category":"여신상품","type":"전체 상품","text":"직장인 신용대출 어디가 좋아 추천해줘","intent":"직장인 여신 인지"},{"no":136,"category":"여신상품","type":"전체 상품","text":"대출 받을 때 금리 말고 뭘 더 봐야 해? 체크리스트 알려줘","intent":"대출 기준 인지"},{"no":137,"category":"여신상품","type":"전체 상품","text":"대출 승인 잘 되는 은행 추천해줘","intent":"승인율 탐색"},{"no":138,"category":"여신상품","type":"전체 상품","text":"소액 대출 가능한 금융사 추천해줘","intent":"소액 대출 탐색"},{"no":139,"category":"여신상품","type":"전체 상품","text":"무직자도 가능한 대출 어디 있어 추천해줘","intent":"무직자 대출 탐색"},{"no":140,"category":"여신상품","type":"전체 상품","text":"신용점수 낮아도 대출 가능한 곳 추천해줘.","intent":"중저신용 대출 고려"},{"no":141,"category":"여신상품","type":"페르소나 질문","text":"직장인인데 신용점수 680점이야. 급하게 500만 원 필요한데 어디서 대출받는 게 나아? 저축은행도 괜찮아?","intent":"중신용 직장인 시나리오"},{"no":142,"category":"여신상품","type":"페르소나 질문","text":"소상공인 카페 운영 중인데 매출 변동이 심해서 운영자금 대출 알아보고 있어. 저축은행 중에 매출 증빙 조건 까다롭지 않고 한도 넉넉한 곳 비교해서 추천해줘","intent":"소상공인 운영자금 시나리오"},{"no":143,"category":"여신상품","type":"페르소나 질문","text":"전세보증금 부족한데 저축은행에서 전세자금 빌릴 수 있어? 조건이랑 한도 알려줘","intent":"전세자금 시나리오"},{"no":144,"category":"여신상품","type":"페르소나 질문","text":"프리랜서인데 소득 증빙이 어려워. 저축은행에서 대출받을 수 있어?","intent":"프리랜서 시나리오"},{"no":145,"category":"여신상품","type":"페르소나 질문","text":"기존에 대출이 있는데 저축은행에서 추가 대출 가능해? DSR 때문에 안 되는 거 아냐?","intent":"기대출자 시나리오"},{"no":146,"category":"여신상품","type":"페르소나 질문","text":"신혼부부인데 신혼집 마련 자금으로 주택담보대출을 받으려고 해요. 저축은행과 시중은행 중에서 신혼부부 우대조건이나 금리 혜택 있는 곳들 어디인지 알려주세요.","intent":"신혼부부 주담대 시나리오"},{"no":147,"category":"여신상품","type":"페르소나 질문","text":"직장 다니면서 부업으로 온라인 쇼핑몰을 운영하는데 재고 구매 자금이 필요해요. 개인사업자 등록 없이도 신청 가능한 저축은행 대출상품이 있을까요?","intent":"직장인 부업 시나리오"},{"no":148,"category":"여신상품","type":"페르소나 질문","text":"외국인 근로자 E-7 비자 소지자인데 한국에서 신용대출 받을 수 있는 저축은행이나 캐피탈이 있나요? 비자 종류별로 대출 조건이 다른지도 궁금해요.","intent":"외국인 근로자 시나리오"},{"no":149,"category":"여신상품","type":"페르소나 질문","text":"중고차 딜러 사업을 시작하려는데 차량 매입 자금으로 자동차담보대출을 받을 수 있는 저축은행이나 캐피탈 중에서 사업자 대상 상품 운영하는 곳들 알려주세요.","intent":"오토론 사업자 시나리오"},{"no":150,"category":"여신상품","type":"페르소나 질문","text":"육아휴직 중인 직장맘인데 복직 전까지 생활비가 부족해서 소액 대출이 필요해요. 육아휴직자도 신청 가능한 저축은행 대출상품이 있을까요?","intent":"육아휴직자 시나리오"},{"no":151,"category":"여신상품","type":"페르소나 질문","text":"월 100만 원 정도 수입이 있는 주부인데 생활자금 대출이 필요해요. 주부대출 상품 운영하는 저축은행이나 캐피탈 중에서 조건 좋은 곳들 비교해 주세요.","intent":"주부대출 시나리오"},{"no":152,"category":"여신상품","type":"페르소나 질문","text":"기존 대출을 더 낮은 금리로 갈아타고 싶은데, 대환대출 조건 좋은 저축은행들과 1금융권 중에서 어디를 우선적으로 알아봐야 할까요?","intent":"대환대출 시나리오"},{"no":153,"category":"여신상품","type":"페르소나 질문","text":"자량 교체 자금으로 자동차담보대출을 받으려는데, 저축은행과 캐피탈 중에서 금리나 대출 한도 면에서 더 유리한 쪽은 어디인가요?","intent":"자동차담보대출 시나리오"},{"no":154,"category":"여신상품","type":"페르소나 질문","text":"프리랜서인데 소득 증빙이 어려워서 대출 받기가 힘들어요. 저축은행이나 캐피탈 중에서 프리랜서도 신청 가능한 곳들 조건 비교해서 알려주세요.","intent":"프리랜서 시나리오"},{"no":155,"category":"여신상품","type":"페르소나 질문","text":"신용등급 6등급인데 중금리 대출 받을 수 있는 저축은행이나 상호금고 중에서 조건 괜찮은 곳들 알아보고 있어요. 어디를 먼저 상담받아봐야 할까요?","intent":"저신용자 시나리오"},{"no":156,"category":"여신상품","type":"페르소나 질문","text":"집 리모델링 자금으로 주택담보대출을 받으려는데, 시중은행 말고 저축은행에서도 가능한가요? 금리나 한도 면에서 어떤 차이가 있는지 비교해 주세요.","intent":"주택담보대출 시나리오"},{"no":157,"category":"여신상품","type":"페르소나 질문","text":"개인사업자인데 운영자금 대출을 받으려고 해요. 저축은행들 중에서 소상공인 지원 잘해주고 심사 기준이 합리적인 곳들 몇 군데 비교해서 추천해 주세요.","intent":"개인사업자 시나리오"},{"no":158,"category":"여신상품","type":"페르소나 질문","text":"4대보험 가입 직장인인데 금리나 한도에서 우대받을 수 있는 대출이 있을까요?","intent":"직장인 시나리오"},{"no":159,"category":"여신상품","type":"페르소나 질문","text":"대출을 연체 없이 꾸준히 갚아왔는데, 성실상환자에게 유리한 대출상품이 있을까요?","intent":"성실상환자 시나리오"}];
+</script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- constants ---------------- */
+  var CATEGORIES = ['OK 브랜드', '수신상품', '여신상품'];
+  var ENGINES = ['gpt', 'gemini', 'claude'];
+  var ENGINE_LABEL = { gpt: 'GPT', gemini: 'GEMINI', claude: 'CLAUDE' };
+  var ENGINE_COLOR = { gpt: '#F1E9DC99', gemini: '#e07d08', claude: '#FF571F' };
+  var DEFAULT_BRANDS = ['OK저축은행', 'SBI저축은행', '웰컴저축은행', '페퍼저축은행', '애큐온저축은행'];
+  var OWN_BRAND = 'OK저축은행';
+
+  var TYPES = [];
+  PROMPTS_SEED.forEach(function (r) { if (TYPES.indexOf(r.type) === -1) TYPES.push(r.type); });
+
+  /* ---------------- storage ---------------- */
+  var LS_PROMPTS = 'geo_monitor_prompts_v2';
+  var LS_BRANDS = 'geo_monitor_brands_v2';
+  var LS_RESULTS = 'geo_monitor_results_v2';
+  var LS_SETTINGS = 'geo_monitor_settings_v2';
+
+  function load(key, fallback) {
+    try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch (e) { return fallback; }
+  }
+  function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  function seedPrompts() {
+    return PROMPTS_SEED.map(function (r) {
+      return { id: 'p' + r.no, no: r.no, category: r.category, type: r.type, text: r.text, intent: r.intent, engines: ENGINES.slice() };
+    });
+  }
+
+  var state = {
+    prompts: load(LS_PROMPTS, null) || seedPrompts(),
+    brands: load(LS_BRANDS, DEFAULT_BRANDS.slice()),
+    results: load(LS_RESULTS, []),
+    settings: load(LS_SETTINGS, { endpoint: '', demoMode: true }),
+    filters: { categories: {}, dateFrom: '', dateTo: '' },
+    promptFilter: { category: 'all', type: 'all', search: '' }
+  };
+  CATEGORIES.forEach(function (c) { state.filters.categories[c] = true; });
+  if (!state.prompts.length) state.prompts = seedPrompts();
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------------- tabs ---------------- */
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+      btn.classList.add('active');
+      $('tab-' + btn.dataset.tab).classList.add('active');
+      $('sharedFilterBar').style.display = (btn.dataset.tab === 'prompts') ? 'none' : 'flex';
+      if (btn.dataset.tab === 'share') renderShareTab();
+      if (btn.dataset.tab === 'sources') renderSourcesTab();
+    });
+  });
+
+  /* ---------------- shared filter bar ---------------- */
+  function renderSharedCatChips() {
+    var wrap = $('catChipsShared');
+    wrap.innerHTML = '';
+    CATEGORIES.forEach(function (c) {
+      var chip = document.createElement('span');
+      chip.className = 'cat-chip' + (state.filters.categories[c] ? ' on' : '');
+      chip.textContent = c;
+      chip.addEventListener('click', function () {
+        state.filters.categories[c] = !state.filters.categories[c];
+        renderSharedCatChips();
+        refreshActiveTab();
+      });
+      wrap.appendChild(chip);
+    });
+  }
+  $('dateFrom').addEventListener('change', function () { state.filters.dateFrom = this.value; refreshActiveTab(); });
+  $('dateTo').addEventListener('change', function () { state.filters.dateTo = this.value; refreshActiveTab(); });
+  $('clearDateBtn').addEventListener('click', function () {
+    state.filters.dateFrom = ''; state.filters.dateTo = '';
+    $('dateFrom').value = ''; $('dateTo').value = '';
+    refreshActiveTab();
+  });
+  function refreshActiveTab() {
+    var active = document.querySelector('.tab-btn.active').dataset.tab;
+    if (active === 'share') renderShareTab();
+    if (active === 'sources') renderSourcesTab();
+  }
+
+  /* ---------------- filtering helpers ---------------- */
+  function categoryFilteredResults() {
+    return state.results.filter(function (r) { return state.filters.categories[r.category]; });
+  }
+  function filteredResults() {
+    return categoryFilteredResults().filter(function (r) {
+      if (state.filters.dateFrom && r.ts < new Date(state.filters.dateFrom).getTime()) return false;
+      if (state.filters.dateTo && r.ts > (new Date(state.filters.dateTo).getTime() + 86399999)) return false;
+      return true;
+    });
+  }
+
+  function computeShare(results) {
+    var counts = {}; state.brands.forEach(function (b) { counts[b] = 0; });
+    var total = 0;
+    results.forEach(function (r) {
+      r.brandHits.forEach(function (h) {
+        if (h.mentioned && counts.hasOwnProperty(h.brand)) { counts[h.brand]++; total++; }
+      });
+    });
+    return state.brands.map(function (b) {
+      return { brand: b, count: counts[b], share: total ? (counts[b] / total * 100) : 0 };
+    }).sort(function (a, b) { return b.count - a.count; });
+  }
+
+  /* ---------------- brand manager ---------------- */
+  function renderBrandManager() {
+    var wrap = $('brandManager');
+    wrap.innerHTML = '';
+    state.brands.forEach(function (b) {
+      var chip = document.createElement('span');
+      chip.className = 'brand-chip' + (b === OWN_BRAND ? ' own' : '');
+      var span = document.createElement('span');
+      span.textContent = b;
+      chip.appendChild(span);
+      if (b !== OWN_BRAND) {
+        var del = document.createElement('button');
+        del.textContent = '✕';
+        del.setAttribute('aria-label', b + ' 삭제');
+        del.addEventListener('click', function () {
+          state.brands = state.brands.filter(function (x) { return x !== b; });
+          save(LS_BRANDS, state.brands);
+          renderBrandManager(); renderShareTab();
+        });
+        chip.appendChild(del);
+      }
+      wrap.appendChild(chip);
+    });
+    var addWrap = document.createElement('span');
+    addWrap.className = 'brand-add';
+    var input = document.createElement('input');
+    input.type = 'text'; input.placeholder = '경쟁 브랜드 추가';
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-ghost btn-sm'; btn.textContent = '+ 추가';
+    btn.addEventListener('click', function () {
+      var v = input.value.trim();
+      if (!v || state.brands.indexOf(v) > -1) return;
+      state.brands.push(v);
+      save(LS_BRANDS, state.brands);
+      input.value = '';
+      renderBrandManager(); renderShareTab();
+    });
+    addWrap.appendChild(input); addWrap.appendChild(btn);
+    wrap.appendChild(addWrap);
+  }
+
+  /* ---------------- share tab render ---------------- */
+  function renderShareTab() {
+    var fr = filteredResults();
+    var shareData = computeShare(fr);
+
+    // KPI row
+    var totalScans = fr.length;
+    var ownEntry = shareData.find(function (x) { return x.brand === OWN_BRAND; }) || { count: 0, share: 0 };
+    var ownRank = shareData.findIndex(function (x) { return x.brand === OWN_BRAND; }) + 1;
+    $('kpiRow').innerHTML =
+      kpiCard('총 스캔 수', totalScans, '필터 조건 기준') +
+      kpiCard('OK저축은행 점유율', ownEntry.share.toFixed(1) + '%', ownEntry.count + '회 언급') +
+      kpiCard('OK저축은행 랭킹', totalScans ? ('#' + ownRank + ' / ' + shareData.length) : '—', '전체 추적 브랜드 중');
+
+    // share bars
+    var maxShare = Math.max.apply(null, shareData.map(function (x) { return x.share; }).concat([1]));
+    var listEl = $('shareList');
+    listEl.innerHTML = '';
+    if (!totalScans) {
+      listEl.innerHTML = '<div class="empty-hint">조건에 맞는 스캔 데이터가 없습니다. 프롬프트 탭에서 스캔을 실행해보세요.</div>';
+    } else {
+      shareData.forEach(function (s) {
+        var row = document.createElement('div');
+        row.className = 'share-row' + (s.brand === OWN_BRAND ? ' is-own' : '');
+        row.innerHTML =
+          '<span class="brand-name">' + escapeHtml(s.brand) + '</span>' +
+          '<span class="share-track"><span class="share-fill" style="width:' + (maxShare ? (s.share / maxShare * 100) : 0) + '%"></span></span>' +
+          '<span class="share-pct">' + s.share.toFixed(1) + '%</span>';
+        listEl.appendChild(row);
+      });
+    }
+
+    // brand rank table
+    var brtBody = document.querySelector('#brandRankTable tbody');
+    brtBody.innerHTML = '';
+    if (!totalScans) {
+      brtBody.innerHTML = '<tr><td colspan="4" class="empty-hint" style="border:none;">데이터 없음</td></tr>';
+    } else {
+      shareData.forEach(function (s, i) {
+        var tr = document.createElement('tr');
+        if (s.brand === OWN_BRAND) tr.className = 'own-row';
+        tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + escapeHtml(s.brand) + '</td><td>' + s.count + '</td><td>' + s.share.toFixed(1) + '%</td>';
+        brtBody.appendChild(tr);
+      });
+    }
+
+    // model rank table
+    var modelRows = ENGINES.map(function (eng) {
+      var er = fr.filter(function (r) { return r.engine === eng; });
+      var sd = computeShare(er);
+      var idx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
+      var own = sd[idx] || { count: 0, share: 0 };
+      return { engine: eng, scans: er.length, rank: er.length ? (idx + 1) : null, share: own.share, count: own.count };
+    }).sort(function (a, b) { return b.share - a.share; });
+    var mrtBody = document.querySelector('#modelRankTable tbody');
+    mrtBody.innerHTML = '';
+    modelRows.forEach(function (m) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td class="cell-mono">' + ENGINE_LABEL[m.engine] + '</td><td>' + (m.rank ? ('#' + m.rank) : '—') + '</td><td>' + m.count + '</td><td>' + m.share.toFixed(1) + '%</td><td>' + m.scans + '</td>';
+      mrtBody.appendChild(tr);
+    });
+
+    // group (유형) rank table
+    var types = [];
+    fr.forEach(function (r) { if (types.indexOf(r.type) === -1) types.push(r.type); });
+    var groupRows = types.map(function (t) {
+      var tr2 = fr.filter(function (r) { return r.type === t; });
+      var sd = computeShare(tr2);
+      var idx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
+      var own = sd[idx] || { count: 0, share: 0 };
+      return { type: t, scans: tr2.length, rank: tr2.length ? (idx + 1) : null, share: own.share, count: own.count };
+    }).sort(function (a, b) { return b.share - a.share; });
+    var grtBody = document.querySelector('#groupRankTable tbody');
+    grtBody.innerHTML = '';
+    if (!groupRows.length) {
+      grtBody.innerHTML = '<tr><td colspan="6" class="empty-hint" style="border:none;">데이터 없음</td></tr>';
+    } else {
+      groupRows.forEach(function (g, i) {
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + escapeHtml(g.type) + '</td><td>' + (g.rank ? ('#' + g.rank) : '—') + '</td><td>' + g.count + '</td><td>' + g.share.toFixed(1) + '%</td><td>' + g.scans + '</td>';
+        grtBody.appendChild(tr);
+      });
+    }
+
+    renderTrendChart();
+  }
+  function kpiCard(label, value, sub) {
+    return '<div class="kpi-card"><div class="kpi-label">' + label + '</div><div class="kpi-value">' + value + '</div><div class="kpi-sub">' + sub + '</div></div>';
+  }
+
+  /* ---------------- trend chart ---------------- */
+  function renderTrendChart() {
+    var width = 1000, height = 200, pad = 30;
+    var data = categoryFilteredResults();
+    var byEngine = {}; ENGINES.forEach(function (e) { byEngine[e] = []; });
+    data.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (r) {
+      var arr = byEngine[r.engine];
+      var mentionedCount = arr.length ? arr[arr.length - 1].mentionedCount : 0;
+      var ownHit = r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; });
+      mentionedCount += ownHit ? 1 : 0;
+      var count = arr.length + 1;
+      arr.push({ ts: r.ts, rate: (mentionedCount / count) * 100, mentionedCount: mentionedCount });
+    });
+    var hasData = ENGINES.some(function (e) { return byEngine[e].length >= 2; });
+    var wrap = $('trendChartWrap');
+    if (!hasData) {
+      wrap.innerHTML = '<div class="empty-hint">아직 트렌드를 그릴 만큼 데이터가 쌓이지 않았습니다. 스캔을 2회 이상 실행해보세요.</div>';
+      return;
+    }
+    var allTs = [];
+    ENGINES.forEach(function (e) { byEngine[e].forEach(function (pt) { allTs.push(pt.ts); }); });
+    var minTs = Math.min.apply(null, allTs), maxTs = Math.max.apply(null, allTs);
+    var span = Math.max(maxTs - minTs, 1);
+    function x(ts) { return pad + ((ts - minTs) / span) * (width - pad * 2); }
+    function y(rate) { return height - pad - (rate / 100) * (height - pad * 2); }
+    var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width:100%;height:auto;font-family:Orbitron,sans-serif;">';
+    [0, 50, 100].forEach(function (v) {
+      svg += '<line x1="' + pad + '" y1="' + y(v) + '" x2="' + (width - pad) + '" y2="' + y(v) + '" stroke="#FF571F1a" stroke-width="1"/>';
+      svg += '<text x="' + (pad - 8) + '" y="' + (y(v) + 3) + '" font-size="9" fill="#F1E9DC66" text-anchor="end">' + v + '%</text>';
+    });
+    ENGINES.forEach(function (eng) {
+      var pts = byEngine[eng];
+      if (pts.length < 2) return;
+      var d = pts.map(function (pt, i) { return (i === 0 ? 'M' : 'L') + x(pt.ts).toFixed(1) + ',' + y(pt.rate).toFixed(1); }).join(' ');
+      svg += '<path d="' + d + '" fill="none" stroke="' + ENGINE_COLOR[eng] + '" stroke-width="2"/>';
+      var last = pts[pts.length - 1];
+      svg += '<circle cx="' + x(last.ts).toFixed(1) + '" cy="' + y(last.rate).toFixed(1) + '" r="3.5" fill="' + ENGINE_COLOR[eng] + '"/>';
+    });
+    svg += '</svg>';
+    wrap.innerHTML = svg;
+  }
+
+  /* ---------------- sources tab ---------------- */
+  function domainFrom(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return url || '알수없음'; }
+  }
+  function computeSources(results) {
+    var map = {};
+    results.forEach(function (r) {
+      (r.sources || []).forEach(function (s) {
+        var site = s.site || domainFrom(s.url) || '알수없음';
+        if (!map[site]) map[site] = { site: site, count: 0, pages: [] };
+        map[site].count++;
+        map[site].pages.push({ url: s.url, title: s.title, ts: r.ts, promptText: r.promptText, engine: r.engine });
+      });
+    });
+    return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return b.count - a.count; });
+  }
+  function renderSourcesTab() {
+    var fr = filteredResults();
+    var sourceData = computeSources(fr);
+    var maxCount = Math.max.apply(null, sourceData.map(function (x) { return x.count; }).concat([1]));
+
+    var listEl = $('sourceShareList');
+    listEl.innerHTML = '';
+    if (!sourceData.length) {
+      listEl.innerHTML = '<div class="empty-hint">인용 출처 데이터가 없습니다. 스캔 결과에 출처가 포함되면 여기 표시됩니다.</div>';
+    } else {
+      sourceData.forEach(function (s) {
+        var row = document.createElement('div');
+        row.className = 'share-row';
+        row.innerHTML =
+          '<span class="brand-name">' + escapeHtml(s.site) + '</span>' +
+          '<span class="share-track"><span class="share-fill" style="width:' + (s.count / maxCount * 100) + '%"></span></span>' +
+          '<span class="share-pct">' + s.count + '</span>';
+        listEl.appendChild(row);
+      });
+    }
+
+    var detailBody = $('sourceDetailBody');
+    detailBody.innerHTML = '';
+    var allPages = [];
+    sourceData.forEach(function (s) { s.pages.forEach(function (p) { allPages.push({ site: s.site, page: p }); }); });
+    allPages.sort(function (a, b) { return b.page.ts - a.page.ts; });
+    if (!allPages.length) {
+      detailBody.innerHTML = '<tr><td colspan="5" class="empty-hint" style="border:none;">데이터 없음</td></tr>';
+    } else {
+      allPages.slice(0, 200).forEach(function (item) {
+        var tr = document.createElement('tr');
+        var timeStr = new Date(item.page.ts).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        var pageCell = item.page.url
+          ? '<a href="' + escapeAttr(item.page.url) + '" target="_blank" rel="noopener">' + escapeHtml(item.page.title || item.page.url) + '</a>'
+          : escapeHtml(item.page.title || '-');
+        tr.innerHTML =
+          '<td>' + timeStr + '</td>' +
+          '<td class="cell-mono">' + escapeHtml(item.site) + '</td>' +
+          '<td class="cell-snippet">' + pageCell + '</td>' +
+          '<td class="cell-snippet">' + escapeHtml(truncate(item.page.promptText, 40)) + '</td>' +
+          '<td class="cell-mono">' + ENGINE_LABEL[item.page.engine] + '</td>';
+        detailBody.appendChild(tr);
+      });
+    }
+  }
+
+  /* ---------------- prompt registry (탭2) ---------------- */
+  function populateSelect(sel, options, withAll, allLabel) {
+    sel.innerHTML = '';
+    if (withAll) {
+      var optAll = document.createElement('option'); optAll.value = 'all'; optAll.textContent = allLabel;
+      sel.appendChild(optAll);
+    }
+    options.forEach(function (o) {
+      var opt = document.createElement('option'); opt.value = o; opt.textContent = o;
+      sel.appendChild(opt);
+    });
+  }
+  populateSelect($('filterCatSelect'), CATEGORIES, true, '전체 카테고리');
+  populateSelect($('filterTypeSelect'), TYPES, true, '전체 유형');
+  populateSelect($('inputCategory'), CATEGORIES, false);
+  populateSelect($('inputType'), TYPES, false);
+  populateSelect($('genCategory'), CATEGORIES, false);
+  populateSelect($('genType'), TYPES, false);
+
+  $('searchInput').addEventListener('input', function () { state.promptFilter.search = this.value.trim().toLowerCase(); renderPromptList(); });
+  $('filterCatSelect').addEventListener('change', function () { state.promptFilter.category = this.value; renderPromptList(); });
+  $('filterTypeSelect').addEventListener('change', function () { state.promptFilter.type = this.value; renderPromptList(); });
+
+  function renderPromptList() {
+    var listEl = $('promptList');
+    var pf = state.promptFilter;
+    var visible = state.prompts.filter(function (p) {
+      if (pf.category !== 'all' && p.category !== pf.category) return false;
+      if (pf.type !== 'all' && p.type !== pf.type) return false;
+      if (pf.search && p.text.toLowerCase().indexOf(pf.search) === -1) return false;
+      return true;
+    });
+    $('promptListMeta').textContent = '전체 ' + state.prompts.length + '개 중 ' + visible.length + '개 표시';
+    $('promptCountDesc').textContent = '추적할 질문과 브랜드는 좌측 상단에서 관리합니다. 현재 ' + state.prompts.length + '개 프롬프트 등록됨.';
+    listEl.innerHTML = '';
+    if (!visible.length) {
+      listEl.innerHTML = '<div class="empty-hint">조건에 맞는 프롬프트가 없습니다.</div>';
+      return;
+    }
+    visible.forEach(function (p) {
+      var card = document.createElement('div');
+      card.className = 'prompt-card';
+
+      var badgeRow = document.createElement('div');
+      badgeRow.className = 'badge-row';
+      badgeRow.innerHTML = '<span class="cat-badge">' + escapeHtml(p.category) + '</span><span class="type-badge">' + escapeHtml(p.type) + '</span>';
+      card.appendChild(badgeRow);
+
+      var ptext = document.createElement('div');
+      ptext.className = 'ptext';
+      ptext.textContent = p.text;
+      card.appendChild(ptext);
+
+      var meta = document.createElement('div');
+      meta.className = 'pmeta';
+
+      var toggles = document.createElement('div');
+      toggles.className = 'engine-toggles';
+      ENGINES.forEach(function (eng) {
+        var chip = document.createElement('span');
+        chip.className = 'engine-chip' + (p.engines.indexOf(eng) > -1 ? ' on' : '');
+        chip.textContent = ENGINE_LABEL[eng];
+        chip.addEventListener('click', function () {
+          var idx = p.engines.indexOf(eng);
+          if (idx > -1) p.engines.splice(idx, 1); else p.engines.push(eng);
+          save(LS_PROMPTS, state.prompts);
+          renderPromptList();
+        });
+        toggles.appendChild(chip);
+      });
+      meta.appendChild(toggles);
+
+      var actions = document.createElement('div');
+      actions.className = 'row-actions';
+      var scanBtn = document.createElement('button');
+      scanBtn.className = 'btn btn-primary btn-sm';
+      scanBtn.textContent = '스캔';
+      scanBtn.addEventListener('click', function () { runScan(p); });
+      actions.appendChild(scanBtn);
+      var delBtn = document.createElement('button');
+      delBtn.className = 'icon-del';
+      delBtn.setAttribute('aria-label', '프롬프트 삭제');
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', function () {
+        state.prompts = state.prompts.filter(function (x) { return x.id !== p.id; });
+        save(LS_PROMPTS, state.prompts);
+        renderPromptList();
+      });
+      actions.appendChild(delBtn);
+      meta.appendChild(actions);
+      card.appendChild(meta);
+      listEl.appendChild(card);
+    });
+  }
+
+  $('addPromptBtn').addEventListener('click', function () {
+    var text = $('inputPrompt').value.trim();
+    if (!text) return;
+    var maxNo = state.prompts.reduce(function (m, p) { return Math.max(m, p.no || 0); }, 0);
+    state.prompts.push({
+      id: uid(), no: maxNo + 1,
+      category: $('inputCategory').value, type: $('inputType').value,
+      text: text, intent: '', engines: ENGINES.slice()
+    });
+    save(LS_PROMPTS, state.prompts);
+    $('inputPrompt').value = '';
+    renderPromptList();
+  });
+
+  /* ---------------- auto-generate ---------------- */
+  var genModal = $('genModalBackdrop');
+  var genCandidates = [];
+  $('openGenBtn').addEventListener('click', function () { genModal.classList.add('open'); $('genList').innerHTML = ''; genCandidates = []; });
+  $('cancelGenBtn').addEventListener('click', function () { genModal.classList.remove('open'); });
+  genModal.addEventListener('click', function (e) { if (e.target === genModal) genModal.classList.remove('open'); });
+
+  var GEN_TEMPLATES = {
+    '브랜드 질문': ['{brand} 이용 후기 어때?', '{brand} 요즘 평가 어때?', '{brand} 다른 사람들은 왜 선택해?'],
+    '비교 질문': ['{brand}이랑 경쟁사 중 어디가 나아?', '{brand} 업계 내 위치가 어느 정도야?'],
+    '업권 질문': ['이 업권에서 요즘 주목할 만한 곳 있어?', '이 업권 고르는 기준이 뭐야?'],
+    '전체 상품': ['이 상품 요즘 추천할 만한 곳 있어?', '이 상품 고를 때 뭘 봐야 해?'],
+    '조합 질문': ['여러 조건을 종합해서 추천해줄 곳 있어?'],
+    '대출 비교': ['대출 비교할 때 어떤 서비스가 편해?'],
+    '페르소나 질문': ['특정 상황에 맞는 상품 추천해줘.']
+  };
+  $('runGenBtn').addEventListener('click', function () {
+    var category = $('genCategory').value;
+    var type = $('genType').value;
+    var count = Math.max(1, Math.min(20, parseInt($('genCount').value, 10) || 5));
+    if (state.settings.demoMode || !state.settings.endpoint) {
+      genCandidates = mockGenerate(category, type, count);
+      renderGenList();
+    } else {
+      fetch(state.settings.endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'generate-prompts', category: category, type: type, count: count })
+      }).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+        .then(function (data) {
+          genCandidates = (data.prompts || []).map(function (p) { return { text: p.text, category: category, type: type }; });
+          renderGenList();
+        })
+        .catch(function (err) { $('genList').innerHTML = '<div class="empty-hint">생성 실패 - ' + escapeHtml(err.message) + '</div>'; });
+    }
+  });
+  function mockGenerate(category, type, count) {
+    var templates = GEN_TEMPLATES[type] || ['{brand} 관련 질문 예시'];
+    var out = [];
+    for (var i = 0; i < count; i++) {
+      var tpl = templates[i % templates.length];
+      var text = '(데모) ' + tpl.replace('{brand}', OWN_BRAND) + ' #' + (i + 1);
+      out.push({ text: text, category: category, type: type });
+    }
+    return out;
+  }
+  function renderGenList() {
+    var listEl = $('genList');
+    listEl.innerHTML = '';
+    if (!genCandidates.length) { listEl.innerHTML = '<div class="empty-hint">생성된 항목이 없습니다.</div>'; return; }
+    genCandidates.forEach(function (c, i) {
+      var item = document.createElement('label');
+      item.className = 'gen-item';
+      item.innerHTML = '<input type="checkbox" checked data-idx="' + i + '"><span>' + escapeHtml(c.text) + '</span>';
+      listEl.appendChild(item);
+    });
+  }
+  $('addGenBtn').addEventListener('click', function () {
+    var checked = Array.prototype.slice.call($('genList').querySelectorAll('input[type=checkbox]:checked'));
+    var maxNo = state.prompts.reduce(function (m, p) { return Math.max(m, p.no || 0); }, 0);
+    checked.forEach(function (cb, i) {
+      var c = genCandidates[parseInt(cb.dataset.idx, 10)];
+      state.prompts.push({ id: uid(), no: maxNo + i + 1, category: c.category, type: c.type, text: c.text, intent: '', engines: ENGINES.slice() });
+    });
+    save(LS_PROMPTS, state.prompts);
+    renderPromptList();
+    genModal.classList.remove('open');
+  });
+
+  /* ---------------- radar ---------------- */
+  function setNodeState(engine, cls) {
+    var g = $('node-' + engine); if (!g) return;
+    g.querySelector('.node-dot').className = 'node-dot ' + cls;
+  }
+  function resetRadar() { ENGINES.forEach(function (e) { setNodeState(e, 'idle'); }); }
+  function setSweeping(on) { $('radarSweep').classList.toggle('spinning', on); }
+
+  /* ---------------- status line ---------------- */
+  function showStatus(kind, message) {
+    var el = $('statusLine');
+    if (kind === 'loading') {
+      el.innerHTML = '<span class="marker">●</span> OKNEXUS <span class="bounce-dots"><span></span><span></span><span></span></span> ' + escapeHtml(message || '');
+    } else {
+      el.innerHTML = '<span class="marker">●</span> OKNEXUS : ' + escapeHtml(message || '');
+    }
+  }
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function escapeAttr(s) { return escapeHtml(s); }
+  function truncate(s, n) { return (s && s.length > n) ? s.slice(0, n) + '…' : (s || ''); }
+
+  /* ---------------- engine call ---------------- */
+  function callEngine(engine, prompt, brands) {
+    if (state.settings.demoMode || !state.settings.endpoint) return mockCall(engine, prompt, brands);
+    return fetch(state.settings.endpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ engine: engine, prompt: prompt, brands: brands })
+    }).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+      .then(function (data) { return normalizeResult(engine, data, brands); });
+  }
+  function normalizeResult(engine, data, brands) {
+    var hitsByBrand = {};
+    (data.brandHits || []).forEach(function (h) { hitsByBrand[h.brand] = h; });
+    var brandHits = brands.map(function (b) {
+      var h = hitsByBrand[b] || {};
+      return { brand: b, mentioned: !!h.mentioned, position: h.position || 'none', sentiment: h.sentiment || 'neutral', snippet: h.snippet || '' };
+    });
+    var sources = Array.isArray(data.sources) ? data.sources.map(function (s) { return { site: s.site || domainFrom(s.url), url: s.url || '', title: s.title || '' }; }) : [];
+    return { engine: engine, brandHits: brandHits, sources: sources };
+  }
+  function mockCall(engine, prompt, brands) {
+    return new Promise(function (resolve) {
+      var delay = 450 + Math.random() * 750;
+      setTimeout(function () {
+        var brandHits = brands.map(function (b, i) {
+          var prob = (b === OWN_BRAND) ? 0.55 : 0.3;
+          var mentioned = Math.random() < prob;
+          var sentiments = ['positive', 'neutral', 'negative'];
+          return {
+            brand: b, mentioned: mentioned,
+            position: mentioned ? ['early', 'mid', 'late'][Math.floor(Math.random() * 3)] : 'none',
+            sentiment: mentioned ? sentiments[Math.floor(Math.random() * sentiments.length)] : 'neutral',
+            snippet: mentioned ? '(데모) "' + b + '" 언급됨' : ''
+          };
+        });
+        var sources = [];
+        if (Math.random() > 0.4) {
+          var demoSites = ['blog.naver.com', 'brunch.co.kr', 'tistory.com', 'news.naver.com'];
+          var n = 1 + Math.floor(Math.random() * 2);
+          for (var i = 0; i < n; i++) {
+            var site = demoSites[Math.floor(Math.random() * demoSites.length)];
+            sources.push({ site: site, url: 'https://' + site + '/post/' + Math.floor(Math.random() * 9999), title: '(데모) 관련 게시글 ' + (i + 1) });
+          }
+        }
+        resolve({ engine: engine, brandHits: brandHits, sources: sources });
+      }, delay);
+    });
+  }
+
+  /* ---------------- scan flow ---------------- */
+  function runScan(p) {
+    if (!p.engines.length) { showStatus('error', '이 프롬프트에 선택된 엔진이 없습니다.'); return; }
+    $('scanTarget').innerHTML = '"' + escapeHtml(p.text) + '"';
+    $('resultCards').innerHTML = '';
+    resetRadar(); setSweeping(true);
+    p.engines.forEach(function (e) { setNodeState(e, 'scanning'); });
+    showStatus('loading', '엔진 ' + p.engines.map(function (e) { return ENGINE_LABEL[e]; }).join(', ') + ' 질의 중');
+
+    var tasks = p.engines.map(function (engine) {
+      return callEngine(engine, p.text, state.brands)
+        .then(function (result) {
+          var ownHit = result.brandHits.find(function (h) { return h.brand === OWN_BRAND; });
+          setNodeState(engine, ownHit && ownHit.mentioned ? 'hit' : 'miss');
+          logResult(p, engine, result.brandHits, result.sources);
+          renderResultCard(engine, result);
+          return result;
+        })
+        .catch(function (err) {
+          setNodeState(engine, 'miss');
+          showStatus('error', ENGINE_LABEL[engine] + ' 연동 실패 - ' + err.message);
+          return null;
+        });
+    });
+    Promise.all(tasks).then(function () {
+      setSweeping(false);
+      showStatus('ok', '스캔 완료 (' + tasks.length + '개 엔진)');
+    });
+  }
+
+  function renderResultCard(engine, result) {
+    var card = document.createElement('div');
+    card.className = 'result-card';
+    var mentionedBrands = result.brandHits.filter(function (h) { return h.mentioned; });
+    var head = document.createElement('div');
+    head.className = 'rc-head';
+    head.innerHTML = '<span>' + ENGINE_LABEL[engine] + '</span><span>' + mentionedBrands.length + '개 브랜드 언급</span>';
+    card.appendChild(head);
+    var tags = document.createElement('div');
+    tags.className = 'rc-tags';
+    if (!mentionedBrands.length) {
+      tags.innerHTML = '<span class="rc-empty">언급된 브랜드 없음</span>';
+    } else {
+      mentionedBrands.forEach(function (h) {
+        var tag = document.createElement('span');
+        tag.className = 'rc-tag' + (h.brand === OWN_BRAND ? ' own' : '');
+        tag.textContent = h.brand + ' · ' + sentLabel(h.sentiment);
+        tags.appendChild(tag);
+      });
+    }
+    card.appendChild(tags);
+    $('resultCards').appendChild(card);
+  }
+  function sentLabel(s) { return { positive: '▲긍정', neutral: '●중립', negative: '▼부정' }[s] || '●중립'; }
+
+  /* ---------------- history / logging ---------------- */
+  function logResult(p, engine, brandHits, sources) {
+    state.results.push({
+      id: uid(), ts: Date.now(), promptId: p.id, promptText: p.text, category: p.category, type: p.type,
+      engine: engine, brandHits: brandHits, sources: sources || []
+    });
+    save(LS_RESULTS, state.results);
+    renderHistory();
+    refreshActiveTab();
+  }
+  function renderHistory() {
+    var filter = $('filterEngine').value;
+    var rows = state.results.slice().sort(function (a, b) { return b.ts - a.ts; })
+      .filter(function (r) { return filter === 'all' || r.engine === filter; });
+    var body = $('historyBody');
+    body.innerHTML = '';
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="5" class="empty-hint" style="border:none;">아직 스캔 기록이 없습니다.</td></tr>';
+      return;
+    }
+    rows.forEach(function (r) {
+      var mentioned = r.brandHits.filter(function (h) { return h.mentioned; }).map(function (h) { return h.brand; });
+      var snippetSrc = r.brandHits.find(function (h) { return h.mentioned && h.snippet; });
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + new Date(r.ts).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) + '</td>' +
+        '<td class="cell-snippet">' + escapeHtml(truncate(r.promptText, 36)) + '</td>' +
+        '<td class="cell-mono">' + ENGINE_LABEL[r.engine] + '</td>' +
+        '<td>' + (mentioned.length ? escapeHtml(mentioned.join(', ')) : '—') + '</td>' +
+        '<td class="cell-snippet">' + escapeHtml(truncate(snippetSrc ? snippetSrc.snippet : '', 50)) + '</td>';
+      body.appendChild(tr);
+    });
+  }
+  $('filterEngine').addEventListener('change', renderHistory);
+  $('clearLogBtn').addEventListener('click', function () {
+    if (!confirm('모든 스캔 기록을 삭제할까요?')) return;
+    state.results = [];
+    save(LS_RESULTS, state.results);
+    renderHistory(); refreshActiveTab();
+  });
+
+  /* ---------------- connection status ---------------- */
+  function refreshConnStatus() {
+    var live = !!state.settings.endpoint && !state.settings.demoMode;
+    $('connPill').classList.toggle('live', live);
+    $('connLabel').textContent = live ? '연동됨' : (state.settings.demoMode ? '연동 안 됨 · 데모' : '엔드포인트 미설정');
+  }
+
+  /* ---------------- settings modal ---------------- */
+  var modal = $('modalBackdrop');
+  $('settingsBtn').addEventListener('click', function () {
+    $('endpointInput').value = state.settings.endpoint;
+    $('demoSwitch').classList.toggle('on', state.settings.demoMode);
+    modal.classList.add('open');
+  });
+  modal.addEventListener('click', function (e) { if (e.target === modal) modal.classList.remove('open'); });
+  $('demoSwitch').addEventListener('click', function () { this.classList.toggle('on'); });
+  $('saveSettingsBtn').addEventListener('click', function () {
+    state.settings.endpoint = $('endpointInput').value.trim();
+    state.settings.demoMode = $('demoSwitch').classList.contains('on');
+    save(LS_SETTINGS, state.settings);
+    refreshConnStatus();
+    modal.classList.remove('open');
+  });
+  $('testConnBtn').addEventListener('click', function () {
+    var ep = $('endpointInput').value.trim();
+    if (!ep) { showStatus('error', '엔드포인트 URL을 먼저 입력하세요.'); return; }
+    showStatus('loading', '연동 테스트 중');
+    fetch(ep, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ engine: 'ping', prompt: 'ping', brands: [] }) })
+      .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); showStatus('ok', '연동 성공'); })
+      .catch(function (err) { showStatus('error', '연동 실패 - ' + err.message); });
+  });
+
+  /* ---------------- init ---------------- */
+  renderSharedCatChips();
+  renderBrandManager();
+  renderPromptList();
+  renderHistory();
+  renderShareTab();
+  refreshConnStatus();
+
+})();
+</script>
+</body>
+</html>
