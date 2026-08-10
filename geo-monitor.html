@@ -433,7 +433,7 @@
       <div class="panel-head">
         <div>
           <h2>월간 프롬프트 리프레시</h2>
-          <p class="desc">이번 달 금융 트렌드 키워드를 붙여넣으면 Claude가 현재 프롬프트의 30%를 트렌드에 맞게 교체 후보로 생성합니다.</p>
+          <p class="desc">구글 트렌드 + 네이버 데이터랩 키워드를 자동 수집하거나 직접 입력해서 Claude가 프롬프트 30%를 교체 후보로 생성합니다.</p>
         </div>
         <div style="display:flex; gap:8px; align-items:center;">
           <span id="refreshMonthLabel" style="font-family:var(--font-hud); font-size:11px; color:var(--cream-faint);"></span>
@@ -441,6 +441,25 @@
         </div>
       </div>
       <div id="refreshPanelBody">
+
+        <!-- 자동 수집 결과 배너 -->
+        <div id="trendBanner" style="display:none; border:1px solid #FF571F44; background:#FF571F08; border-radius:var(--radius); padding:14px 16px; margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+            <div>
+              <div style="font-family:var(--font-hud); font-size:11.5px; color:var(--orange); margin-bottom:6px;" id="trendBannerTitle">이번 달 트렌드 자동 수집 완료</div>
+              <div id="trendBannerKeywords" style="font-size:12.5px; color:var(--cream-dim); line-height:1.8;"></div>
+              <div id="trendBannerSources" style="font-size:11px; color:var(--cream-faint); margin-top:6px;"></div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="trendFillBtn">키워드 자동 채우기</button>
+          </div>
+        </div>
+
+        <!-- 자동 수집 버튼 -->
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--line);">
+          <button class="btn btn-ghost btn-sm" id="collectTrendsBtn">🌐 트렌드 지금 수집</button>
+          <span style="font-size:11.5px; color:var(--cream-faint);">구글 트렌드 + 네이버 데이터랩에서 금융 키워드를 자동으로 가져옵니다. (매달 1일 자동 실행)</span>
+        </div>
+
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px;">
           <div>
             <div style="font-size:11.5px; color:var(--cream-dim); margin-bottom:6px;">트렌드 키워드 <span style="color:var(--cream-faint);">(쉼표 또는 줄바꿈으로 구분)</span></div>
@@ -1711,7 +1730,71 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     $('refreshGenCount').textContent = genCount;
     var now = new Date();
     $('refreshMonthLabel').textContent = now.getFullYear() + '년 ' + (now.getMonth() + 1) + '월';
+    // 서버에서 이번 달 트렌드 수집 결과 있으면 배너 표시
+    if (syncEnabled()) { loadTrendBanner(); }
   }
+
+  function loadTrendBanner() {
+    fetch(baseUrl() + '/trend-refresh', { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && data.trendRefresh) { showTrendBanner(data.trendRefresh); }
+      }).catch(function () {});
+  }
+
+  function showTrendBanner(tr) {
+    var banner = $('trendBanner');
+    banner.style.display = 'block';
+    var month = tr.month || '';
+    $('trendBannerTitle').textContent = month + ' 트렌드 자동 수집 완료 — ' + (tr.selectedKeywords ? tr.selectedKeywords.length : 0) + '개 금융 키워드 선별됨';
+    var kws = (tr.selectedKeywords || []).map(function (k) {
+      var src = k.source === 'google' ? '🌐' : (k.source === 'naver' ? '🟢' : '🔵');
+      return src + ' ' + (k.keyword || k);
+    });
+    $('trendBannerKeywords').innerHTML = kws.map(function (k) { return '<span style="margin-right:12px;">' + escapeHtml(k) + '</span>'; }).join('');
+    var googleCount = (tr.googleTrends || []).length;
+    var naverCount = (tr.naverTrends || []).length;
+    $('trendBannerSources').textContent = '구글 트렌드 ' + googleCount + '개 · 네이버 데이터랩 ' + naverCount + '개 수집 → Claude 금융 필터링';
+    // 배너에서 "자동 채우기" 클릭 시 textarea에 키워드 채우기
+    $('trendFillBtn').onclick = function () {
+      var kws = (tr.selectedKeywords || []).map(function (k) { return k.keyword || k; });
+      $('trendKeywordsInput').value = kws.join('\n');
+      // candidates 있으면 바로 표시
+      if (tr.candidates && tr.candidates.length) {
+        refreshCandidates = tr.candidates;
+        showStatusIn('refreshStatusLine', 'ok', tr.candidates.length + '개 교체 후보가 이미 생성돼 있습니다. 아래에서 검토 후 적용하세요.');
+        renderRefreshCandidates(tr.candidates);
+        $('refreshResultWrap').style.display = 'block';
+      }
+    };
+  }
+
+  $('collectTrendsBtn').addEventListener('click', function () {
+    if (!syncEnabled()) {
+      showStatusIn('refreshStatusLine', 'error', '데모 모드에서는 자동 수집이 불가합니다. ⚙ 설정에서 워커 엔드포인트를 연결해주세요.');
+      return;
+    }
+    this.disabled = true;
+    this.textContent = '🌐 수집 중...';
+    showStatusIn('refreshStatusLine', 'loading', '구글 트렌드 + 네이버 데이터랩 수집 중 (30초~1분 소요)');
+    fetch(baseUrl() + '/trend-refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (data) {
+        $('collectTrendsBtn').disabled = false;
+        $('collectTrendsBtn').textContent = '🌐 트렌드 지금 수집';
+        if (data.trendRefresh) {
+          showTrendBanner(data.trendRefresh);
+          showStatusIn('refreshStatusLine', 'ok', '수집 완료! 배너에서 "키워드 자동 채우기"를 눌러 적용하세요.');
+        } else {
+          showStatusIn('refreshStatusLine', 'error', '수집 결과가 없습니다. 워커 로그를 확인해주세요.');
+        }
+      })
+      .catch(function (err) {
+        $('collectTrendsBtn').disabled = false;
+        $('collectTrendsBtn').textContent = '🌐 트렌드 지금 수집';
+        showStatusIn('refreshStatusLine', 'error', '수집 실패: ' + err.message);
+      });
+  });
 
   $('refreshPanelToggle').addEventListener('click', function () {
     refreshPanelOpen = !refreshPanelOpen;
