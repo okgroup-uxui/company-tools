@@ -269,6 +269,15 @@
   .rc-tag.own { color: var(--orange); border-color: #FF571F66; }
   .rc-empty { color: var(--cream-faint); font-size: 11.5px; }
 
+  /* ---------- refresh candidate card ---------- */
+  .refresh-cand { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 12px 14px; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+  .refresh-cand:has(input:checked) { border-color: #FF571F44; background: #FF571F08; }
+  .refresh-cand-body { display: flex; flex-direction: column; gap: 6px; }
+  .refresh-cand-new { font-size: 13px; color: var(--cream); line-height: 1.5; }
+  .refresh-cand-old { font-size: 11.5px; color: var(--cream-faint); display: flex; align-items: baseline; gap: 6px; }
+  .refresh-cand-old .arrow { color: var(--orange); }
+  .refresh-cand-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+
   /* ---------- source share bars (site ranking) ---------- */
   .share-list { display: flex; flex-direction: column; gap: 10px; }
   .share-row { display: grid; grid-template-columns: 150px 1fr 54px; gap: 12px; align-items: center; }
@@ -395,6 +404,14 @@
   <div class="tab-content" id="tab-agents">
     <section class="panel">
       <div class="panel-head">
+        <div><h2>자동 스캔 동기화</h2><p class="desc">연동 설정에서 데모 모드를 끄고 워커 엔드포인트를 넣으면, 매일 새벽 워커가 전체 프롬프트를 자동으로 스캔해 서버에 쌓아둡니다. 이 대시보드는 그 결과를 읽어옵니다.</p></div>
+        <button class="btn btn-primary btn-sm" id="syncNowBtn">🔄 지금 동기화</button>
+      </div>
+      <div class="status-line" id="syncStatusLine" style="font-family:var(--font-kr); font-size:12.5px;"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
         <div><h2>분석 에이전트</h2><p class="desc">이 대시보드가 실제로 질의하는 AI 모델을 관리합니다. 꺼두면 스캔에서 제외됩니다.</p></div>
         <button class="btn btn-ghost btn-sm" id="openSettingsFromAgents">연동 설정</button>
       </div>
@@ -408,7 +425,62 @@
   </div>
 
   <!-- ================= TAB: 프롬프트 ================= -->
+
   <div class="tab-content" id="tab-prompts">
+
+    <!-- 월간 프롬프트 리프레시 패널 -->
+    <section class="panel" id="refreshPanel">
+      <div class="panel-head">
+        <div>
+          <h2>월간 프롬프트 리프레시</h2>
+          <p class="desc">이번 달 금융 트렌드 키워드를 붙여넣으면 Claude가 현재 프롬프트의 30%를 트렌드에 맞게 교체 후보로 생성합니다.</p>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span id="refreshMonthLabel" style="font-family:var(--font-hud); font-size:11px; color:var(--cream-faint);"></span>
+          <button class="btn btn-ghost btn-sm" id="refreshPanelToggle">접기 ▲</button>
+        </div>
+      </div>
+      <div id="refreshPanelBody">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px;">
+          <div>
+            <div style="font-size:11.5px; color:var(--cream-dim); margin-bottom:6px;">트렌드 키워드 <span style="color:var(--cream-faint);">(쉼표 또는 줄바꿈으로 구분)</span></div>
+            <textarea id="trendKeywordsInput" rows="5" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:13px; padding:10px 12px; border-radius:var(--radius); resize:vertical;" placeholder="예시:
+중금리대출, DSR 완화
+청년도약계좌, 파킹통장
+금리인하, 대환대출"></textarea>
+          </div>
+          <div>
+            <div style="font-size:11.5px; color:var(--cream-dim); margin-bottom:6px;">참고 메모 <span style="color:var(--cream-faint);">(선택사항 — Claude에게 전달할 컨텍스트)</span></div>
+            <textarea id="trendMemoInput" rows="5" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:13px; padding:10px 12px; border-radius:var(--radius); resize:vertical;" placeholder="예시:
+- 8월 금리인하 이슈 반영
+- 2030 타겟 질문 비중 늘리기
+- 수신상품 관련 질문 강화"></textarea>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:16px;">
+          <button class="btn btn-primary" id="runRefreshBtn">✦ 교체 후보 생성</button>
+          <span style="font-size:12px; color:var(--cream-faint);">전체 <span id="refreshTargetCount">0</span>개 프롬프트 중 약 30% (<span id="refreshGenCount">0</span>개) 교체 후보를 생성합니다.</span>
+        </div>
+        <div class="status-line" id="refreshStatusLine" style="margin-bottom:12px;"></div>
+
+        <!-- 결과 미리보기 -->
+        <div id="refreshResultWrap" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+            <div style="font-family:var(--font-hud); font-size:11.5px; color:var(--cream-dim);">교체 후보 <span id="refreshCandidateCount">0</span>개 — 검토 후 적용하세요</div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-ghost btn-sm" id="refreshSelectAllBtn">전체 선택</button>
+              <button class="btn btn-primary btn-sm" id="refreshApplyBtn">선택 항목 적용</button>
+              <button class="btn btn-ghost btn-sm" id="refreshDiscardBtn">취소</button>
+            </div>
+          </div>
+          <div style="font-size:11.5px; color:var(--cream-faint); margin-bottom:10px; line-height:1.6;">
+            ⚠ 적용 시 선택된 기존 프롬프트가 새 프롬프트로 교체됩니다. 취소는 불가합니다.
+          </div>
+          <div id="refreshCandidateList" style="display:flex; flex-direction:column; gap:8px; max-height:480px; overflow-y:auto;"></div>
+        </div>
+      </div>
+    </section>
+
     <section class="panel">
       <div class="panel-head">
         <div><h2>프롬프트</h2><p class="desc" id="promptCountDesc"></p></div>
@@ -985,6 +1057,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   /* ---------------- agents tab ---------------- */
   var AGENT_DESC = { gpt: 'OpenAI GPT 계열 모델에 프롬프트를 질의합니다.', gemini: 'Google Gemini 모델에 프롬프트를 질의합니다.', claude: 'Anthropic Claude 모델에 프롬프트를 질의합니다.' };
   function renderAgentsTab() {
+    $('syncStatusLine').innerHTML = '<span class="marker">●</span> ' + escapeHtml(syncStatusText());
     var grid = $('agentGrid');
     grid.innerHTML = '';
     ENGINES.forEach(function (eng) {
@@ -1004,6 +1077,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         var eng = this.dataset.engine;
         state.activeEngines[eng] = !state.activeEngines[eng];
         save(LS_ACTIVE_ENGINES, state.activeEngines);
+        pushActiveEngines();
         renderAgentsTab();
         updateAgentBadge();
       });
@@ -1014,6 +1088,15 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     $('agentBadge').textContent = onCount;
   }
   $('openSettingsFromAgents').addEventListener('click', function () { $('settingsBtn').click(); });
+  $('syncNowBtn').addEventListener('click', function () {
+    if (!syncEnabled()) { $('syncStatusLine').innerHTML = '<span class="marker">●</span> 데모 모드에서는 동기화할 서버가 없습니다. ⚙ 설정에서 엔드포인트를 넣고 데모 모드를 꺼주세요.'; return; }
+    $('syncStatusLine').innerHTML = '<span class="marker">●</span> <span class="bounce-dots"><span></span><span></span><span></span></span> 동기화 중';
+    pullServerState().then(function (added) {
+      $('syncStatusLine').innerHTML = '<span class="marker">●</span> 동기화 완료 (신규 결과 ' + (added || 0) + '건) · ' + escapeHtml(syncStatusText());
+    }).catch(function (err) {
+      $('syncStatusLine').innerHTML = '<span class="marker">●</span> 동기화 실패 - ' + escapeHtml(err.message);
+    });
+  });
 
   /* ---------------- brand manager ---------------- */
   function renderBrandManager() {
@@ -1029,6 +1112,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         del.addEventListener('click', function () {
           state.brands = state.brands.filter(function (x) { return x !== b; });
           save(LS_BRANDS, state.brands);
+          pushBrands();
           renderBrandManager(); renderShareTab();
         });
         chip.appendChild(del);
@@ -1041,7 +1125,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     btn.addEventListener('click', function () {
       var v = input.value.trim();
       if (!v || state.brands.indexOf(v) > -1) return;
-      state.brands.push(v); save(LS_BRANDS, state.brands); input.value = '';
+      state.brands.push(v); save(LS_BRANDS, state.brands); pushBrands(); input.value = '';
       renderBrandManager(); renderShareTab();
     });
     addWrap.appendChild(input); addWrap.appendChild(btn); wrap.appendChild(addWrap);
@@ -1102,7 +1186,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       row.querySelector('[data-act="add"]').addEventListener('click', function () {
         var maxNo = state.prompts.reduce(function (m, p) { return Math.max(m, p.no || 0); }, 0);
         state.prompts.push({ id: uid(), no: maxNo + 1, category: 'OK 브랜드', type: '브랜드 질문', text: item.text, intent: '자동 생성', engines: ENGINES.slice(), createdAt: Date.now() });
-        save(LS_PROMPTS, state.prompts);
+        save(LS_PROMPTS, state.prompts); pushPrompts();
         state.genQueue.items = state.genQueue.items.filter(function (x) { return x.id !== item.id; });
         save(LS_GENQUEUE, state.genQueue);
         renderAutogen(); renderPromptsTable();
@@ -1164,7 +1248,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       tr.querySelector('[data-act="del"]').addEventListener('click', function () {
         state.prompts = state.prompts.filter(function (x) { return x.id !== p.id; });
         delete state.selectedPrompts[p.id];
-        save(LS_PROMPTS, state.prompts);
+        save(LS_PROMPTS, state.prompts); pushPrompts();
         renderPromptsTable();
       });
       tr.querySelector('.row-check').addEventListener('change', function () {
@@ -1203,7 +1287,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     if (!text) return;
     var maxNo = state.prompts.reduce(function (m, p) { return Math.max(m, p.no || 0); }, 0);
     state.prompts.push({ id: uid(), no: maxNo + 1, category: $('inputCategory').value, type: $('inputType').value, text: text, intent: '', engines: ENGINES.slice(), createdAt: Date.now() });
-    save(LS_PROMPTS, state.prompts);
+    save(LS_PROMPTS, state.prompts); pushPrompts();
     $('inputPrompt').value = '';
     renderPromptsTable();
   });
@@ -1273,14 +1357,22 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
             snippet: mentioned ? '(데모) "' + b + '" 언급됨' : ''
           };
         });
+        var DEMO_SOURCES = [
+          { site: 'oksavingsbank.com', url: 'https://www.oksavingsbank.com', title: 'OK저축은행 공식 홈페이지' },
+          { site: 'banksalad.com', url: 'https://www.banksalad.com/articles/savings-bank-deposit-comparison', title: '저축은행 예금 금리 비교 - 뱅크샐러드' },
+          { site: 'naver.com', url: 'https://search.naver.com/search.naver?query=OK저축은행+예금금리', title: 'OK저축은행 예금금리 검색결과 - 네이버' },
+          { site: 'daum.net', url: 'https://search.daum.net/search?q=저축은행+금리비교', title: '저축은행 금리비교 - Daum 검색' },
+          { site: 'korea.kr', url: 'https://www.korea.kr/news/policyNewsView.do?newsId=148923456', title: '서민금융 지원 정책 안내 - 대한민국 정책브리핑' },
+          { site: 'fsb.or.kr', url: 'https://www.fsb.or.kr/main.do', title: '저축은행중앙회 공식 사이트' },
+          { site: 'fsc.go.kr', url: 'https://www.fsc.go.kr/no010101', title: '금융소비자 정보포털 - 금융위원회' },
+          { site: 'tistory.com', url: 'https://financetip.tistory.com/entry/저축은행-예금-파킹통장-비교', title: '저축은행 예금 vs 파킹통장 완벽 비교 - 금융정보 블로그' },
+          { site: 'youtube.com', url: 'https://www.youtube.com/results?search_query=OK저축은행+리뷰', title: 'OK저축은행 리뷰 - YouTube' }
+        ];
         var sources = [];
         if (Math.random() > 0.4) {
-          var demoSites = ['tistory.com', 'naver.com', 'banksalad.com', 'daum.net', 'oksavingsbank.com', 'youtube.com', 'korea.kr'];
+          var shuffled = DEMO_SOURCES.slice().sort(function () { return 0.5 - Math.random(); });
           var n = 1 + Math.floor(Math.random() * 2);
-          for (var i = 0; i < n; i++) {
-            var site = demoSites[Math.floor(Math.random() * demoSites.length)];
-            sources.push({ site: site, url: 'https://' + site + '/post/' + Math.floor(Math.random() * 9999), title: '(데모) 관련 게시글 ' + (i + 1) });
-          }
+          sources = shuffled.slice(0, n);
         }
         resolve({ engine: engine, brandHits: brandHits, sources: sources });
       }, delay);
@@ -1344,8 +1436,10 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function sentLabel(s) { return { positive: '▲긍정', neutral: '●중립', negative: '▼부정' }[s] || '●중립'; }
 
   function logResult(p, engine, brandHits, sources) {
-    state.results.push({ id: uid(), ts: Date.now(), promptId: p.id, promptText: p.text, category: p.category, type: p.type, engine: engine, brandHits: brandHits, sources: sources || [] });
+    var record = { id: uid(), ts: Date.now(), promptId: p.id, promptText: p.text, category: p.category, type: p.type, engine: engine, brandHits: brandHits, sources: sources || [] };
+    state.results.push(record);
     save(LS_RESULTS, state.results);
+    pushResult(record);
     renderPromptsTable();
   }
 
@@ -1495,7 +1589,61 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     $('connLabel').textContent = live ? '연동됨' : '데모 모드';
   }
 
-  /* ---------------- settings modal ---------------- */
+  /* ---------------- server sync (매일 자동 스캔용 KV 동기화) ---------------- */
+  var lastSyncAt = null;
+  function syncEnabled() { return !!state.settings.endpoint && !state.settings.demoMode; }
+  function baseUrl() { return state.settings.endpoint.replace(/\/geo-check\/?$/, ''); }
+  function pushPrompts() { if (!syncEnabled()) return; fetch(baseUrl() + '/prompts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.prompts) }).catch(function () {}); }
+  function pushBrands() { if (!syncEnabled()) return; fetch(baseUrl() + '/brands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.brands) }).catch(function () {}); }
+  function pushActiveEngines() { if (!syncEnabled()) return; fetch(baseUrl() + '/engines-active', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.activeEngines) }).catch(function () {}); }
+  function pushResult(resultRecord) { if (!syncEnabled()) return; fetch(baseUrl() + '/results', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(resultRecord) }).catch(function () {}); }
+
+  function mergeResults(serverResults) {
+    var existingIds = {}; state.results.forEach(function (r) { existingIds[r.id] = true; });
+    var added = 0;
+    serverResults.forEach(function (r) { if (!existingIds[r.id]) { state.results.push(r); existingIds[r.id] = true; added++; } });
+    if (added) save(LS_RESULTS, state.results);
+    return added;
+  }
+
+  function pullServerState() {
+    if (!syncEnabled()) return Promise.resolve();
+    var base = baseUrl();
+    var since = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    return Promise.all([
+      fetch(base + '/prompts').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+      fetch(base + '/brands').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+      fetch(base + '/engines-active').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+      fetch(base + '/results?since=' + since).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+    ]).then(function (res) {
+      var serverPrompts = res[0] && res[0].prompts;
+      var serverBrands = res[1] && res[1].brands;
+      var serverEngines = res[2] && res[2].activeEngines;
+      var serverResults = res[3] && res[3].results;
+
+      if (serverPrompts && serverPrompts.length) { state.prompts = serverPrompts; save(LS_PROMPTS, state.prompts); }
+      else if (state.prompts.length) { pushPrompts(); } // 서버가 비어있으면 로컬 목록으로 부트스트랩
+
+      if (serverBrands && serverBrands.length) { state.brands = serverBrands; save(LS_BRANDS, state.brands); }
+      else if (state.brands.length) { pushBrands(); }
+
+      if (serverEngines) { state.activeEngines = serverEngines; save(LS_ACTIVE_ENGINES, state.activeEngines); }
+      else { pushActiveEngines(); }
+
+      var added = 0;
+      if (serverResults) added = mergeResults(serverResults);
+
+      lastSyncAt = Date.now();
+      renderPromptsTable(); renderShareTab(); renderAgentsTab();
+      return added;
+    });
+  }
+  function syncStatusText() {
+    if (!syncEnabled()) return '데모 모드 — 서버 동기화 꺼짐';
+    if (!lastSyncAt) return '아직 동기화하지 않음';
+    return '마지막 동기화: ' + new Date(lastSyncAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+  }
+
   var modal = $('modalBackdrop');
   $('settingsBtn').addEventListener('click', function () {
     $('endpointInput').value = state.settings.endpoint;
@@ -1517,6 +1665,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     save(LS_SETTINGS, state.settings);
     refreshConnStatus();
     modal.classList.remove('open');
+    if (syncEnabled()) { pullServerState().catch(function () {}); }
   });
   $('testConnBtn').addEventListener('click', function () {
     var ep = $('endpointInput').value.trim();
@@ -1551,12 +1700,190 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     state.filters.sources.sourceCategory, function (v) { state.filters.sources.sourceCategory = v; renderSourcesTab(); });
   initDateDropdown('dateSources', state.filters.sources, function () { renderSourcesTab(); });
 
+  /* ---------------- 월간 프롬프트 리프레시 ---------------- */
+  var refreshCandidates = []; // [{newText, newCategory, newType, replaceId, replaceText}]
+  var refreshPanelOpen = true;
+
+  function initRefreshPanel() {
+    var total = state.prompts.length;
+    var genCount = Math.round(total * 0.3);
+    $('refreshTargetCount').textContent = total;
+    $('refreshGenCount').textContent = genCount;
+    var now = new Date();
+    $('refreshMonthLabel').textContent = now.getFullYear() + '년 ' + (now.getMonth() + 1) + '월';
+  }
+
+  $('refreshPanelToggle').addEventListener('click', function () {
+    refreshPanelOpen = !refreshPanelOpen;
+    $('refreshPanelBody').style.display = refreshPanelOpen ? 'block' : 'none';
+    this.textContent = refreshPanelOpen ? '접기 ▲' : '펼치기 ▼';
+  });
+
+  $('runRefreshBtn').addEventListener('click', function () {
+    var raw = $('trendKeywordsInput').value.trim();
+    if (!raw) { showStatusIn('refreshStatusLine', 'error', '트렌드 키워드를 입력해주세요.'); return; }
+    var keywords = raw.split(/[\n,，]+/).map(function (k) { return k.trim(); }).filter(Boolean);
+    if (!keywords.length) { showStatusIn('refreshStatusLine', 'error', '유효한 키워드가 없습니다.'); return; }
+    var memo = $('trendMemoInput').value.trim();
+    var genCount = Math.max(1, Math.round(state.prompts.length * 0.3));
+
+    showStatusIn('refreshStatusLine', 'loading', 'Claude가 교체 후보 생성 중 (' + genCount + '개)...');
+    $('refreshResultWrap').style.display = 'none';
+    $('runRefreshBtn').disabled = true;
+
+    callRefreshGenerate(keywords, memo, genCount)
+      .then(function (candidates) {
+        refreshCandidates = candidates;
+        $('runRefreshBtn').disabled = false;
+        if (!candidates.length) {
+          showStatusIn('refreshStatusLine', 'error', '후보 생성에 실패했습니다. 다시 시도해주세요.');
+          return;
+        }
+        showStatusIn('refreshStatusLine', 'ok', candidates.length + '개 교체 후보가 생성됐습니다. 아래에서 검토 후 적용하세요.');
+        renderRefreshCandidates(candidates);
+        $('refreshResultWrap').style.display = 'block';
+      })
+      .catch(function (err) {
+        $('runRefreshBtn').disabled = false;
+        showStatusIn('refreshStatusLine', 'error', '생성 실패: ' + err.message);
+      });
+  });
+
+  function callRefreshGenerate(keywords, memo, count) {
+    // 교체 대상 프롬프트: 카테고리별 비례 샘플링
+    var targets = samplePromptsForRefresh(count);
+
+    if (state.settings.demoMode || !state.settings.endpoint) {
+      return mockRefreshGenerate(keywords, memo, targets);
+    }
+    return fetch(state.settings.endpoint.replace(/\/geo-check\/?$/, '') + '/refresh-prompts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keywords: keywords, memo: memo, targets: targets })
+    }).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+      .then(function (data) { return data.candidates || []; });
+  }
+
+  function samplePromptsForRefresh(count) {
+    // 카테고리 비율 유지하면서 랜덤 샘플
+    var byCategory = {};
+    state.prompts.forEach(function (p) {
+      if (!byCategory[p.category]) byCategory[p.category] = [];
+      byCategory[p.category].push(p);
+    });
+    var result = [];
+    var total = state.prompts.length;
+    Object.keys(byCategory).forEach(function (cat) {
+      var catCount = Math.round(count * byCategory[cat].length / total);
+      var shuffled = byCategory[cat].slice().sort(function () { return 0.5 - Math.random(); });
+      result = result.concat(shuffled.slice(0, catCount).map(function (p) {
+        return { id: p.id, text: p.text, category: p.category, type: p.type };
+      }));
+    });
+    return result.slice(0, count);
+  }
+
+  function mockRefreshGenerate(keywords, memo, targets) {
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        var TEMPLATES = [
+          '{kw} 관련해서 저축은행 중에 조건 좋은 곳 어디야?',
+          '{kw} 이슈 때문에 금융상품 선택 기준이 달라졌나요?',
+          '{kw} 상황에서 OK저축은행 같은 저축은행은 어떤 혜택이 있어?',
+          '{kw} 트렌드에 맞는 저축은행 상품 추천해줘',
+          '{kw} 관련해서 대출 받을 때 저축은행이 유리한 경우가 있어?',
+          '{kw}이 요즘 화제인데, 저축은행에서 관련된 상품이 있나요?'
+        ];
+        var candidates = targets.map(function (t, i) {
+          var kw = keywords[i % keywords.length];
+          var tpl = TEMPLATES[i % TEMPLATES.length];
+          return {
+            newText: '(데모) ' + tpl.replace('{kw}', kw),
+            newCategory: t.category,
+            newType: t.type,
+            replaceId: t.id,
+            replaceText: t.text,
+            keyword: kw
+          };
+        });
+        resolve(candidates);
+      }, 1200);
+    });
+  }
+
+  function renderRefreshCandidates(candidates) {
+    var list = $('refreshCandidateList');
+    list.innerHTML = '';
+    $('refreshCandidateCount').textContent = candidates.length;
+    candidates.forEach(function (c, i) {
+      var catColor = c.newCategory === 'OK 브랜드' ? '#FF571F' : (c.newCategory === '수신상품' ? '#ADADB4' : '#6FA8DC');
+      var card = document.createElement('div');
+      card.className = 'refresh-cand';
+      card.innerHTML =
+        '<input type="checkbox" checked data-idx="' + i + '" style="margin-top:3px; accent-color:var(--orange);">' +
+        '<div class="refresh-cand-body">' +
+          '<div class="refresh-cand-new">' + escapeHtml(c.newText) + '</div>' +
+          '<div class="refresh-cand-old"><span class="arrow">↩</span><span>교체 대상: ' + escapeHtml(truncate(c.replaceText, 60)) + '</span></div>' +
+          '<div class="refresh-cand-meta">' +
+            '<span class="dot-badge"><span class="d" style="background:' + catColor + '"></span>' + escapeHtml(c.newCategory) + '</span>' +
+            '<span class="dot-badge" style="color:var(--amber);">' + escapeHtml(c.newType) + '</span>' +
+            (c.keyword ? '<span class="dot-badge" style="color:var(--orange); border-color:#FF571F44;"># ' + escapeHtml(c.keyword) + '</span>' : '') +
+          '</div>' +
+        '</div>';
+      list.appendChild(card);
+    });
+  }
+
+  $('refreshSelectAllBtn').addEventListener('click', function () {
+    var cbs = $('refreshCandidateList').querySelectorAll('input[type=checkbox]');
+    var allChecked = Array.prototype.every.call(cbs, function (cb) { return cb.checked; });
+    cbs.forEach(function (cb) { cb.checked = !allChecked; });
+    this.textContent = allChecked ? '전체 선택' : '전체 해제';
+  });
+
+  $('refreshApplyBtn').addEventListener('click', function () {
+    var checked = Array.prototype.filter.call(
+      $('refreshCandidateList').querySelectorAll('input[type=checkbox]'),
+      function (cb) { return cb.checked; }
+    );
+    if (!checked.length) { showStatusIn('refreshStatusLine', 'error', '적용할 항목을 선택해주세요.'); return; }
+    if (!confirm(checked.length + '개 프롬프트를 교체할까요? 되돌릴 수 없습니다.')) return;
+
+    checked.forEach(function (cb) {
+      var c = refreshCandidates[parseInt(cb.dataset.idx, 10)];
+      var idx = state.prompts.findIndex(function (p) { return p.id === c.replaceId; });
+      if (idx > -1) {
+        state.prompts[idx] = Object.assign({}, state.prompts[idx], {
+          text: c.newText, category: c.newCategory, type: c.newType,
+          updatedAt: Date.now(), refreshKeyword: c.keyword
+        });
+      }
+    });
+    save(LS_PROMPTS, state.prompts);
+    pushPrompts();
+    renderPromptsTable();
+    initRefreshPanel();
+    $('refreshResultWrap').style.display = 'none';
+    $('trendKeywordsInput').value = '';
+    $('trendMemoInput').value = '';
+    showStatusIn('refreshStatusLine', 'ok', checked.length + '개 프롬프트가 교체됐습니다. ✓');
+  });
+
+  $('refreshDiscardBtn').addEventListener('click', function () {
+    $('refreshResultWrap').style.display = 'none';
+    refreshCandidates = [];
+    $('refreshStatusLine').innerHTML = '';
+  });
+
+  /* ---------------- init ---------------- */
   updateAgentBadge();
   renderBrandManager();
+  initRefreshPanel();
   renderAutogen();
   renderPromptsTable();
   renderShareTab();
   refreshConnStatus();
+  if (syncEnabled()) { pullServerState().catch(function () {}); }
 
 })();
 </script>
