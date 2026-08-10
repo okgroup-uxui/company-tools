@@ -683,6 +683,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 <script>
 (function () {
   "use strict";
+  // ★ FIX #1: refreshCandidates 전역 변수 선언
+  var refreshCandidates = [];
 
   /* ---------------- constants ---------------- */
   var CATEGORIES = ['OK 브랜드', '수신상품', '여신상품'];
@@ -1895,6 +1897,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   }
 
   function renderRefreshCandidates(candidates) {
+    // ★ FIX #3: 함수 시작 시 전역 변수에 후보 데이터 저장
+    refreshCandidates = candidates;
     var list = $('refreshCandidateList');
     list.innerHTML = '';
     $('refreshCandidateCount').textContent = candidates.length;
@@ -1920,8 +1924,10 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   $('refreshSelectAllBtn').addEventListener('click', function () {
     var cbs = $('refreshCandidateList').querySelectorAll('input[type=checkbox]');
     var allChecked = Array.prototype.every.call(cbs, function (cb) { return cb.checked; });
-    cbs.forEach(function (cb) { cb.checked = !allChecked; });
-    this.textContent = allChecked ? '전체 선택' : '전체 해제';
+    // ★ FIX #2: newState 변수를 도입해 토글 상태를 명확하게 함
+    var newState = !allChecked;
+    cbs.forEach(function (cb) { cb.checked = newState; });
+    this.textContent = newState ? '전체 해제' : '전체 선택'; // ✓ 올바른 텍스트
   });
 
   $('refreshApplyBtn').addEventListener('click', function () {
