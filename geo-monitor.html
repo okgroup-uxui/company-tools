@@ -1166,6 +1166,11 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   });
 
   /* ---------------- prompts table ---------------- */
+  function promptScannedEngines(p) {
+    var set = {};
+    state.results.forEach(function (r) { if (r.promptId === p.id) set[r.engine] = true; });
+    return set;
+  }
   function promptShare(p, model) {
     var rs = state.results.filter(function (r) { return r.promptId === p.id && (model === 'all' || r.engine === model); });
     if (!rs.length) return null;
@@ -1193,13 +1198,14 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     }
     visible.forEach(function (p) {
       var share = promptShare(p, pf.model);
+      var scannedEngines = promptScannedEngines(p);
       var tr = document.createElement('tr');
       var catDotColor = p.category === 'OK 브랜드' ? '#FF571F' : (p.category === '수신상품' ? '#ADADB4' : '#6FA8DC');
       tr.innerHTML =
         '<td><input type="checkbox" class="row-check" data-id="' + p.id + '" ' + (state.selectedPrompts[p.id] ? 'checked' : '') + '></td>' +
         '<td class="cell-snippet" style="max-width:360px;">' + escapeHtml(truncate(p.text, 60)) + '</td>' +
         '<td><span class="dot-badge"><span class="d" style="background:' + catDotColor + '"></span>' + escapeHtml(p.category) + '</span></td>' +
-        '<td><span class="model-icons">' + ENGINES.map(function (e) { return '<span class="model-dot' + (p.engines.indexOf(e) > -1 ? ' on' : '') + '" title="' + ENGINE_LABEL[e] + '"></span>'; }).join('') + '</span></td>' +
+        '<td><span class="model-icons">' + ENGINES.map(function (e) { return '<span class="model-dot' + (scannedEngines[e] ? ' on' : '') + '" title="' + ENGINE_LABEL[e] + (scannedEngines[e] ? ' 스캔됨' : ' 스캔 안됨') + '"></span>'; }).join('') + '</span></td>' +
         '<td>' + (share === null ? '<span class="pct-pill">—</span>' : '<span class="pct-pill' + (share >= 50 ? ' hi' : '') + '">' + share.toFixed(1) + '%</span>') + '</td>' +
         '<td>' + new Date(p.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + '</td>' +
         '<td><button class="row-icon-btn" data-act="del" title="삭제">✕</button></td>';
