@@ -233,26 +233,6 @@
 
   .empty-hint { font-size: 12.5px; color: var(--cream-faint); padding: 18px 4px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); }
 
-  /* ---------- radar / scan (unchanged visual language) ---------- */
-  .scan-grid { display: grid; grid-template-columns: 260px 1fr; gap: 26px; align-items: center; }
-  @media (max-width: 720px) { .scan-grid { grid-template-columns: 1fr; } }
-  .radar-wrap { display: flex; justify-content: center; }
-  .radar-svg { width: 220px; height: 220px; }
-  .radar-ring { fill: none; stroke: #FF571F1f; stroke-width: 1; }
-  .radar-sweep { transform-origin: 120px 120px; opacity: 0.85; }
-  .radar-sweep.spinning { animation: sweep 1.6s linear infinite; }
-  @keyframes sweep { to { transform: rotate(360deg); } }
-  .node-label { font-family: var(--font-hud); font-size: 9.5px; letter-spacing: 0.05em; fill: var(--cream-dim); text-anchor: middle; }
-  .node-dot { transition: fill .3s, r .3s, filter .3s; }
-  .node-dot.idle { fill: var(--surface-2); stroke: #FFFFFF33; stroke-width: 1.5; }
-  .node-dot.scanning { fill: var(--surface-2); stroke: var(--white-strong); stroke-width: 1.5; animation: pulse 0.9s ease-in-out infinite; }
-  @keyframes pulse { 50% { stroke-width: 3; filter: drop-shadow(0 0 4px #ADADB4); } }
-  .node-dot.hit { fill: var(--orange); stroke: var(--orange); filter: drop-shadow(0 0 8px #FF571Fa0); }
-  .node-dot.miss { fill: transparent; stroke: #FFFFFF33; stroke-width: 1.5; }
-
-  .scan-side { display: flex; flex-direction: column; gap: 14px; }
-  .scan-target { font-size: 12.5px; color: var(--cream-dim); border-left: 2px solid var(--orange); padding-left: 10px; line-height: 1.5; }
-  .scan-target b { color: var(--cream); font-weight: 400; }
   .status-line { font-family: var(--font-hud); font-size: 11.5px; letter-spacing: 0.03em; color: var(--cream-dim); display: flex; align-items: center; gap: 8px; min-height: 20px; }
   .status-line .marker { color: var(--orange); }
   .bounce-dots { display: inline-flex; gap: 3px; }
@@ -260,14 +240,6 @@
   .bounce-dots span:nth-child(2) { animation-delay: .15s; }
   .bounce-dots span:nth-child(3) { animation-delay: .3s; }
   @keyframes bounce { 0%,80%,100%{ transform: translateY(0); opacity:.5 } 40%{ transform: translateY(-4px); opacity:1 } }
-
-  .result-cards { display: flex; flex-direction: column; gap: 10px; }
-  .result-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 12px; font-size: 12px; }
-  .result-card .rc-head { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.06em; color: var(--cream-dim); margin-bottom: 8px; }
-  .rc-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-  .rc-tag { font-size: 10px; color: var(--cream-faint); border: 1px solid var(--line); padding: 2px 6px; border-radius: 10px; }
-  .rc-tag.own { color: var(--orange); border-color: #FF571F66; }
-  .rc-empty { color: var(--cream-faint); font-size: 11.5px; }
 
   /* ---------- refresh candidate card ---------- */
   .refresh-cand { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 12px 14px; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
@@ -323,8 +295,6 @@
   ::-webkit-scrollbar-thumb { background: #FF571F33; border-radius: 4px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .radar-sweep.spinning { animation: none; }
-    .node-dot.scanning { animation: none; }
     .bounce-dots span { animation: none; }
   }
 </style>
@@ -560,38 +530,6 @@
           </thead>
           <tbody id="promptsTableBody"></tbody>
         </table>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>SCAN</h2><p class="desc">선택한 프롬프트를 각 엔진에 실제로 질의해 브랜드 언급 여부를 확인합니다.</p></div>
-      </div>
-      <div class="scan-grid">
-        <div class="radar-wrap">
-          <svg class="radar-svg" viewBox="0 0 240 240">
-            <circle class="radar-ring" cx="120" cy="120" r="100"></circle>
-            <circle class="radar-ring" cx="120" cy="120" r="70"></circle>
-            <circle class="radar-ring" cx="120" cy="120" r="40"></circle>
-            <g class="radar-sweep" id="radarSweep">
-              <path d="M120,120 L120,20 A100,100 0 0,1 190,50 Z" fill="url(#sweepGrad)"></path>
-            </g>
-            <defs>
-              <linearGradient id="sweepGrad" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0%" stop-color="#FF571F" stop-opacity="0"></stop>
-                <stop offset="100%" stop-color="#FF571F" stop-opacity="0.35"></stop>
-              </linearGradient>
-            </defs>
-            <g id="node-gpt"><circle class="node-dot idle" cx="70" cy="72" r="9"></circle><text class="node-label" x="70" y="52">GPT</text></g>
-            <g id="node-gemini"><circle class="node-dot idle" cx="170" cy="72" r="9"></circle><text class="node-label" x="170" y="52">GEMINI</text></g>
-            <g id="node-claude"><circle class="node-dot idle" cx="120" cy="185" r="9"></circle><text class="node-label" x="120" y="205">CLAUDE</text></g>
-          </svg>
-        </div>
-        <div class="scan-side">
-          <div class="scan-target" id="scanTarget">프롬프트 목록에서 <b>스캔</b>을 눌러 시작하세요.</div>
-          <div class="status-line" id="statusLine"></div>
-          <div class="result-cards" id="resultCards"></div>
-        </div>
       </div>
     </section>
   </div>
@@ -1264,7 +1202,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         '<td><span class="model-icons">' + ENGINES.map(function (e) { return '<span class="model-dot' + (p.engines.indexOf(e) > -1 ? ' on' : '') + '" title="' + ENGINE_LABEL[e] + '"></span>'; }).join('') + '</span></td>' +
         '<td>' + (share === null ? '<span class="pct-pill">—</span>' : '<span class="pct-pill' + (share >= 50 ? ' hi' : '') + '">' + share.toFixed(1) + '%</span>') + '</td>' +
         '<td>' + new Date(p.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + '</td>' +
-        '<td><button class="row-icon-btn" data-act="scan" title="스캔">▶</button><button class="row-icon-btn" data-act="del" title="삭제">✕</button></td>';
+        '<td><button class="row-icon-btn" data-act="del" title="삭제">✕</button></td>';
       
       // 프롬프트 행 클릭 시 상세 분석 열기
       tr.style.cursor = 'pointer';
@@ -1279,7 +1217,6 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         tr.style.background = '';
       });
       
-      tr.querySelector('[data-act="scan"]').addEventListener('click', function () { runScan(p); });
       tr.querySelector('[data-act="del"]').addEventListener('click', function () {
         state.prompts = state.prompts.filter(function (x) { return x.id !== p.id; });
         delete state.selectedPrompts[p.id];
@@ -1339,14 +1276,6 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     URL.revokeObjectURL(url);
   });
 
-  /* ---------------- radar ---------------- */
-  function setNodeState(engine, cls) {
-    var g = $('node-' + engine); if (!g) return;
-    g.querySelector('.node-dot').setAttribute('class', 'node-dot ' + cls);
-  }
-  function resetRadar() { ENGINES.forEach(function (e) { setNodeState(e, 'idle'); }); }
-  function setSweeping(on) { $('radarSweep').classList.toggle('spinning', on); }
-
   /* ---------------- status line ---------------- */
   function showStatusIn(elId, kind, message) {
     var el = $(elId); if (!el) return;
@@ -1356,128 +1285,6 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       el.innerHTML = '<span class="marker">●</span> ' + escapeHtml(message || '');
     }
   }
-  function showStatus(kind, message) { showStatusIn('statusLine', kind, message); }
-
-  /* ---------------- engine call ---------------- */
-  function callEngine(engine, prompt, brands) {
-    if (state.settings.demoMode || !state.settings.endpoint) return mockCall(engine, prompt, brands);
-    return fetch(state.settings.endpoint, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ engine: engine, prompt: prompt, brands: brands })
-    }).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-      .then(function (data) { return normalizeResult(engine, data, brands); });
-  }
-  function normalizeResult(engine, data, brands) {
-    var hitsByBrand = {};
-    (data.brandHits || []).forEach(function (h) { hitsByBrand[h.brand] = h; });
-    var brandHits = brands.map(function (b) {
-      var h = hitsByBrand[b] || {};
-      return { brand: b, mentioned: !!h.mentioned, position: h.position || 'none', sentiment: h.sentiment || 'neutral', snippet: h.snippet || '' };
-    });
-    var sources = Array.isArray(data.sources) ? data.sources.map(function (s) { return { site: s.site || domainFrom(s.url), url: s.url || '', title: s.title || '' }; }) : [];
-    return { engine: engine, brandHits: brandHits, sources: sources };
-  }
-  function mockCall(engine, prompt, brands) {
-    return new Promise(function (resolve) {
-      var delay = 450 + Math.random() * 750;
-      setTimeout(function () {
-        var brandHits = brands.map(function (b) {
-          var prob = (b === OWN_BRAND) ? 0.55 : 0.3;
-          var mentioned = Math.random() < prob;
-          var sentiments = ['positive', 'neutral', 'negative'];
-          return {
-            brand: b, mentioned: mentioned,
-            position: mentioned ? ['early', 'mid', 'late'][Math.floor(Math.random() * 3)] : 'none',
-            sentiment: mentioned ? sentiments[Math.floor(Math.random() * sentiments.length)] : 'neutral',
-            snippet: mentioned ? '(데모) "' + b + '" 언급됨' : ''
-          };
-        });
-        var DEMO_SOURCES = [
-          { site: 'oksavingsbank.com', url: 'https://www.oksavingsbank.com', title: 'OK저축은행 공식 홈페이지' },
-          { site: 'banksalad.com', url: 'https://www.banksalad.com/articles/savings-bank-deposit-comparison', title: '저축은행 예금 금리 비교 - 뱅크샐러드' },
-          { site: 'naver.com', url: 'https://search.naver.com/search.naver?query=OK저축은행+예금금리', title: 'OK저축은행 예금금리 검색결과 - 네이버' },
-          { site: 'daum.net', url: 'https://search.daum.net/search?q=저축은행+금리비교', title: '저축은행 금리비교 - Daum 검색' },
-          { site: 'korea.kr', url: 'https://www.korea.kr/news/policyNewsView.do?newsId=148923456', title: '서민금융 지원 정책 안내 - 대한민국 정책브리핑' },
-          { site: 'fsb.or.kr', url: 'https://www.fsb.or.kr/main.do', title: '저축은행중앙회 공식 사이트' },
-          { site: 'fsc.go.kr', url: 'https://www.fsc.go.kr/no010101', title: '금융소비자 정보포털 - 금융위원회' },
-          { site: 'tistory.com', url: 'https://financetip.tistory.com/entry/저축은행-예금-파킹통장-비교', title: '저축은행 예금 vs 파킹통장 완벽 비교 - 금융정보 블로그' },
-          { site: 'youtube.com', url: 'https://www.youtube.com/results?search_query=OK저축은행+리뷰', title: 'OK저축은행 리뷰 - YouTube' }
-        ];
-        var sources = [];
-        if (Math.random() > 0.4) {
-          var shuffled = DEMO_SOURCES.slice().sort(function () { return 0.5 - Math.random(); });
-          var n = 1 + Math.floor(Math.random() * 2);
-          sources = shuffled.slice(0, n);
-        }
-        resolve({ engine: engine, brandHits: brandHits, sources: sources });
-      }, delay);
-    });
-  }
-
-  /* ---------------- scan flow ---------------- */
-  function runScan(p) {
-    var effEngines = p.engines.filter(function (e) { return state.activeEngines[e]; });
-    if (!effEngines.length) { showStatus('error', '이 프롬프트에 활성화된 엔진이 없습니다. (분석 에이전트 탭 확인)'); return; }
-    $('scanTarget').innerHTML = '"' + escapeHtml(p.text) + '"';
-    $('resultCards').innerHTML = '';
-    resetRadar(); setSweeping(true);
-    effEngines.forEach(function (e) { setNodeState(e, 'scanning'); });
-    showStatus('loading', '엔진 ' + effEngines.map(function (e) { return ENGINE_LABEL[e]; }).join(', ') + ' 질의 중');
-
-    var tasks = effEngines.map(function (engine) {
-      return callEngine(engine, p.text, state.brands)
-        .then(function (result) {
-          var ownHit = result.brandHits.find(function (h) { return h.brand === OWN_BRAND; });
-          setNodeState(engine, ownHit && ownHit.mentioned ? 'hit' : 'miss');
-          logResult(p, engine, result.brandHits, result.sources);
-          renderResultCard(engine, result);
-          return result;
-        })
-        .catch(function (err) {
-          setNodeState(engine, 'miss');
-          showStatus('error', ENGINE_LABEL[engine] + ' 연동 실패 - ' + err.message);
-          return null;
-        });
-    });
-    Promise.all(tasks).then(function () {
-      setSweeping(false);
-      showStatus('ok', '스캔 완료 (' + tasks.length + '개 엔진)');
-    });
-  }
-
-  function renderResultCard(engine, result) {
-    var card = document.createElement('div');
-    card.className = 'result-card';
-    var mentionedBrands = result.brandHits.filter(function (h) { return h.mentioned; });
-    var head = document.createElement('div');
-    head.className = 'rc-head';
-    head.innerHTML = '<span>' + ENGINE_LABEL[engine] + '</span><span>' + mentionedBrands.length + '개 브랜드 언급</span>';
-    card.appendChild(head);
-    var tags = document.createElement('div');
-    tags.className = 'rc-tags';
-    if (!mentionedBrands.length) {
-      tags.innerHTML = '<span class="rc-empty">언급된 브랜드 없음</span>';
-    } else {
-      mentionedBrands.forEach(function (h) {
-        var tag = document.createElement('span');
-        tag.className = 'rc-tag' + (h.brand === OWN_BRAND ? ' own' : '');
-        tag.textContent = h.brand + ' · ' + sentLabel(h.sentiment);
-        tags.appendChild(tag);
-      });
-    }
-    card.appendChild(tags);
-    $('resultCards').appendChild(card);
-  }
-  function sentLabel(s) { return { positive: '▲긍정', neutral: '●중립', negative: '▼부정' }[s] || '●중립'; }
-
-  function logResult(p, engine, brandHits, sources) {
-    var record = { id: uid(), ts: Date.now(), promptId: p.id, promptText: p.text, category: p.category, type: p.type, engine: engine, brandHits: brandHits, sources: sources || [] };
-    state.results.push(record);
-    save(LS_RESULTS, state.results);
-    pushResult(record);
-    renderPromptsTable();
-  }
-
   /* ---------------- citations tab ---------------- */
   var domainSelectionInit = false;
   function computeSources(results) {
