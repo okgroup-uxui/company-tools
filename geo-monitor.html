@@ -1304,13 +1304,16 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     filtered.sort(function (a, b) { return b.no - a.no; });
 
     var engineList = pf.model === 'all' ? ENGINES : [pf.model];
-    var header = ['No', '카테고리', '유형', '프롬프트', '적용 엔진'];
+    var header = ['No', '카테고리', '유형', '프롬프트', '스캔된 엔진'];
     engineList.forEach(function (e) { header.push(ENGINE_LABEL[e] + ' 스캔횟수', ENGINE_LABEL[e] + ' 언급률(%)'); });
     header.push('생성일');
 
     var rows = [header];
     filtered.forEach(function (p) {
-      var row = [p.no, p.category, p.type, p.text, p.engines.map(function (e) { return ENGINE_LABEL[e]; }).join('/')];
+      // p.engines는 생성 시 고정된 "설정값"이라 항상 3개가 들어있음 — 실제 스캔된 엔진만 표시
+      var scanned = promptScannedEngines(p);
+      var scannedLabel = ENGINES.filter(function (e) { return scanned[e]; }).map(function (e) { return ENGINE_LABEL[e]; }).join('/') || '스캔 안됨';
+      var row = [p.no, p.category, p.type, p.text, scannedLabel];
       engineList.forEach(function (e) {
         var stat = promptStatFor(p, e, pf);
         row.push(stat.count, stat.share === null ? '' : stat.share.toFixed(1));
