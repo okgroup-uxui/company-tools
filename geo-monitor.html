@@ -486,7 +486,7 @@
             <button type="button" class="dd-trigger"><span class="dd-label">전체 모델</span><span class="dd-caret">▾</span></button>
             <div class="dd-menu"></div>
           </div>
-          <button class="icon-btn" id="exportCsvBtn" title="CSV 내보내기">⬇</button>
+          <button class="icon-btn" id="exportCsvBtn" title="CSV 내보내기 (선택한 카테고리·기간·모델 기준)">⬇</button>
         </div>
       </div>
 
@@ -1188,6 +1188,18 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var mentioned = rs.filter(function (r) { return r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; }); }).length;
     return mentioned / rs.length * 100;
   }
+  // CSV 내보내기용: 특정 프롬프트 x 특정 엔진의 스캔 결과를 기간 필터까지 반영해 집계
+  function promptStatFor(p, engine, pf) {
+    var rs = state.results.filter(function (r) {
+      if (r.promptId !== p.id || r.engine !== engine) return false;
+      if (pf.dateFrom && r.ts < new Date(pf.dateFrom).getTime()) return false;
+      if (pf.dateTo && r.ts > (new Date(pf.dateTo).getTime() + 86399999)) return false;
+      return true;
+    });
+    if (!rs.length) return { count: 0, share: null };
+    var mentioned = rs.filter(function (r) { return r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; }); }).length;
+    return { count: rs.length, share: mentioned / rs.length * 100 };
+  }
   function renderPromptsTable() {
     var pf = state.filters.prompts;
     var visible = state.prompts.filter(function (p) {
@@ -1282,14 +1294,44 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   });
 
   $('exportCsvBtn').addEventListener('click', function () {
-    var rows = [['No', '카테고리', '유형', '프롬프트', '모델', '생성일']];
-    state.prompts.forEach(function (p) {
-      rows.push([p.no, p.category, p.type, p.text, p.engines.map(function (e) { return ENGINE_LABEL[e]; }).join('/'), new Date(p.createdAt).toISOString().slice(0, 10)]);
+    var pf = state.filters.prompts;
+    // 프롬프트 목록 필터: 현재 화면에 보이는 카테고리/검색 조건과 동일하게 적용
+    var filtered = state.prompts.filter(function (p) {
+      if (pf.category !== 'all' && p.category !== pf.category) return false;
+      if (pf.search && p.text.toLowerCase().indexOf(pf.search) === -1) return false;
+      return true;
     });
+    filtered.sort(function (a, b) { return b.no - a.no; });
+
+    var engineList = pf.model === 'all' ? ENGINES : [pf.model];
+    var header = ['No', '카테고리', '유형', '프롬프트', '적용 엔진'];
+    engineList.forEach(function (e) { header.push(ENGINE_LABEL[e] + ' 스캔횟수', ENGINE_LABEL[e] + ' 언급률(%)'); });
+    header.push('생성일');
+
+    var rows = [header];
+    filtered.forEach(function (p) {
+      var row = [p.no, p.category, p.type, p.text, p.engines.map(function (e) { return ENGINE_LABEL[e]; }).join('/')];
+      engineList.forEach(function (e) {
+        var stat = promptStatFor(p, e, pf);
+        row.push(stat.count, stat.share === null ? '' : stat.share.toFixed(1));
+      });
+      row.push(new Date(p.createdAt).toISOString().slice(0, 10));
+      rows.push(row);
+    });
+
     var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
     var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     var url = URL.createObjectURL(blob);
-    var a = document.createElement('a'); a.href = url; a.download = 'geo-prompts.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+
+    // 파일명에 현재 적용된 필터(카테고리/모델/기간)를 반영
+    var fnameParts = ['geo-prompts'];
+    if (pf.category !== 'all') fnameParts.push(pf.category.replace(/\s+/g, ''));
+    fnameParts.push(pf.model === 'all' ? '전체모델' : ENGINE_LABEL[pf.model]);
+    if (pf.datePreset === 'custom') fnameParts.push((pf.dateFrom || '전체') + '_' + (pf.dateTo || '전체'));
+    else fnameParts.push(pf.datePreset || '10d');
+    var filename = fnameParts.join('_') + '.csv';
+
+    var a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
 
