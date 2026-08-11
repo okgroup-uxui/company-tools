@@ -389,7 +389,7 @@
     </section>
 
     <section class="panel">
-      <div class="panel-head"><div><h2>추적 브랜드</h2><p class="desc">노출 점유율 · 랭킹 계산에 포함할 브랜드입니다. OK저축은행은 항상 고정됩니다.</p></div></div>
+      <div class="panel-head"><div><h2>필수 포함 브랜드</h2><p class="desc">점유율·랭킹은 AI 응답에 실제 등장한 브랜드를 자동으로 전부 집계합니다. 여기 등록한 브랜드는 언급이 0번이어도 항상 랭킹에 표시됩니다 (OK저축은행은 항상 고정).</p></div></div>
       <div class="brand-manager" id="brandManager"></div>
     </section>
   </div>
@@ -601,7 +601,7 @@
     <div class="field">
       <label for="endpointInput">워커 엔드포인트 URL</label>
       <input type="url" id="endpointInput" placeholder="https://your-worker.workers.dev/geo-check">
-      <div class="hint">대시보드는 { engine, prompt, brands: [...] } 를 이 엔드포인트로 POST합니다. 워커는 서버 사이드에서 GPT/Gemini/Claude를 호출하고, 각 브랜드의 언급 여부·위치·감성과 인용 출처(sources: [{site,url,title}])를 분석해 반환해야 합니다. API 키는 브라우저에 두지 않습니다.</div>
+      <div class="hint">대시보드는 { engine, prompt, brands: [...] } 를 이 엔드포인트로 POST합니다. brands는 "필수 포함 브랜드"(항상 결과에 표시할 브랜드) 용도이고, 워커는 서버 사이드에서 GPT/Gemini/Claude를 호출한 뒤 응답에 실제 등장한 모든 브랜드명을 자동으로 추출해 언급 여부·위치·감성과 인용 출처(sources: [{site,url,title}])를 분석해 반환해야 합니다. API 키는 브라우저에 두지 않습니다.</div>
     </div>
     <div class="toggle-row">
       <label>데모 모드 (엔드포인트 없이 임의 데이터로 미리보기)</label>
@@ -629,7 +629,10 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var ENGINES = ['gpt', 'gemini', 'claude'];
   var ENGINE_LABEL = { gpt: 'GPT', gemini: 'GEMINI', claude: 'CLAUDE' };
   var ENGINE_COLOR = { gpt: '#FFFFFF99', gemini: '#ADADB4', claude: '#FF571F' };
-  var DEFAULT_BRANDS = ['OK저축은행', 'SBI저축은행', '웰컴저축은행', '페퍼저축은행', '애큐온저축은행'];
+  // ★ 변경: 경쟁 브랜드를 미리 등록할 필요 없음 — 랭킹/점유율은 AI 응답에
+  //   실제 등장한 브랜드를 자동으로 전부 집계함. 여기 목록은 "언급 0번이어도
+  //   항상 랭킹에 표시하고 싶은 필수 포함 브랜드"만 남기면 됨.
+  var DEFAULT_BRANDS = ['OK저축은행'];
   var OWN_BRAND = 'OK저축은행';
   var OWN_DOMAINS = ['oksavingsbank.com', 'okfg.co.kr', 'okgroup-uxui.github.io'];
   var SOCIAL_DOMAINS = ['youtube.com', 'instagram.com', 'facebook.com', 'tiktok.com', 'x.com', 'twitter.com', 'blog.naver.com'];
@@ -804,14 +807,22 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     });
   }
   function computeShare(results) {
-    var counts = {}; state.brands.forEach(function (b) { counts[b] = 0; });
+    // ★ 변경: state.brands(직접 등록한 브랜드)로만 제한하지 않고,
+    //   스캔 결과(brandHits)에 실제로 등장한 브랜드를 전부 모아서 점유율을 계산.
+    //   즉 "지정한 브랜드"가 아니라 "데이터에서 나온 브랜드"가 기준이 됨.
+    var counts = {};
     var total = 0;
     results.forEach(function (r) {
-      r.brandHits.forEach(function (h) {
-        if (h.mentioned && counts.hasOwnProperty(h.brand)) { counts[h.brand]++; total++; }
+      (r.brandHits || []).forEach(function (h) {
+        if (h.mentioned) {
+          if (!counts.hasOwnProperty(h.brand)) counts[h.brand] = 0;
+          counts[h.brand]++; total++;
+        }
       });
     });
-    return state.brands.map(function (b) { return { brand: b, count: counts[b], share: total ? (counts[b] / total * 100) : 0 }; })
+    // OWN_BRAND는 언급이 0이어도 0%로 항상 표시 (내 브랜드 위치를 명확히 보기 위함)
+    if (!counts.hasOwnProperty(OWN_BRAND)) counts[OWN_BRAND] = 0;
+    return Object.keys(counts).map(function (b) { return { brand: b, count: counts[b], share: total ? (counts[b] / total * 100) : 0 }; })
       .sort(function (a, b) { return b.count - a.count; });
   }
 
@@ -907,7 +918,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         var idx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
         pts.push({ ts: r.ts, value: idx > -1 ? idx + 1 : sd.length });
       });
-      var N = Math.max(state.brands.length, 1);
+      var N = Math.max(computeShare(results).length, 1);
       renderLineChart('heroChartWrap', [{ label: OWN_BRAND, color: '#FF571F', points: pts }],
         { yDomain: [1, N], yInvert: false, gridlines: [{ value: 1, label: '1위' }, { value: Math.max(Math.ceil(N / 2), 1), label: Math.ceil(N / 2) + '위' }, { value: N, label: N + '위' }], valueFmt: function (v) { return '#' + v; } });
     } else {
@@ -1079,7 +1090,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       wrap.appendChild(chip);
     });
     var addWrap = document.createElement('span'); addWrap.className = 'brand-add';
-    var input = document.createElement('input'); input.type = 'text'; input.placeholder = '경쟁 브랜드 추가';
+    var input = document.createElement('input'); input.type = 'text'; input.placeholder = '항상 포함할 브랜드 추가 (선택)';
     var btn = document.createElement('button'); btn.className = 'btn btn-ghost btn-sm'; btn.textContent = '+ 추가';
     btn.addEventListener('click', function () {
       var v = input.value.trim();
@@ -1835,7 +1846,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     $('detailEngineBreakdown').textContent = 'GPT: ' + byEngine.gpt + '회 | Gemini: ' + byEngine.gemini + '회 | Claude: ' + byEngine.claude + '회';
 
     var brandStats = {};
-    state.brands.forEach(function(b) {
+    var allBrandsSeen = {};
+    promptResults.forEach(function(r) { (r.brandHits || []).forEach(function(h) { allBrandsSeen[h.brand] = true; }); });
+    Object.keys(allBrandsSeen).forEach(function(b) {
       var hits = promptResults.filter(function(r) {
         var h = r.brandHits.find(function(x) { return x.brand === b; });
         return h && h.mentioned;
