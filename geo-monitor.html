@@ -1446,10 +1446,16 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function pushActiveEngines() { if (!syncEnabled()) return; fetch(baseUrl() + '/engines-active', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.activeEngines) }).catch(function () {}); }
   function pushResult(resultRecord) { if (!syncEnabled()) return; fetch(baseUrl() + '/results', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(resultRecord) }).catch(function () {}); }
 
+  function resultKey(r) {
+    return r.id || (r.promptId + '|' + r.engine + '|' + (r.ts || ''));
+  }
   function mergeResults(serverResults) {
-    var existingIds = {}; state.results.forEach(function (r) { existingIds[r.id] = true; });
+    var existingIds = {}; state.results.forEach(function (r) { existingIds[resultKey(r)] = true; });
     var added = 0;
-    serverResults.forEach(function (r) { if (!existingIds[r.id]) { state.results.push(r); existingIds[r.id] = true; added++; } });
+    serverResults.forEach(function (r) {
+      var k = resultKey(r);
+      if (!existingIds[k]) { state.results.push(r); existingIds[k] = true; added++; }
+    });
     if (added) save(LS_RESULTS, state.results);
     return added;
   }
