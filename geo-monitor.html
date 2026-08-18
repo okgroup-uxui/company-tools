@@ -222,6 +222,8 @@
   .dot-badge .d { width: 6px; height: 6px; border-radius: 50%; }
   .pct-pill { font-family: var(--font-hud); font-size: 11px; padding: 3px 9px; border-radius: 10px; background: var(--surface-3); color: var(--cream-dim); }
   .pct-pill.hi { color: var(--orange); }
+  .link-chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-hud); font-size: 10.5px; padding: 4px 9px; border-radius: 10px; background: var(--surface-3); color: var(--cream-dim); border: 1px solid var(--line); text-decoration: none; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .link-chip:hover { color: var(--orange); border-color: var(--line-amber); }
   .model-icons { display: flex; gap: 4px; }
   .model-dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--line); }
   .model-dot.on { background: var(--cream-dim); border-color: var(--cream-dim); }
@@ -263,6 +265,8 @@
   /* ---------- sub-tabs (사이트/페이지) ---------- */
   .subtabs { display: flex; gap: 4px; margin-bottom: 18px; }
   .subtab-btn { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.05em; padding: 7px 14px; border-radius: 14px; border: 1px solid var(--line); background: transparent; color: var(--cream-faint); cursor: pointer; }
+  .chip-tab-btn { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.05em; padding: 7px 14px; border-radius: 14px; border: 1px solid var(--line); background: transparent; color: var(--cream-faint); cursor: pointer; }
+  .chip-tab-btn.active { background: var(--surface-3); color: var(--cream); border-color: var(--line); }
   .subtab-btn.active { background: var(--surface-3); color: var(--cream); border-color: var(--line); }
   .subtab-content { display: none; }
   .subtab-content.active { display: block; }
@@ -320,6 +324,7 @@
     <button class="tab-btn" data-tab="agents" role="tab">분석 에이전트 <span class="tab-badge" id="agentBadge">3</span></button>
     <button class="tab-btn" data-tab="prompts" role="tab">프롬프트</button>
     <button class="tab-btn" data-tab="sources" role="tab">인용출처</button>
+    <button class="tab-btn" data-tab="produce" role="tab">콘텐츠 제작</button>
   </nav>
 
   <!-- ================= TAB: 노출 점유율 ================= -->
@@ -592,6 +597,95 @@
     </section>
   </div>
 
+  <!-- ================= TAB: 콘텐츠 제작 ================= -->
+  <div class="tab-content" id="tab-produce">
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>낮은 노출 점유율 프롬프트</h2><p class="desc">점유율이 낮은 질문부터 골라서 GEO 콘텐츠로 보완하세요. (스캔 데이터가 있는 프롬프트만 표시)</p></div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table" id="lowSovTable">
+          <thead>
+            <tr><th></th><th>프롬프트</th><th>그룹</th><th>노출 점유율</th></tr>
+          </thead>
+          <tbody id="lowSovTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>지식베이스</h2><p class="desc">카테고리별로 에이전트가 참고할 사실 정보(상품 조건·혜택·수치)를 입력하세요. 여기 없는 내용은 콘텐츠에 포함되지 않습니다.</p></div>
+      </div>
+      <div class="subtabs" id="kbCatTabs">
+        <button class="chip-tab-btn active" data-kbcat="OK 브랜드">OK 브랜드</button>
+        <button class="chip-tab-btn" data-kbcat="수신상품">수신상품</button>
+        <button class="chip-tab-btn" data-kbcat="여신상품">여신상품</button>
+      </div>
+      <textarea id="kbTextarea" rows="10" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:13px; padding:10px 12px; border-radius:var(--radius); resize:vertical;" placeholder="예시:
+- 파킹통장 기본금리 OO%, 최대 OO%
+- 가입조건: ...
+- 이벤트/혜택: ..."></textarea>
+      <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+        <button class="btn btn-primary btn-sm" id="saveKbBtn">저장</button>
+      </div>
+      <div class="status-line" id="kbStatusLine" style="margin-top:8px;"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>GEO 콘텐츠 생성</h2><p class="desc">선택한 질문 + 지식베이스를 바탕으로 AI 검색엔진에 인용되기 쉬운 콘텐츠를 만듭니다.</p></div>
+      </div>
+
+      <div id="produceSelectedWrap" style="border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:16px;">
+        <div style="font-size:11.5px; color:var(--cream-faint); margin-bottom:6px;">선택된 타겟 질문</div>
+        <div id="produceSelectedText" style="font-size:13.5px; color:var(--cream-dim);">위 표에서 프롬프트를 선택하세요.</div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11.5px; color:var(--cream-dim); margin-bottom:6px;">인용 링크 <span style="color:var(--cream-faint);">(본문에 자연스럽게 녹여 넣을 실제 출처 — 지어낸 링크는 절대 넣지 않습니다)</span></div>
+        <div id="citationAutoList" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;"></div>
+        <textarea id="extraLinksInput" rows="2" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-hud); font-size:12px; padding:8px 10px; border-radius:var(--radius); resize:vertical;" placeholder="추가로 인용하고 싶은 링크가 있으면 한 줄에 하나씩 붙여넣으세요 (예: 공식 상품페이지 URL). 비워두면 위 자동 감지 출처만 사용합니다."></textarea>
+      </div>
+
+      <div style="font-size:11.5px; color:var(--cream-dim); margin-bottom:8px;">콘텐츠 형태</div>
+      <div class="subtabs" id="contentTypeTabs">
+        <button class="chip-tab-btn active" data-contenttype="blog">블로그</button>
+        <button class="chip-tab-btn" data-contenttype="tistory">티스토리</button>
+        <button class="chip-tab-btn" data-contenttype="faq">FAQ</button>
+      </div>
+
+      <button class="btn btn-primary" id="generateGeoContentBtn">✦ 콘텐츠 생성</button>
+      <div class="status-line" id="produceStatusLine" style="margin-top:12px;"></div>
+
+      <div id="produceResultWrap" style="display:none; margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div id="produceResultTitle" style="font-family:var(--font-hud); font-size:14px; color:var(--cream); font-weight:600;"></div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-ghost btn-sm" id="copyGeoContentBtn">복사</button>
+            <button class="btn btn-ghost btn-sm" id="downloadGeoContentBtn">.md 다운로드</button>
+          </div>
+        </div>
+        <div id="produceResultContent" style="white-space:pre-wrap; font-size:13.5px; line-height:1.7; color:var(--cream-dim); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:16px; max-height:520px; overflow-y:auto;"></div>
+        <div id="produceStrategyNotes" style="margin-top:12px; font-size:12.5px; color:var(--cream-faint); border-left:2px solid var(--orange); padding-left:12px; line-height:1.6;"></div>
+
+        <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+            <div style="font-family:var(--font-hud); font-size:12px; color:var(--cream-dim); letter-spacing:0.06em;">썸네일</div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-ghost btn-sm" id="generateThumbnailBtn">✦ 썸네일 생성</button>
+              <button class="btn btn-ghost btn-sm" id="downloadThumbnailPngBtn" style="display:none;">PNG 다운로드</button>
+              <button class="btn btn-ghost btn-sm" id="downloadThumbnailSvgBtn" style="display:none;">SVG 다운로드</button>
+            </div>
+          </div>
+          <div id="thumbnailPreview" style="width:100%; max-width:480px; aspect-ratio:1200/630; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:11.5px; color:var(--cream-faint);">콘텐츠 생성 후 썸네일을 만들 수 있습니다</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
 </div>
 
 <!-- ================= settings modal ================= -->
@@ -607,6 +701,17 @@
       <label>데모 모드 (엔드포인트 없이 임의 데이터로 미리보기)</label>
       <div class="switch" id="demoSwitch"><div class="knob"></div></div>
     </div>
+
+    <div style="margin-top:18px; padding-top:16px; border-top:1px solid var(--line);">
+      <label style="display:block; font-size:12.5px; color:var(--cream-dim); margin-bottom:8px;">운영 상태</label>
+      <div id="opsStatusLine" style="font-size:12.5px; color:var(--cream-faint); margin-bottom:10px;">확인 중...</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary btn-sm" id="startOpsBtn" style="display:none;">▶ 지금부터 모니터링 시작</button>
+        <button class="btn btn-ghost btn-sm" id="stopOpsBtn" style="display:none;">■ 모니터링 중지</button>
+      </div>
+      <div class="hint" style="margin-top:8px;">꺼져 있는 동안은 크론이 15분마다 돌아도 실제 API 호출이 전혀 발생하지 않습니다. 준비가 끝나면 이 버튼을 눌러야 그 순간부터 자동 스캔이 시작됩니다.</div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" id="testConnBtn">연동 테스트</button>
       <button class="btn btn-primary btn-sm" id="saveSettingsBtn">저장</button>
@@ -649,6 +754,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var LS_SETTINGS = 'geo_monitor_settings_v2';
   var LS_ACTIVE_ENGINES = 'geo_monitor_active_engines_v3';
   var LS_GENQUEUE = 'geo_monitor_genqueue_v3';
+  var LS_KB = 'geo_monitor_kb_v1';
 
   function load(key, fallback) {
     try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
@@ -671,6 +777,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     settings: load(LS_SETTINGS, { endpoint: '', demoMode: true }),
     activeEngines: load(LS_ACTIVE_ENGINES, { gpt: true, gemini: true, claude: true }),
     genQueue: load(LS_GENQUEUE, null),
+    kb: load(LS_KB, { 'OK 브랜드': '## 기본 정보\n- 법인명: 주식회사 OK저축은행\n- 브랜드명: OK금융그룹 (OK Financial Group)\n- 대표이사: 정길호\n- 업종/카테고리: 금융 서비스, 저축은행 / 소비자금융, 예금, 대출, 저축은행\n- 본사 위치: 서울특별시 중구 세종대로 39, 10층(서울상공회의소)\n- 고객센터: 1899-7979\n- 채널: 공식 홈페이지 및 모바일 앱 운영\n- 웹사이트: www.oksavingsbank.com\n- 블로그: blog.oksavingsbank.com\n- 브랜드 설명: 대한민국 저축은행 업계를 선도해 온 OK금융그룹 산하 대표 저축은행. 2014년 출범, 예금·적금·입출금통장·대출 서비스를 제공하는 한국 대표 저축은행\n- 주요 키워드: OK저축은행, 소비자금융, 신용대출, 중금리대출, 파킹통장, 고금리, 예금, 적금, 주택담보대출, 자동차담보대출, 주부대출, 외국인근로자대출\n\n## 주요 기능 및 서비스\n- 수신 서비스: 입출금통장(파킹통장), 예금, 적금 등 개인·기업 대상 예금 상품 운영\n- 개인신용대출: 개인 고객 대상 신용대출 서비스\n- 주택담보대출: 주택을 담보로 한 담보대출 서비스\n- 자동차담보대출: 차량을 담보로 한 담보대출 서비스\n- 기업금융: 개인사업자 및 기업 대상 금융 서비스\n- 디지털 금융 서비스: 모바일·온라인 기반 금융서비스 및 비대면 상품 운영\n- 신용평가 및 리스크 관리: 신용평가 모델 활용 및 여신 심사 운영\n- 고객 서비스 및 금융 지원: 고객 맞춤형 금융 상담 및 실생활 금융 지원\n\n## 서비스 구조 (Plan Structure)\n- 수신 상품: 입출금통장(파킹통장) / 예금 / 적금\n- 여신 상품: 개인신용대출 / 주택담보대출 / 자동차담보대출 / 외국인근로자대출 / 성실상환 / 주부대출\n- 기업금융: 개인사업자 및 기업 대상 금융서비스\n- 디지털 채널: 모바일 앱 / 온라인 비대면 금융서비스\n- 심사·운영: 신용평가 / 여신 심사 / 리스크 관리\n- 고객지원: 금융 상담 / 고객센터 / 상품 안내 서비스\n\n## 차별화 포인트\n- 2014년 출범 이후 축적해 온 저축은행 운영 경험과 금융서비스 노하우\n- 입출금통장·예금·적금부터 신용대출·주택담보대출·자동차담보대출까지 아우르는 폭넓은 상품 라인업\n- 모바일 앱과 비대면 채널을 통한 편리한 계좌 개설 및 대출 신청 프로세스\n- 고객의 다양한 자금 목적에 대응하는 수신·여신 통합 금융서비스 제공\n- 신용평가 및 여신 심사 운영 역량을 바탕으로 한 체계적인 금융서비스 제공\n- 실생활 금융 수요에 맞춘 생활밀착형 상품 운영\n- 금융취약계층 추가안내 등 금융소비자 보호 관점을 반영한 고객지원 체계\n\n## 수치 및 근거\n- 2014년 출범, 10년 이상 저축은행 본업 운영\n- 입출금통장·예금·적금·대출 통합 운영\n- 3분 안에 간편 계좌개설 가능\n- 신용대출 최대 1억원\n- 디지털뱅킹 고객센터 24시간 365일 운영\n- 예금자보호 1인당 1억원까지 적용\n\n## 타겟 고객\n- 입출금통장·예금·적금 이용자\n- 개인 신용대출 이용자\n- 중금리 대출 필요 고객\n- 소상공인\n- 주택담보대출·자동차담보대출 필요 고객\n\n## 법적 준수 및 리스크 관리\n- 금융소비자보호법 준수 필요 (대출 광고 시 금리·상환 조건 명시 의무)\n- 저축은행법, 대부업법, 여신전문금융업법 등 계열사별 개별 금융규제 적용\n- 개인정보보호법 및 신용정보법에 따른 고객 정보 취급 의무\n- 금융위원회·금융감독원 감독 하에 있는 규제 산업\n- 해외 사업 운영 시 현지 금융 규제 및 라이선스 준수 필요\n- 과장·허위 광고 금지 (금융상품 광고 심의 기준 적용)\n\n## ⚠ 콘텐츠 작성 시 절대 사용 금지 표현 (아래는 사실이 아니라 "쓰면 안 되는 표현" 목록입니다)\n- 최저금리 보장, 무조건 대출 가능, 신용등급 무관 대출\n- 즉시 승인, 당일 입금 보장\n- 타 금융사 대비 무조건 저렴한 금리\n- 정부 보증 또는 공공기관 연계 표현 (실제 해당 없을 시)\n- 원금 손실 없음, 확정 수익률 보장 (저축 상품 관련)' }),
     filters: {
       share: { category: 'all', datePreset: '10d', dateFrom: '', dateTo: '' },
       prompts: { category: 'all', datePreset: '10d', dateFrom: '', dateTo: '', model: 'all', search: '' },
@@ -681,7 +788,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     promptSort: { key: 'createdAt', dir: 'desc' },
     selectedPrompts: {},
     selectedDomains: {},
-    activeSubtab: 'site'
+    activeSubtab: 'site',
+    produce: { selectedPromptId: null, kbCategory: 'OK 브랜드', contentType: 'blog', lastResult: null }
   };
   if (!state.prompts.length) state.prompts = seedPrompts();
   if (!state.brands.length) state.brands = DEFAULT_BRANDS.slice();
@@ -1112,6 +1220,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       if (btn.dataset.tab === 'agents') renderAgentsTab();
       if (btn.dataset.tab === 'prompts') renderPromptsTable();
       if (btn.dataset.tab === 'sources') renderSourcesTab();
+      if (btn.dataset.tab === 'produce') renderProduceTab();
     });
   });
 
@@ -1347,6 +1456,358 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       el.innerHTML = '<span class="marker">●</span> ' + escapeHtml(message || '');
     }
   }
+
+  /* ---------------- GEO 콘텐츠 제작 에이전트 (produce tab) ---------------- */
+
+  function lowSovPrompts(limit) {
+    return state.prompts
+      .map(function (p) { return { p: p, share: promptShare(p, 'all') }; })
+      .filter(function (x) { return x.share !== null; })
+      .sort(function (a, b) { return a.share - b.share; })
+      .slice(0, limit || 15);
+  }
+
+  function renderLowSovTable() {
+    var body = $('lowSovTableBody');
+    var list = lowSovPrompts(15);
+    if (!list.length) {
+      body.innerHTML = '<tr><td colspan="4" class="empty-hint">아직 스캔 데이터가 있는 프롬프트가 없습니다.</td></tr>';
+      return;
+    }
+    body.innerHTML = list.map(function (x) {
+      var p = x.p;
+      var checked = state.produce.selectedPromptId === p.id ? 'checked' : '';
+      return '<tr>' +
+        '<td><input type="radio" name="lowSovPick" data-pid="' + p.id + '" ' + checked + '></td>' +
+        '<td>' + escapeHtml(truncate(p.text, 60)) + '</td>' +
+        '<td><span class="dot-badge"><span class="dd-dot" style="background:' + categoryDotColor(p.category) + '"></span>' + escapeHtml(p.category) + '</span></td>' +
+        '<td class="cell-mono">' + x.share.toFixed(1) + '%</td>' +
+        '</tr>';
+    }).join('');
+    body.querySelectorAll('input[name="lowSovPick"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        state.produce.selectedPromptId = radio.dataset.pid;
+        renderProduceSelectedPrompt();
+      });
+    });
+  }
+
+  function renderProduceSelectedPrompt() {
+    var wrap = $('produceSelectedText');
+    var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
+    if (!p) { wrap.textContent = '위 표에서 프롬프트를 선택하세요.'; renderCitationSources(); return; }
+    var share = promptShare(p, 'all');
+    wrap.innerHTML = escapeHtml(p.text) + ' <span class="dot-badge" style="margin-left:8px;"><span class="dd-dot" style="background:' + categoryDotColor(p.category) + '"></span>' + escapeHtml(p.category) + '</span>' +
+      (share !== null ? ' <span class="pct-pill" style="margin-left:6px;">현재 점유율 ' + share.toFixed(1) + '%</span>' : '');
+    renderCitationSources();
+  }
+
+  // 선택된 프롬프트를 과거에 스캔했을 때 AI가 실제로 인용한 출처들을 모음
+  // (지어낸 링크가 아니라 실제로 존재가 확인된 URL만 후보로 사용)
+  function relatedCitationSources(promptId, limit) {
+    var freq = {};
+    state.results.forEach(function (r) {
+      if (r.promptId !== promptId) return;
+      (r.sources || []).forEach(function (s) {
+        if (!s || !s.url) return;
+        var key = s.url;
+        if (!freq[key]) freq[key] = { url: s.url, title: s.title || '', site: s.site || domainFrom(s.url), count: 0 };
+        freq[key].count++;
+      });
+    });
+    return Object.keys(freq).map(function (k) { return freq[k]; })
+      .sort(function (a, b) { return b.count - a.count; })
+      .slice(0, limit || 8);
+  }
+
+  function renderCitationSources() {
+    var listEl = $('citationAutoList');
+    var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
+    var sources = p ? relatedCitationSources(p.id, 8) : [];
+    if (!sources.length) {
+      listEl.innerHTML = '<span style="font-size:11.5px; color:var(--cream-faint);">이 프롬프트를 스캔했을 때 실제로 인용된 출처가 아직 없습니다. 아래에 직접 링크를 추가하거나, 링크 없이 생성할 수 있습니다.</span>';
+      return;
+    }
+    listEl.innerHTML = sources.map(function (s) {
+      return '<a class="link-chip" href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener" title="' + escapeHtml(s.title || s.url) + '">🔗 ' + escapeHtml(s.site) + '</a>';
+    }).join('');
+  }
+
+  function renderKbCategoryTabs() {
+    var tabs = $('kbCatTabs');
+    tabs.querySelectorAll('.chip-tab-btn').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.kbcat === state.produce.kbCategory);
+    });
+    $('kbTextarea').value = state.kb[state.produce.kbCategory] || '';
+  }
+
+  function renderContentTypeTabs() {
+    var tabs = $('contentTypeTabs');
+    tabs.querySelectorAll('.chip-tab-btn').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.contenttype === state.produce.contentType);
+    });
+  }
+
+  // 아주 가벼운 마크다운 프리뷰: 링크/소제목만 실제 HTML로 변환하고, 나머지는
+  // escapeHtml로 이스케이프한 뒤에만 태그를 덧붙이므로 XSS 위험이 없음.
+  function renderContentPreview(md) {
+    var esc = escapeHtml(md || '');
+    esc = esc.replace(/^###\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:13.5px;">$1</strong>');
+    esc = esc.replace(/^##\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:14.5px;">$1</strong>');
+    esc = esc.replace(/^#\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:16px;">$1</strong>');
+    esc = esc.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function (_, text, url) {
+      return '<a href="' + url + '" target="_blank" rel="noopener" style="color:var(--orange);">' + text + '</a>';
+    });
+    return esc;
+  }
+
+  function renderProduceResult() {
+    var wrap = $('produceResultWrap');
+    var r = state.produce.lastResult;
+    if (!r) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    $('produceResultTitle').textContent = r.title || '';
+    $('produceResultContent').innerHTML = renderContentPreview(r.content || '');
+    $('produceStrategyNotes').textContent = r.strategyNotes ? ('💡 ' + r.strategyNotes) : '';
+    // 새 콘텐츠가 생성되면 이전 썸네일(다른 제목 기준으로 만들어진)은 무효화
+    currentThumbnailSVG = null;
+    $('thumbnailPreview').innerHTML = '콘텐츠 생성 후 썸네일을 만들 수 있습니다';
+    $('downloadThumbnailPngBtn').style.display = 'none';
+    $('downloadThumbnailSvgBtn').style.display = 'none';
+  }
+
+  function renderProduceTab() {
+    renderLowSovTable();
+    renderProduceSelectedPrompt();
+    renderKbCategoryTabs();
+    renderContentTypeTabs();
+    renderProduceResult();
+  }
+
+  $('kbCatTabs').querySelectorAll('.chip-tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      // 카테고리를 바꾸기 전에 현재 입력 중인 텍스트를 잃지 않도록 메모리에 저장
+      state.kb[state.produce.kbCategory] = $('kbTextarea').value;
+      state.produce.kbCategory = btn.dataset.kbcat;
+      renderKbCategoryTabs();
+    });
+  });
+
+  $('saveKbBtn').addEventListener('click', function () {
+    state.kb[state.produce.kbCategory] = $('kbTextarea').value;
+    save(LS_KB, state.kb);
+    pushKB();
+    showStatusIn('kbStatusLine', 'ok', '"' + state.produce.kbCategory + '" 지식베이스 저장됨' + (syncEnabled() ? ' (서버 동기화됨)' : ' (로컬에만 저장됨 — 설정에서 엔드포인트를 연결하면 서버에도 저장됩니다)'));
+  });
+
+  $('contentTypeTabs').querySelectorAll('.chip-tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      state.produce.contentType = btn.dataset.contenttype;
+      renderContentTypeTabs();
+    });
+  });
+
+  $('generateGeoContentBtn').addEventListener('click', function () {
+    var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
+    if (!p) { showStatusIn('produceStatusLine', 'error', '먼저 타겟 프롬프트를 선택하세요.'); return; }
+    var knowledgeText = (state.kb[p.category] || '').trim();
+    if (!knowledgeText) { showStatusIn('produceStatusLine', 'error', '"' + p.category + '" 카테고리의 지식베이스가 비어 있습니다. 먼저 입력·저장하세요.'); return; }
+
+    // 인용 링크: (1) 이 프롬프트를 스캔했을 때 실제로 인용됐던 출처 + (2) 사용자가 직접 붙여넣은 링크.
+    // 둘 다 "실제로 존재가 확인된 링크"만 사용 — Claude가 없는 링크를 지어내지 않도록 프롬프트에서 강제함.
+    var autoSources = relatedCitationSources(p.id, 8);
+    var extraUrls = $('extraLinksInput').value.split('\n').map(function (s) { return s.trim(); }).filter(function (s) { return /^https?:\/\//.test(s); });
+    var citationLinks = autoSources.map(function (s) { return { url: s.url, title: s.title || s.site }; })
+      .concat(extraUrls.map(function (u) { return { url: u, title: '' }; }));
+
+    $('generateGeoContentBtn').disabled = true;
+    showStatusIn('produceStatusLine', 'loading', 'GEO 콘텐츠 생성 중...');
+
+    callGenerateGeoContent(p.text, p.category, state.produce.contentType, knowledgeText, citationLinks)
+      .then(function (result) {
+        state.produce.lastResult = result;
+        renderProduceResult();
+        showStatusIn('produceStatusLine', 'ok', '생성 완료' + (syncEnabled() ? '' : ' (데모 콘텐츠 — 실제 생성은 설정에서 엔드포인트를 연결하세요)'));
+      })
+      .catch(function (err) {
+        showStatusIn('produceStatusLine', 'error', '생성 실패: ' + err.message);
+      })
+      .finally(function () { $('generateGeoContentBtn').disabled = false; });
+  });
+
+  $('copyGeoContentBtn').addEventListener('click', function () {
+    var r = state.produce.lastResult; if (!r) return;
+    var text = (r.title ? r.title + '\n\n' : '') + (r.content || '');
+    navigator.clipboard.writeText(text).then(function () {
+      showStatusIn('produceStatusLine', 'ok', '클립보드에 복사됨');
+    }).catch(function () {});
+  });
+
+  $('downloadGeoContentBtn').addEventListener('click', function () {
+    var r = state.produce.lastResult; if (!r) return;
+    var text = (r.title ? '# ' + r.title + '\n\n' : '') + (r.content || '');
+    var blob = new Blob([text], { type: 'text/markdown;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'geo-content-' + (state.produce.selectedPromptId || 'draft') + '.md';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  /* ---------------- 썸네일 생성 (심플 타이틀 카드 + 3D 일러스트, 전부 SVG로 브라우저에서 즉시 생성) ---------------- */
+  var currentThumbnailSVG = null;
+
+  // 긴 제목을 여러 줄로 나눔 (SVG는 자동 줄바꿈이 안 되기 때문에 직접 계산)
+  function wrapTitleLines(title, maxCharsPerLine, maxLines) {
+    var words = String(title || '').split(/\s+/).filter(Boolean);
+    var lines = []; var cur = '';
+    words.forEach(function (w) {
+      var test = cur ? cur + ' ' + w : w;
+      if (test.length > maxCharsPerLine && cur) { lines.push(cur); cur = w; }
+      else cur = test;
+    });
+    if (cur) lines.push(cur);
+    if (!lines.length) lines = [''];
+    if (lines.length > maxLines) {
+      lines = lines.slice(0, maxLines);
+      var last = lines[maxLines - 1];
+      lines[maxLines - 1] = (last.length > maxCharsPerLine - 1 ? last.slice(0, maxCharsPerLine - 1) : last) + '…';
+    }
+    return lines;
+  }
+
+  // 1200x630(OG 이미지 표준 비율) 심플 타이틀 카드 + 그라디언트 3D 스피어 일러스트.
+  // 외부 이미지 생성 API 없이 SVG만으로 입체감(하이라이트+그림자)을 낸 것.
+  // 폰트는 PNG 변환 시 문제 없이 렌더되도록 구글 폰트(Space Grotesk / Noto Sans KR)만 사용.
+  function buildThumbnailSVG(title, category) {
+    var lines = wrapTitleLines(title, 14, 3);
+    var titleTspans = lines.map(function (line, i) {
+      return '<tspan x="80" y="' + (300 + i * 60) + '">' + escapeHtml(line) + '</tspan>';
+    }).join('');
+    var catColor = categoryDotColor(category || '');
+    var catLabel = escapeHtml(category || 'GEO');
+    var badgeWidth = Math.max(96, catLabel.length * 15 + 46);
+
+    return '<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs>' +
+        '<linearGradient id="tnBg" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0%" stop-color="#0A0A0A"/>' +
+          '<stop offset="100%" stop-color="#181818"/>' +
+        '</linearGradient>' +
+        '<radialGradient id="tnSphere" cx="35%" cy="28%" r="72%">' +
+          '<stop offset="0%" stop-color="#FF9A5C"/>' +
+          '<stop offset="48%" stop-color="#FF571F"/>' +
+          '<stop offset="100%" stop-color="#6e2609"/>' +
+        '</radialGradient>' +
+        '<filter id="tnBlur" x="-60%" y="-60%" width="220%" height="220%">' +
+          '<feGaussianBlur stdDeviation="22"/>' +
+        '</filter>' +
+      '</defs>' +
+      '<rect width="1200" height="630" fill="url(#tnBg)"/>' +
+      '<ellipse cx="955" cy="478" rx="170" ry="34" fill="#000000" opacity="0.45" filter="url(#tnBlur)"/>' +
+      '<circle cx="955" cy="325" r="165" fill="url(#tnSphere)"/>' +
+      '<ellipse cx="893" cy="253" rx="52" ry="32" fill="#FFFFFF" opacity="0.32"/>' +
+      '<circle cx="1112" cy="168" r="9" fill="#FF571F" opacity="0.75"/>' +
+      '<circle cx="1078" cy="468" r="14" fill="#ADADB4" opacity="0.5"/>' +
+      '<circle cx="1142" cy="398" r="6" fill="#FF571F" opacity="0.6"/>' +
+      '<circle cx="80" cy="82" r="7" fill="#FF571F"/>' +
+      '<text x="100" y="90" font-family="Space Grotesk, sans-serif" font-size="20" letter-spacing="2" fill="#FFFFFF" font-weight="600">GEO MONITOR</text>' +
+      '<rect x="78" y="148" width="' + badgeWidth + '" height="34" rx="17" fill="#232323" stroke="#FFFFFF14"/>' +
+      '<circle cx="99" cy="165" r="5" fill="' + catColor + '"/>' +
+      '<text x="114" y="170" font-family="Noto Sans KR, sans-serif" font-size="13" fill="#ADADB4">' + catLabel + '</text>' +
+      '<text font-family="Noto Sans KR, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF">' + titleTspans + '</text>' +
+    '</svg>';
+  }
+
+  function svgStringToPngBlob(svgString, width, height) {
+    return new Promise(function (resolve, reject) {
+      var svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      var url = URL.createObjectURL(svgBlob);
+      var img = new Image();
+      img.onload = function () {
+        var canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(function (blob) {
+          if (blob) resolve(blob); else reject(new Error('PNG 변환 실패'));
+        }, 'image/png');
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('SVG 로드 실패')); };
+      img.src = url;
+    });
+  }
+
+  $('generateThumbnailBtn').addEventListener('click', function () {
+    var r = state.produce.lastResult;
+    if (!r) { showStatusIn('produceStatusLine', 'error', '먼저 콘텐츠를 생성하세요.'); return; }
+    var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
+    currentThumbnailSVG = buildThumbnailSVG(r.title || '', p ? p.category : '');
+    $('thumbnailPreview').innerHTML = currentThumbnailSVG;
+    $('downloadThumbnailPngBtn').style.display = '';
+    $('downloadThumbnailSvgBtn').style.display = '';
+  });
+
+  $('downloadThumbnailPngBtn').addEventListener('click', function () {
+    if (!currentThumbnailSVG) return;
+    svgStringToPngBlob(currentThumbnailSVG, 1200, 630).then(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'geo-thumbnail-' + (state.produce.selectedPromptId || 'draft') + '.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }).catch(function (err) {
+      showStatusIn('produceStatusLine', 'error', 'PNG 변환 실패: ' + err.message + ' — SVG로 다운로드해보세요.');
+    });
+  });
+
+  $('downloadThumbnailSvgBtn').addEventListener('click', function () {
+    if (!currentThumbnailSVG) return;
+    var blob = new Blob([currentThumbnailSVG], { type: 'image/svg+xml;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'geo-thumbnail-' + (state.produce.selectedPromptId || 'draft') + '.svg';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  function callGenerateGeoContent(promptText, category, contentType, knowledgeText, citationLinks) {
+    if (state.settings.demoMode || !state.settings.endpoint) {
+      return mockGenerateGeoContent(promptText, category, contentType, knowledgeText, citationLinks);
+    }
+    // ★ 주의: /geo-check가 아니라 워커 루트(baseUrl())로 보내야 함.
+    //   /geo-check는 별도의 (지금은 죽은) 라우트라서 body.action을 안 보고
+    //   바로 처리해버림. action 기반 라우팅은 다른 경로와 안 겹치는 루트로 와야 함.
+    return fetch(baseUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'generate-geo-content', promptText: promptText, category: category, contentType: contentType, knowledgeText: knowledgeText, citationLinks: citationLinks || [] })
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.error || ('HTTP ' + res.status)); });
+      return res.json();
+    }).then(function (data) {
+      if (!data.result) throw new Error('결과가 비어 있습니다');
+      return data.result;
+    });
+  }
+
+  function mockGenerateGeoContent(promptText, category, contentType, knowledgeText, citationLinks) {
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        var typeLabel = { blog: '블로그', tistory: '티스토리', faq: 'FAQ' }[contentType] || '블로그';
+        var linksNote = (citationLinks && citationLinks.length)
+          ? ('\n\n(데모에서는 실제로 녹이지 않지만, 실제 생성 시 아래 ' + citationLinks.length + '개 링크 중 자연스러운 것만 본문에 인용됩니다: ' + citationLinks.map(function (l) { return l.url; }).join(', ') + ')')
+          : '';
+        resolve({
+          title: '(데모) ' + promptText,
+          content: '(데모 모드입니다 — 설정에서 실제 워커 엔드포인트를 연결하면 Claude가 아래 지식베이스를 바탕으로 실제 ' + typeLabel + ' 콘텐츠를 생성합니다.)\n\n---\n\n참고한 지식베이스(' + category + '):\n' + knowledgeText.slice(0, 300) + (knowledgeText.length > 300 ? '...' : '') + linksNote,
+          strategyNotes: '데모 콘텐츠에는 전략 메모가 포함되지 않습니다.'
+        });
+      }, 900);
+    });
+  }
+
   /* ---------------- citations tab ---------------- */
   var domainSelectionInit = false;
   function computeSources(results) {
@@ -1497,9 +1958,58 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var lastSyncAt = null;
   function syncEnabled() { return !!state.settings.endpoint && !state.settings.demoMode; }
   function baseUrl() { return state.settings.endpoint.replace(/\/geo-check\/?$/, ''); }
+
+  /* ---------------- 운영 시작/중지 스위치 ---------------- */
+  function refreshOpsStatus() {
+    if (!syncEnabled()) {
+      $('opsStatusLine').textContent = '실제 워커 엔드포인트 연결 후 사용할 수 있습니다 (데모 모드에서는 운영 스위치가 없습니다).';
+      $('startOpsBtn').style.display = 'none';
+      $('stopOpsBtn').style.display = 'none';
+      return;
+    }
+    fetch(baseUrl() + '/operations-status').then(function (r) { return r.ok ? r.json() : null; }).then(function (data) {
+      if (!data) { showOpsFetchFailed(); return; }
+      if (data.enabled) {
+        $('opsStatusLine').innerHTML = '<span class="marker">●</span> 운영 중' + (data.startedAt ? (' — 시작: ' + new Date(data.startedAt).toLocaleString('ko-KR')) : '');
+        $('startOpsBtn').style.display = 'none';
+        $('stopOpsBtn').style.display = '';
+      } else {
+        $('opsStatusLine').textContent = '운영 전 — 버튼을 누르는 순간부터 자동 스캔이 시작되고 실제 API 비용이 발생합니다.';
+        $('startOpsBtn').style.display = '';
+        $('stopOpsBtn').style.display = 'none';
+      }
+    }).catch(function () { showOpsFetchFailed(); });
+  }
+
+  // ★ 상태 조회 자체가 실패했을 때 (워커에 /operations-status가 없는 예전 버전일 가능성이
+  //   가장 큼) 버튼을 숨기지 않고 "시작" 버튼을 기본으로 보여줌 — 눌러보면 명확한
+  //   에러가 뜨니 그걸 보고 워커 재배포 여부를 확인할 수 있게.
+  function showOpsFetchFailed() {
+    $('opsStatusLine').textContent = '상태를 불러오지 못했습니다 — 워커에 이 기능(v6 이상)이 배포됐는지 확인하세요. geo-monitor-worker.js를 최신 버전으로 다시 배포해보세요.';
+    $('startOpsBtn').style.display = '';
+    $('stopOpsBtn').style.display = 'none';
+  }
+
+  $('startOpsBtn').addEventListener('click', function () {
+    if (!confirm('지금부터 자동 모니터링을 시작할까요?\n이후 크론이 실제로 GPT/Gemini/Claude를 호출하며 API 비용이 발생합니다.')) return;
+    fetch(baseUrl() + '/start-operations', { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function () { showStatusIn('settingsStatusLine', 'ok', '운영이 시작됐습니다.'); refreshOpsStatus(); })
+      .catch(function () { showStatusIn('settingsStatusLine', 'error', '운영 시작 요청에 실패했습니다.'); });
+  });
+
+  $('stopOpsBtn').addEventListener('click', function () {
+    if (!confirm('모니터링을 중지할까요?\n진행 중인 큐와 이미 쌓인 데이터는 그대로 보존되고, 나중에 다시 시작하면 멈췄던 지점부터 이어서 진행됩니다.')) return;
+    fetch(baseUrl() + '/stop-operations', { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function () { showStatusIn('settingsStatusLine', 'ok', '운영이 중지됐습니다.'); refreshOpsStatus(); })
+      .catch(function () { showStatusIn('settingsStatusLine', 'error', '운영 중지 요청에 실패했습니다.'); });
+  });
+
   function pushPrompts() { if (!syncEnabled()) return; fetch(baseUrl() + '/prompts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.prompts) }).catch(function () {}); }
   function pushBrands() { if (!syncEnabled()) return; fetch(baseUrl() + '/brands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.brands) }).catch(function () {}); }
   function pushActiveEngines() { if (!syncEnabled()) return; fetch(baseUrl() + '/engines-active', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.activeEngines) }).catch(function () {}); }
+  function pushKB() { if (!syncEnabled()) return; fetch(baseUrl() + '/knowledge-base', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.kb) }).catch(function () {}); }
   function pushResult(resultRecord) { if (!syncEnabled()) return; fetch(baseUrl() + '/results', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(resultRecord) }).catch(function () {}); }
 
   function resultKey(r) {
@@ -1524,12 +2034,14 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       fetch(base + '/prompts').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
       fetch(base + '/brands').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
       fetch(base + '/engines-active').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-      fetch(base + '/results?since=' + since).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+      fetch(base + '/results?since=' + since).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+      fetch(base + '/knowledge-base').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
     ]).then(function (res) {
       var serverPrompts = res[0] && res[0].prompts;
       var serverBrands = res[1] && res[1].brands;
       var serverEngines = res[2] && res[2].activeEngines;
       var serverResults = res[3] && res[3].results;
+      var serverKB = res[4] && res[4].knowledgeBase;
 
       if (serverPrompts && serverPrompts.length) { state.prompts = serverPrompts; save(LS_PROMPTS, state.prompts); }
       else if (state.prompts.length) { pushPrompts(); } // 서버가 비어있으면 로컬 목록으로 부트스트랩
@@ -1539,6 +2051,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
       if (serverEngines) { state.activeEngines = serverEngines; save(LS_ACTIVE_ENGINES, state.activeEngines); }
       else { pushActiveEngines(); }
+
+      if (serverKB && Object.keys(serverKB).length) { state.kb = serverKB; save(LS_KB, state.kb); }
+      else if (state.kb && Object.keys(state.kb).length) { pushKB(); }
 
       var added = 0;
       if (serverResults) added = mergeResults(serverResults);
@@ -1559,6 +2074,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     $('endpointInput').value = state.settings.endpoint;
     $('demoSwitch').classList.toggle('on', state.settings.demoMode);
     $('settingsStatusLine').innerHTML = '';
+    refreshOpsStatus();
     modal.classList.add('open');
   });
   modal.addEventListener('click', function (e) { if (e.target === modal) modal.classList.remove('open'); });
