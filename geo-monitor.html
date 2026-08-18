@@ -215,6 +215,9 @@
   table.data-table th { text-align: left; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.06em; color: var(--cream-faint); font-weight: 500; padding: 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   table.data-table td { padding: 10px; border-bottom: 1px solid var(--line); color: var(--cream-dim); vertical-align: middle; }
   table.data-table tr:hover td { background: #FFFFFF06; }
+  tr.lowsov-row { cursor: pointer; }
+  tr.lowsov-row.selected td { background: #FF571F14; }
+  tr.lowsov-row.selected:hover td { background: #FF571F1F; }
   table.data-table tr.own-row td:first-child { color: var(--orange); }
   .cell-mono { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; color: var(--cream); }
   .cell-snippet { max-width: 320px; color: var(--cream-faint); }
@@ -1476,17 +1479,18 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     }
     body.innerHTML = list.map(function (x) {
       var p = x.p;
-      var checked = state.produce.selectedPromptId === p.id ? 'checked' : '';
-      return '<tr>' +
-        '<td><input type="radio" name="lowSovPick" data-pid="' + p.id + '" ' + checked + '></td>' +
+      var isSelected = state.produce.selectedPromptId === p.id;
+      return '<tr class="lowsov-row' + (isSelected ? ' selected' : '') + '" data-pid="' + p.id + '">' +
+        '<td><input type="radio" name="lowSovPick" data-pid="' + p.id + '" ' + (isSelected ? 'checked' : '') + '></td>' +
         '<td>' + escapeHtml(truncate(p.text, 60)) + '</td>' +
         '<td><span class="dot-badge"><span class="dd-dot" style="background:' + categoryDotColor(p.category) + '"></span>' + escapeHtml(p.category) + '</span></td>' +
         '<td class="cell-mono">' + x.share.toFixed(1) + '%</td>' +
         '</tr>';
     }).join('');
-    body.querySelectorAll('input[name="lowSovPick"]').forEach(function (radio) {
-      radio.addEventListener('change', function () {
-        state.produce.selectedPromptId = radio.dataset.pid;
+    body.querySelectorAll('tr.lowsov-row').forEach(function (row) {
+      row.addEventListener('click', function () {
+        state.produce.selectedPromptId = row.dataset.pid;
+        renderLowSovTable();
         renderProduceSelectedPrompt();
       });
     });
