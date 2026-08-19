@@ -160,8 +160,8 @@
   }
   .emoji-picker .clear-btn:hover{background:#F1EDE3;}
   .habit-row td.label-cell{
-    text-align:left;padding:8px 30px 8px 12px;font-size:12.5px;white-space:nowrap;
-    overflow:hidden;text-overflow:ellipsis;position:relative;
+    text-align:left;padding:8px 30px 8px 12px;font-size:12.5px;white-space:normal;
+    word-break:keep-all;line-height:1.35;vertical-align:middle;position:relative;
   }
   .habit-row .tag{
     display:inline-block;font-size:10px;font-weight:700;color:var(--coral);margin-right:3px;
@@ -435,9 +435,10 @@ function renderTracker(){
   // habits grid
   const totalDays = weeks.length * 7;
   const dayColWidth = 34;
-  const tableWidth = 44 + 170 + dayColWidth * totalDays;
+  const labelColWidth = 230;
+  const tableWidth = 44 + labelColWidth + dayColWidth * totalDays;
   html += `<div class="section-bar">HABITS</div><div class="grid-wrap"><table style="width:${tableWidth}px;">`;
-  html += `<colgroup><col style="width:44px;"><col style="width:170px;">`;
+  html += `<colgroup><col style="width:44px;"><col style="width:${labelColWidth}px;">`;
   for(let i=0;i<totalDays;i++){ html += `<col style="width:${dayColWidth}px;">`; }
   html += `</colgroup>`;
 
@@ -481,7 +482,7 @@ function renderTracker(){
     const pct = denom>0 ? Math.round(done/denom*100) : 0;
     html += `<tr class="habit-row">
       <td class="pct-cell">${pct}%</td>
-      <td class="label-cell" colspan="1" style="position:relative;min-width:190px;">
+      <td class="label-cell" colspan="1" style="position:relative;min-width:${labelColWidth-40}px;">
         ${h.category?`<span class="tag">[${h.category}]</span>`:''}${escapeHtml(h.name)}
         <button class="del-btn" data-act="del-habit" data-id="${h.id}">✕</button>
       </td>`;
