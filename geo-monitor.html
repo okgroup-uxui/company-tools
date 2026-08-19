@@ -218,6 +218,10 @@
   tr.lowsov-row { cursor: pointer; }
   tr.lowsov-row.selected td { background: #FF571F14; }
   tr.lowsov-row.selected:hover td { background: #FF571F1F; }
+  .content-table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 12.5px; }
+  .content-table th, .content-table td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; }
+  .content-table th { background: var(--surface-3); color: var(--cream); font-weight: 600; }
+  .content-table td { color: var(--cream-dim); }
   table.data-table tr.own-row td:first-child { color: var(--orange); }
   .cell-mono { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; color: var(--cream); }
   .cell-snippet { max-width: 320px; color: var(--cream-faint); }
@@ -684,6 +688,7 @@
               <button class="btn btn-ghost btn-sm" id="downloadThumbnailSvgBtn" style="display:none;">SVG 다운로드</button>
             </div>
           </div>
+          <input type="text" id="thumbnailSubtitleInput" placeholder="부제목 (선택, 예: 시중은행 VS 저축은행) — 'VS'는 자동으로 오렌지색 강조됩니다" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:12.5px; padding:8px 10px; border-radius:var(--radius); margin-bottom:12px;">
           <div id="thumbnailPreview" style="width:100%; max-width:480px; aspect-ratio:1200/630; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:11.5px; color:var(--cream-faint);">콘텐츠 생성 후 썸네일을 만들 수 있습니다</div>
         </div>
       </div>
@@ -1578,8 +1583,43 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   // 아주 가벼운 마크다운 프리뷰: 링크/소제목만 실제 HTML로 변환하고, 나머지는
   // escapeHtml로 이스케이프한 뒤에만 태그를 덧붙이므로 XSS 위험이 없음.
+  // 마크다운 표(| a | b |\n|---|---|\n| 1 | 2 |) 블록을 실제 <table>로 변환.
+  // escapeHtml 이후의 텍스트에 대해 동작 (파이프/대시는 escapeHtml 대상이 아니라 안전함).
+  function renderTablesInLines(lines) {
+    var out = [];
+    var i = 0;
+    var rowRe = /^\s*\|.*\|\s*$/;
+    var sepRe = /^\s*\|?[\s:-]*-[\s:|-]*\|[\s:|-]*$/;
+    function splitCells(line) {
+      var t = line.trim();
+      if (t.charAt(0) === '|') t = t.slice(1);
+      if (t.charAt(t.length - 1) === '|') t = t.slice(0, -1);
+      return t.split('|').map(function (c) { return c.trim(); });
+    }
+    while (i < lines.length) {
+      if (rowRe.test(lines[i]) && i + 1 < lines.length && sepRe.test(lines[i + 1])) {
+        var headerCells = splitCells(lines[i]);
+        var rows = [];
+        var j = i + 2;
+        while (j < lines.length && rowRe.test(lines[j])) { rows.push(splitCells(lines[j])); j++; }
+        var html = '<table class="content-table"><thead><tr>' +
+          headerCells.map(function (c) { return '<th>' + c + '</th>'; }).join('') +
+          '</tr></thead><tbody>' +
+          rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') +
+          '</tbody></table>';
+        out.push(html);
+        i = j;
+      } else {
+        out.push(lines[i]);
+        i++;
+      }
+    }
+    return out;
+  }
+
   function renderContentPreview(md) {
     var esc = escapeHtml(md || '');
+    esc = renderTablesInLines(esc.split('\n')).join('\n');
     esc = esc.replace(/^###\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:13.5px;">$1</strong>');
     esc = esc.replace(/^##\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:14.5px;">$1</strong>');
     esc = esc.replace(/^#\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:16px;">$1</strong>');
@@ -1603,6 +1643,11 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var metaBits = [];
     if (r.slug) metaBits.push('<span>slug: <span class="cell-mono">' + escapeHtml(r.slug) + '</span></span>');
     if (r.metaDescription) metaBits.push('<span>meta: ' + escapeHtml(r.metaDescription) + '</span>');
+    if (r.citationLinksUsed && r.citationLinksUsed.length) {
+      metaBits.push('<span>참고 가능했던 출처: ' + r.citationLinksUsed.map(function (l) {
+        return '<a class="link-chip" href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener" style="margin-left:4px;">🔗 ' + escapeHtml(l.title || l.url) + '</a>';
+      }).join('') + '</span>');
+    }
     $('produceMetaInfo').innerHTML = metaBits.join('');
 
     var qEl = $('produceQualityWarning');
@@ -1772,46 +1817,52 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     return lines;
   }
 
-  // 1200x630(OG 이미지 표준 비율) 심플 타이틀 카드 + 그라디언트 3D 스피어 일러스트.
-  // 외부 이미지 생성 API 없이 SVG만으로 입체감(하이라이트+그림자)을 낸 것.
+  // 1200x630(OG 이미지 표준 비율). 화이트 배경 + 굵은 타이틀 + (선택)VS 강조 부제목
+  // + 오렌지 뱃지 + 라인아트 은행 아이콘. 외부 이미지 생성 API 없이 SVG로만 구성.
   // 폰트는 PNG 변환 시 문제 없이 렌더되도록 구글 폰트(Space Grotesk / Noto Sans KR)만 사용.
-  function buildThumbnailSVG(title, category) {
-    var lines = wrapTitleLines(title, 14, 3);
+  function buildThumbnailSVG(title, category, subtitle) {
+    var lines = wrapTitleLines(title, 13, 3);
+    var lineHeight = 76;
+    var startY = 190;
     var titleTspans = lines.map(function (line, i) {
-      return '<tspan x="80" y="' + (300 + i * 60) + '">' + escapeHtml(line) + '</tspan>';
+      return '<tspan x="70" y="' + (startY + i * lineHeight) + '">' + escapeHtml(line) + '</tspan>';
     }).join('');
-    var catColor = categoryDotColor(category || '');
+
+    var cursorY = startY + lines.length * lineHeight + 20;
+    var subtitleSvg = '';
+    var sub = (subtitle || '').trim();
+    if (sub) {
+      cursorY += 46;
+      var parts = sub.split(/(vs)/i).filter(function (p) { return p !== ''; });
+      var tspans = parts.map(function (part) {
+        var isVs = /^vs$/i.test(part);
+        return '<tspan fill="' + (isVs ? '#FF571F' : '#161616') + '">' + escapeHtml(part) + '</tspan>';
+      }).join('');
+      subtitleSvg = '<text x="70" y="' + cursorY + '" font-family="Noto Sans KR, sans-serif" font-size="34" font-weight="700">' + tspans + '</text>';
+      cursorY += 20;
+    }
+
+    var badgeY = cursorY + 30;
     var catLabel = escapeHtml(category || 'GEO');
-    var badgeWidth = Math.max(96, catLabel.length * 15 + 46);
+    var badgeWidth = Math.max(150, catLabel.length * 20 + 60);
 
     return '<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">' +
-      '<defs>' +
-        '<linearGradient id="tnBg" x1="0" y1="0" x2="1" y2="1">' +
-          '<stop offset="0%" stop-color="#0A0A0A"/>' +
-          '<stop offset="100%" stop-color="#181818"/>' +
-        '</linearGradient>' +
-        '<radialGradient id="tnSphere" cx="35%" cy="28%" r="72%">' +
-          '<stop offset="0%" stop-color="#FF9A5C"/>' +
-          '<stop offset="48%" stop-color="#FF571F"/>' +
-          '<stop offset="100%" stop-color="#6e2609"/>' +
-        '</radialGradient>' +
-        '<filter id="tnBlur" x="-60%" y="-60%" width="220%" height="220%">' +
-          '<feGaussianBlur stdDeviation="22"/>' +
-        '</filter>' +
-      '</defs>' +
-      '<rect width="1200" height="630" fill="url(#tnBg)"/>' +
-      '<ellipse cx="955" cy="478" rx="170" ry="34" fill="#000000" opacity="0.45" filter="url(#tnBlur)"/>' +
-      '<circle cx="955" cy="325" r="165" fill="url(#tnSphere)"/>' +
-      '<ellipse cx="893" cy="253" rx="52" ry="32" fill="#FFFFFF" opacity="0.32"/>' +
-      '<circle cx="1112" cy="168" r="9" fill="#FF571F" opacity="0.75"/>' +
-      '<circle cx="1078" cy="468" r="14" fill="#ADADB4" opacity="0.5"/>' +
-      '<circle cx="1142" cy="398" r="6" fill="#FF571F" opacity="0.6"/>' +
-      '<circle cx="80" cy="82" r="7" fill="#FF571F"/>' +
-      '<text x="100" y="90" font-family="Space Grotesk, sans-serif" font-size="20" letter-spacing="2" fill="#FFFFFF" font-weight="600">GEO MONITOR</text>' +
-      '<rect x="78" y="148" width="' + badgeWidth + '" height="34" rx="17" fill="#232323" stroke="#FFFFFF14"/>' +
-      '<circle cx="99" cy="165" r="5" fill="' + catColor + '"/>' +
-      '<text x="114" y="170" font-family="Noto Sans KR, sans-serif" font-size="13" fill="#ADADB4">' + catLabel + '</text>' +
-      '<text font-family="Noto Sans KR, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF">' + titleTspans + '</text>' +
+      '<rect width="1200" height="630" fill="#FAFAF7"/>' +
+      '<text font-family="Noto Sans KR, sans-serif" font-size="64" font-weight="800" fill="#161616">' + titleTspans + '</text>' +
+      subtitleSvg +
+      '<rect x="70" y="' + badgeY + '" width="' + badgeWidth + '" height="54" rx="27" fill="#FF571F"/>' +
+      '<text x="' + (70 + badgeWidth / 2) + '" y="' + (badgeY + 35) + '" font-family="Noto Sans KR, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">' + catLabel + '</text>' +
+      // 은행 아이콘 (오렌지 라인아트), 우하단
+      '<g transform="translate(960,410)" stroke="#FF571F" stroke-width="7" fill="none" stroke-linejoin="round" stroke-linecap="round">' +
+        '<polygon points="90,0 180,55 0,55"/>' +
+        '<circle cx="90" cy="24" r="7" fill="#FF571F" stroke="none"/>' +
+        '<line x1="15" y1="55" x2="15" y2="145"/>' +
+        '<line x1="55" y1="55" x2="55" y2="145"/>' +
+        '<line x1="125" y1="55" x2="125" y2="145"/>' +
+        '<line x1="165" y1="55" x2="165" y2="145"/>' +
+        '<line x1="0" y1="145" x2="180" y2="145"/>' +
+        '<text x="90" y="112" font-family="Space Grotesk, sans-serif" font-size="36" font-weight="700" fill="#FF571F" text-anchor="middle" stroke="none">₩</text>' +
+      '</g>' +
     '</svg>';
   }
 
@@ -1839,7 +1890,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var r = state.produce.lastResult;
     if (!r) { showStatusIn('produceStatusLine', 'error', '먼저 콘텐츠를 생성하세요.'); return; }
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
-    currentThumbnailSVG = buildThumbnailSVG(r.title || '', p ? p.category : '');
+    var subtitle = $('thumbnailSubtitleInput').value;
+    currentThumbnailSVG = buildThumbnailSVG(r.title || '', p ? p.category : '', subtitle);
     $('thumbnailPreview').innerHTML = currentThumbnailSVG;
     $('downloadThumbnailPngBtn').style.display = '';
     $('downloadThumbnailSvgBtn').style.display = '';
@@ -1909,6 +1961,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
           content: '(데모 모드입니다 — 설정에서 실제 워커 엔드포인트를 연결하면 Claude가 아래 지식베이스를 바탕으로 실제 ' + typeLabel + ' 콘텐츠를 생성합니다.)\n\n---\n\n참고한 지식베이스(' + category + '):\n' + knowledgeText.slice(0, 300) + (knowledgeText.length > 300 ? '...' : '') + linksNote + relNote,
           strategyNotes: '데모 콘텐츠에는 전략 메모가 포함되지 않습니다.',
           qualityFlags: [],
+          citationLinksUsed: citationLinks || [],
         });
       }, 900);
     });
