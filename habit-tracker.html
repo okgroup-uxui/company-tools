@@ -96,11 +96,11 @@
 
   /* mood tally strip */
   .mood-strip{
-    display:flex;align-items:center;gap:0;background:var(--white);
+    display:flex;align-items:center;gap:0;background:var(--white);flex-wrap:wrap;
     border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:14px;
   }
   .mood-cell{
-    flex:1;text-align:center;padding:10px 4px;border-right:1px solid var(--line);
+    flex:1;min-width:44px;text-align:center;padding:10px 4px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
   }
   .mood-cell:last-child{border-right:none;}
   .mood-cell .emo{font-size:18px;}
@@ -142,6 +142,23 @@
   .row-mood{background:#FBF9F4;}
   .row-mood td{padding:6px 0;font-size:15px;cursor:pointer;user-select:none;}
   .row-mood td:hover{background:#F1EDE3;}
+
+  /* emoji picker popover */
+  .emoji-picker{
+    position:fixed;z-index:1000;background:var(--white);border:1px solid var(--line);
+    border-radius:12px;box-shadow:0 8px 24px rgba(33,24,18,0.18);padding:10px;
+    display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:246px;
+  }
+  .emoji-picker button{
+    border:none;background:none;font-size:18px;padding:5px 0;border-radius:6px;cursor:pointer;
+    line-height:1;
+  }
+  .emoji-picker button:hover{background:var(--yellow);}
+  .emoji-picker .clear-btn{
+    grid-column:1 / -1;margin-top:4px;padding:6px 0;font-size:11px;font-weight:700;
+    color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);border-radius:6px;
+  }
+  .emoji-picker .clear-btn:hover{background:#F1EDE3;}
   .habit-row td.label-cell{
     text-align:left;padding:8px 30px 8px 12px;font-size:12.5px;white-space:nowrap;
     overflow:hidden;text-overflow:ellipsis;position:relative;
@@ -211,7 +228,12 @@
 </div>
 
 <script>
-const EMOJIS = ['🥳','😴','😐','🙂','😊','🔥','❤️','🎉','🏥','✈️'];
+const EMOJIS = [
+  '😀','😄','😆','🥳','😊','🙂','😌','😐','😑','😶',
+  '😕','🙁','😞','😢','😭','😠','😤','🥺','😰','😨',
+  '😴','🤒','🤕','🥵','🥶','🤢','😵',
+  '🔥','❤️','🎉','✈️','💪','📚','☕','🏥'
+];
 const CATEGORY_TAGS = ['건강','공부','기록','루틴'];
 
 const now = new Date();
@@ -384,11 +406,16 @@ function renderTracker(){
     </div>
   </div>`;
 
-  // mood tally strip
+  // mood tally strip — only show emojis actually used this month, most-used first
+  const usedMoods = EMOJIS.filter(e=>mood[e]>0).sort((a,b)=>mood[b]-mood[a]);
   html += `<div class="mood-strip">`;
-  EMOJIS.forEach(e=>{
-    html += `<div class="mood-cell"><div class="emo">${e}</div><div class="cnt">${mood[e]}</div></div>`;
-  });
+  if(usedMoods.length){
+    usedMoods.forEach(e=>{
+      html += `<div class="mood-cell"><div class="emo">${e}</div><div class="cnt">${mood[e]}</div></div>`;
+    });
+  } else {
+    html += `<div class="mood-cell" style="flex:1;color:var(--ink-soft);font-size:12px;">아직 기록된 오늘의 상태가 없어요 — 아래 표에서 칸을 눌러 골라보세요</div>`;
+  }
   html += `</div>`;
 
   // bar chart: 오늘의 달성도
@@ -494,7 +521,7 @@ function renderTracker(){
       <input type="text" id="new-habit-input" class="habit-input" placeholder="새 습관 이름 입력 (예: 저녁 산책 20분)" />
       <button class="add-btn" data-act="add-habit">+ 습관 추가</button>
     </div>
-    <div class="hint" style="padding:0 14px 10px;">체크칸을 클릭하면 완료 표시, 오늘의 상태 칸을 클릭하면 이모지가 순서대로 바뀌어요. 데이터는 자동 저장돼요.</div>
+    <div class="hint" style="padding:0 14px 10px;">체크칸을 클릭하면 완료 표시, 오늘의 상태 칸을 클릭하면 다양한 표정 중에서 골라요 (우클릭하면 지워져요). 데이터는 자동 저장돼요.</div>
   </div>`;
 
   el.innerHTML = html;
@@ -503,6 +530,47 @@ function renderTracker(){
 
 function escapeHtml(s){
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+let activePicker = null;
+function closeEmojiPicker(){
+  if(activePicker){ activePicker.remove(); activePicker = null; }
+  document.removeEventListener('click', onDocClickCloseP, true);
+}
+function onDocClickCloseP(e){
+  if(activePicker && !activePicker.contains(e.target)){ closeEmojiPicker(); }
+}
+function openEmojiPicker(cellEl, day){
+  closeEmojiPicker();
+  const ds = dateStr(state.year, state.month, day);
+  const panel = document.createElement('div');
+  panel.className = 'emoji-picker';
+  panel.innerHTML = EMOJIS.map(e=>`<button type="button" data-emoji="${e}">${e}</button>`).join('')
+    + `<button type="button" class="clear-btn" data-emoji="">지우기</button>`;
+  document.body.appendChild(panel);
+
+  const rect = cellEl.getBoundingClientRect();
+  const panelW = 246;
+  let left = rect.left + rect.width/2 - panelW/2;
+  left = Math.max(8, Math.min(left, window.innerWidth - panelW - 8));
+  let top = rect.bottom + 6;
+  if(top + 160 > window.innerHeight){ top = rect.top - 160 - 6; }
+  panel.style.left = left + 'px';
+  panel.style.top = top + 'px';
+
+  panel.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const val = b.getAttribute('data-emoji');
+      if(val){ state.monthData.emoji[ds] = val; } else { delete state.monthData.emoji[ds]; }
+      await saveMonthData();
+      closeEmojiPicker();
+      renderTracker();
+    });
+  });
+
+  activePicker = panel;
+  setTimeout(()=>document.addEventListener('click', onDocClickCloseP, true), 0);
 }
 
 function attachTrackerEvents(el){
@@ -522,15 +590,9 @@ function attachTrackerEvents(el){
   });
 
   el.querySelectorAll('[data-mood-day]').forEach(td=>{
-    td.addEventListener('click', async ()=>{
+    td.addEventListener('click', (e)=>{
       const day = parseInt(td.getAttribute('data-mood-day'),10);
-      const ds = dateStr(state.year, state.month, day);
-      const cur = state.monthData.emoji[ds];
-      const idx = cur ? EMOJIS.indexOf(cur) : -1;
-      const next = EMOJIS[(idx+1) % EMOJIS.length];
-      state.monthData.emoji[ds] = next;
-      await saveMonthData();
-      renderTracker();
+      openEmojiPicker(td, day);
     });
     td.addEventListener('contextmenu', async (e)=>{
       e.preventDefault();
