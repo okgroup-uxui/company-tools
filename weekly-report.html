@@ -726,6 +726,59 @@
   }
 
   /* ===== Trend report form ===== */
+  .trend-people-bar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:24px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--line-dark);
+  }
+  .trend-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    color:var(--ink);
+    background:var(--panel-2);
+    border:2px solid transparent;
+    border-radius:999px;
+    padding:8px 14px;
+    cursor:pointer;
+  }
+  .trend-chip.active{
+    background:var(--panel);
+    border-color:var(--accent);
+    color:var(--accent);
+  }
+  .trend-chip:hover{border-color:var(--accent);}
+  .trend-chip-del{
+    color:var(--muted-2);
+    font-weight:800;
+    padding:0 2px;
+  }
+  .trend-chip-del:hover{color:var(--danger);}
+  .trend-chip-add{
+    background:transparent;
+    border:2px dashed var(--muted-2);
+    color:var(--ink);
+  }
+  .trend-chip-add:hover{border-style:solid; border-color:var(--accent); color:var(--accent);}
+  .trend-chip.has-content:not(.active)::after{
+    content:'●';
+    font-size:8px;
+    color:var(--accent);
+    margin-left:2px;
+    vertical-align:middle;
+  }
+  .trend-current-author{
+    font-size:13px;
+    color:var(--muted);
+    margin:-10px 0 20px;
+  }
+  .trend-current-author b{color:var(--ink); font-weight:800;}
   .trend-field{margin-bottom:22px;}
   .trend-field label{
     display:block;
@@ -1042,6 +1095,12 @@ const REPORT_TYPES = [
   {key:'work', label:'업무보고'},
   {key:'trend', label:'트렌드보고'}
 ];
+// 트렌드보고 작성자 고정 명단
+const ROSTER = {
+  marketing: ['배동환', '박진호', '김유정'],
+  design: ['공주원', '이진명'],
+  uxui: ['박상준', '조연주', '한지희', '신수림']
+};
 
 let activeReportType = 'work';
 let activeTeam = 'marketing';
@@ -1052,13 +1111,18 @@ let currentMonday = getMonday(new Date());
 let state = {};
 TEAMS.forEach(t => state[t.key] = emptyTeamState());
 
-// trendState[teamKey] = { title:'', image:'' (dataURL), content:'' }
+// trendState[teamKey] = array of entries, one per roster member: [{ id, author, title, image, content }]
+// id는 작성자 이름을 그대로 사용 (팀 내 명단은 고정이라 이름이 곧 안정적인 식별자)
 let trendState = {};
-TEAMS.forEach(t => trendState[t.key] = emptyTrendState());
+TEAMS.forEach(t => trendState[t.key] = emptyTrendState(t.key));
 
-// slideOrder: array of "type:team" ids controlling presentation order
+// 트렌드 편집 화면에서 팀별로 지금 편집 중인 항목(사람)의 id
+let activeTrendEntryId = {};
+
+// slideOrder: array of ids controlling presentation order.
+// work slides: "work:{team}" / trend slides: "trend:{team}:{authorName}"
 let slideOrder = [];
-TEAMS.forEach(t => { slideOrder.push(`work:${t.key}`); slideOrder.push(`trend:${t.key}`); });
+TEAMS.forEach(t => { slideOrder.push(`work:${t.key}`); });
 
 function emptyItem(){ return { text:'', detail:'', category:'', due:'' }; }
 function emptyVacationItem(){ return { name:'', period:'' }; }
@@ -1069,8 +1133,24 @@ function emptyTeamState(){
     polished:{done:null, plan:null, issue:null}, summary:null
   };
 }
-function emptyTrendState(){
-  return { author:'', title:'', image:'', content:'' };
+function generateId(){
+  return 't' + Math.random().toString(36).slice(2, 9);
+}
+function emptyTrendEntry(author){
+  return { id: author, author, title:'', image:'', content:'' };
+}
+function emptyTrendState(teamKey){
+  return (ROSTER[teamKey] || []).map(name => emptyTrendEntry(name));
+}
+// 현재 trendState[teamKey]를 ROSTER 명단과 맞춘다: 명단에 있는 사람은 항목 유지(내용 보존),
+// 없는 사람은 새로 만들고, 명단에 없는 이전 항목은 제거한다.
+function syncTrendRoster(teamKey){
+  const roster = ROSTER[teamKey] || [];
+  const existing = trendState[teamKey] || [];
+  trendState[teamKey] = roster.map(name => {
+    const found = existing.find(e => e.author === name);
+    return found ? { ...found, id: name, author: name } : emptyTrendEntry(name);
+  });
 }
 
 function getMonday(d){
@@ -1309,25 +1389,45 @@ function renderWorkEditor(){
   };
 }
 
+function getActiveTrendEntry(){
+  const entries = trendState[activeTeam];
+  let id = activeTrendEntryId[activeTeam];
+  let entry = entries.find(e => e.id === id);
+  if(!entry){
+    entry = entries[0];
+    activeTrendEntryId[activeTeam] = entry.id;
+  }
+  return entry;
+}
+
 function renderTrendEditor(){
   const wrap = document.getElementById('editor');
   wrap.innerHTML = '';
-  const s = trendState[activeTeam];
+  syncTrendRoster(activeTeam);
+  const entries = trendState[activeTeam];
+  const s = getActiveTrendEntry();
 
-  const authorField = document.createElement('div');
-  authorField.className = 'trend-field';
-  authorField.innerHTML = `<label><span class="num mono">01</span>작성자</label>`;
-  const authorInput = document.createElement('input');
-  authorInput.type = 'text';
-  authorInput.value = s.author;
-  authorInput.placeholder = '이름 입력';
-  authorInput.oninput = (e) => { s.author = e.target.value; renderPaper(); markDirty(); };
-  authorField.appendChild(authorInput);
-  wrap.appendChild(authorField);
+  // 사람별 항목 선택 탭 (고정 명단)
+  const peopleBar = document.createElement('div');
+  peopleBar.className = 'trend-people-bar';
+  entries.forEach((entry) => {
+    const chip = document.createElement('button');
+    const hasContent = entry.title || entry.image || (entry.content && htmlToPlainText(entry.content));
+    chip.className = 'trend-chip' + (entry.id === s.id ? ' active' : '') + (hasContent ? ' has-content' : '');
+    chip.textContent = entry.author;
+    chip.onclick = () => { activeTrendEntryId[activeTeam] = entry.id; renderEditor(); renderPaper(); };
+    peopleBar.appendChild(chip);
+  });
+  wrap.appendChild(peopleBar);
+
+  const currentLabel = document.createElement('div');
+  currentLabel.className = 'trend-current-author';
+  currentLabel.innerHTML = `작성자 <b>${escapeHtml(s.author)}</b>님의 트렌드보고`;
+  wrap.appendChild(currentLabel);
 
   const titleField = document.createElement('div');
   titleField.className = 'trend-field';
-  titleField.innerHTML = `<label><span class="num mono">02</span>제목</label>`;
+  titleField.innerHTML = `<label><span class="num mono">01</span>제목</label>`;
   const titleInput = document.createElement('input');
   titleInput.type = 'text';
   titleInput.value = s.title;
@@ -1338,7 +1438,7 @@ function renderTrendEditor(){
 
   const imgField = document.createElement('div');
   imgField.className = 'trend-field';
-  imgField.innerHTML = `<label><span class="num mono">03</span>이미지</label>`;
+  imgField.innerHTML = `<label><span class="num mono">02</span>이미지</label>`;
   const drop = document.createElement('div');
   drop.className = 'image-drop';
   if(s.image){
@@ -1371,7 +1471,7 @@ function renderTrendEditor(){
 
   const contentField = document.createElement('div');
   contentField.className = 'trend-field';
-  contentField.innerHTML = `<label><span class="num mono">04</span>내용</label>`;
+  contentField.innerHTML = `<label><span class="num mono">03</span>내용</label>`;
 
   const toolbar = document.createElement('div');
   toolbar.className = 'rte-toolbar';
@@ -1602,9 +1702,9 @@ function buildPaperHtmlForTeam(teamKey){
   return html;
 }
 
-function buildPaperHtmlForTrend(teamKey){
+function buildPaperHtmlForTrend(teamKey, entry){
   const t = TEAMS.find(x=>x.key===teamKey);
-  const s = trendState[teamKey];
+  const s = entry;
 
   let html = `
     <div class="paper-head">
@@ -1628,7 +1728,7 @@ function buildPaperHtmlForTrend(teamKey){
 function renderPaper(){
   const html = activeReportType === 'work'
     ? buildPaperHtmlForTeam(activeTeam)
-    : buildPaperHtmlForTrend(activeTeam);
+    : buildPaperHtmlForTrend(activeTeam, getActiveTrendEntry());
   document.getElementById('paper').innerHTML = html;
   const downloadBtn = document.getElementById('downloadBtn');
   if(downloadBtn) downloadBtn.textContent = activeReportType === 'trend' ? 'PDF 다운로드' : '다운로드';
@@ -1640,11 +1740,11 @@ function htmlToPlainText(html){
   return (tmp.textContent || tmp.innerText || '').trim();
 }
 
-function paperToPlainText(teamKey){
+function paperToPlainText(teamKey, entry){
   const t = TEAMS.find(x=>x.key===teamKey);
 
   if(activeReportType === 'trend'){
-    const s = trendState[teamKey];
+    const s = entry || getActiveTrendEntry();
     let lines = [];
     lines.push(`${t.label} 트렌드보고`);
     lines.push('='.repeat(36));
@@ -1719,12 +1819,27 @@ document.addEventListener('click', async (e) => {
     window.print();
   }
   if(e.target.id === 'exportAllBtn'){
-    TEAMS.forEach((t, i) => {
-      setTimeout(()=>{
-        const typeLabel = activeReportType === 'work' ? '주간업무' : '트렌드보고';
-        downloadText(`${t.label}_${typeLabel}_${weekKey(currentMonday)}.txt`, paperToPlainText(t.key));
-      }, i * 350);
-    });
+    if(activeReportType === 'trend'){
+      let i = 0;
+      TEAMS.forEach(t => {
+        trendState[t.key].forEach(entry => {
+          const hasText = entry.content && htmlToPlainText(entry.content).length > 0;
+          if(!entry.author && !entry.title && !entry.image && !hasText) return;
+          const idx = i;
+          setTimeout(()=>{
+            const label = entry.author.trim() || '이름미입력';
+            downloadText(`${t.label}_${label}_트렌드보고_${weekKey(currentMonday)}.txt`, paperToPlainText(t.key, entry));
+          }, idx * 350);
+          i++;
+        });
+      });
+    } else {
+      TEAMS.forEach((t, i) => {
+        setTimeout(()=>{
+          downloadText(`${t.label}_주간업무_${weekKey(currentMonday)}.txt`, paperToPlainText(t.key));
+        }, i * 350);
+      });
+    }
   }
   if(e.target.id === 'saveBtn'){
     handleSaveClick();
@@ -1857,7 +1972,6 @@ async function loadWeek(){
       slideOrder = payload.slideOrder || [];
       TEAMS.forEach(t=>{
         if(!state[t.key]) state[t.key] = emptyTeamState();
-        if(!trendState[t.key]) trendState[t.key] = emptyTrendState();
         // 이전 버전 데이터 호환: vacation, detail 필드가 없으면 채워준다
         const ts = state[t.key];
         if(!ts.vacation || !ts.vacation.length) ts.vacation = [emptyVacationItem()];
@@ -1865,11 +1979,18 @@ async function loadWeek(){
           if(!ts[b.key]) ts[b.key] = [emptyItem()];
           ts[b.key].forEach(item => { if(item.detail === undefined) item.detail = ''; });
         });
+
+        // 이전 버전 데이터 호환: 트렌드보고가 팀당 1개(객체)였던 구조를
+        // 팀당 여러 명(배열) 구조로 변환한 뒤, 고정 명단(ROSTER)에 맞춘다
+        const trend = trendState[t.key];
+        if(!trend){
+          trendState[t.key] = [];
+        } else if(!Array.isArray(trend)){
+          trendState[t.key] = [{ id: trend.author || generateId(), author: trend.author||'', title: trend.title||'', image: trend.image||'', content: trend.content||'' }];
+        }
+        syncTrendRoster(t.key);
       });
-      const expected = [];
-      TEAMS.forEach(t => { expected.push(`work:${t.key}`); expected.push(`trend:${t.key}`); });
-      expected.forEach(id => { if(!slideOrder.includes(id)) slideOrder.push(id); });
-      slideOrder = slideOrder.filter(id => expected.includes(id));
+      reconcileSlideOrder();
     } else {
       resetAll();
     }
@@ -1882,9 +2003,11 @@ async function loadWeek(){
 function resetAll(){
   state = {};
   trendState = {};
-  TEAMS.forEach(t => { state[t.key] = emptyTeamState(); trendState[t.key] = emptyTrendState(); });
+  TEAMS.forEach(t => { state[t.key] = emptyTeamState(); trendState[t.key] = emptyTrendState(t.key); });
+  activeTrendEntryId = {};
   slideOrder = [];
-  TEAMS.forEach(t => { slideOrder.push(`work:${t.key}`); slideOrder.push(`trend:${t.key}`); });
+  TEAMS.forEach(t => { slideOrder.push(`work:${t.key}`); });
+  reconcileSlideOrder();
 }
 
 function renderAll(){
@@ -1896,31 +2019,58 @@ function renderAll(){
 }
 
 // ===== Slide helpers (shared by order panel + presentation) =====
+function parseSlideId(id){
+  const parts = id.split(':');
+  return { type: parts[0], team: parts[1], entryId: parts[2] };
+}
+function findTrendEntry(team, entryId){
+  return (trendState[team] || []).find(e => e.id === entryId);
+}
 function slideHasContent(id){
-  const [type, team] = id.split(':');
+  const { type, team, entryId } = parseSlideId(id);
   if(type === 'work'){
     const s = state[team];
+    if(!s) return false;
     const hasVacation = (s.vacation || []).some(v => v.name.trim().length > 0);
     return hasVacation || BLOCKS.some(b => itemsOf(s, b.key).length > 0);
   } else {
-    const s = trendState[team];
+    const s = findTrendEntry(team, entryId);
+    if(!s) return false;
     const hasContent = s.content && htmlToPlainText(s.content).length > 0;
-    return !!(s.author || s.title || s.image || hasContent);
+    return !!(s.title || s.image || hasContent);
   }
 }
 function slideLabel(id){
-  const [type, team] = id.split(':');
+  const { type, team, entryId } = parseSlideId(id);
   const t = TEAMS.find(x=>x.key===team);
   if(type === 'work') return `${t.label} · 업무보고`;
-  const author = trendState[team].author;
+  const entry = findTrendEntry(team, entryId);
+  const author = entry ? entry.author : '';
   return `${t.label} · 트렌드보고${author ? ' (' + author + ')' : ''}`;
 }
 function activeSlideOrder(){
   return slideOrder.filter(slideHasContent);
 }
 
+// 현재 존재하는 모든 슬라이드 id 목록 (업무보고 3개 + 트렌드보고 항목 전체)
+function allKnownSlideIds(){
+  const ids = [];
+  TEAMS.forEach(t => ids.push(`work:${t.key}`));
+  TEAMS.forEach(t => {
+    (trendState[t.key] || []).forEach(entry => ids.push(`trend:${t.key}:${entry.id}`));
+  });
+  return ids;
+}
+function reconcileSlideOrder(){
+  const known = allKnownSlideIds();
+  known.forEach(id => { if(!slideOrder.includes(id)) slideOrder.push(id); });
+  slideOrder = slideOrder.filter(id => known.includes(id));
+}
+
+
 // ===== Order panel =====
 function renderOrderPanel(){
+  reconcileSlideOrder();
   const list = document.getElementById('orderList');
   list.innerHTML = '';
   const active = activeSlideOrder();
@@ -2027,9 +2177,9 @@ function buildPresentHtmlForWork(teamKey){
   return html;
 }
 
-function buildPresentHtmlForTrend(teamKey){
+function buildPresentHtmlForTrend(teamKey, entry){
   const t = TEAMS.find(x=>x.key===teamKey);
-  const s = trendState[teamKey];
+  const s = entry;
 
   let html = `
     <div class="p-head">
@@ -2066,10 +2216,15 @@ function renderPresent(){
     document.getElementById('presentIndex').textContent = `00 / 00`;
     return;
   }
-  const [type, team] = id.split(':');
-  document.getElementById('presentStage').innerHTML = type === 'work'
-    ? buildPresentHtmlForWork(team)
-    : buildPresentHtmlForTrend(team);
+  const { type, team, entryId } = parseSlideId(id);
+  if(type === 'work'){
+    document.getElementById('presentStage').innerHTML = buildPresentHtmlForWork(team);
+  } else {
+    const entry = findTrendEntry(team, entryId);
+    document.getElementById('presentStage').innerHTML = entry
+      ? buildPresentHtmlForTrend(team, entry)
+      : `<div class="p-empty">삭제된 항목이에요.</div>`;
+  }
   document.getElementById('presentIndex').textContent = `0${presentIndex+1} / 0${presentDeck.length}`;
   const friday = new Date(currentMonday);
   friday.setDate(friday.getDate()+4);
@@ -2133,7 +2288,9 @@ async function enterPresent(){
   if(presentDeck.length === 0){
     presentDeck = slideOrder.slice();
   }
-  const currentId = `${activeReportType}:${activeTeam}`;
+  const currentId = activeReportType === 'work'
+    ? `work:${activeTeam}`
+    : `trend:${activeTeam}:${(activeTrendEntryId[activeTeam] || (trendState[activeTeam][0] && trendState[activeTeam][0].id))}`;
   const idx = presentDeck.indexOf(currentId);
   presentIndex = idx >= 0 ? idx : 0;
   document.querySelector('.app').style.display = 'none';
