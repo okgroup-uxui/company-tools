@@ -501,6 +501,8 @@
     .paper, .paper *{visibility:visible;}
     .paper{position:absolute; top:0; left:0; width:100%; box-shadow:none;}
     .paper-trend-img{max-height:480px; object-fit:contain;}
+    .trend-images{max-height:480px;}
+    .trend-images img{object-fit:contain;}
   }
 
   /* ===== Presentation mode (landscape / TV) ===== */
@@ -912,6 +914,89 @@
   }
   .image-remove:hover{color:var(--white);}
 
+  .img-layout-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .img-layout-label{
+    font-size:12px;
+    color:var(--muted);
+    font-weight:700;
+    margin-right:4px;
+  }
+  .img-layout-btn{
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    padding:8px 14px;
+    border-radius:6px;
+    border:2px solid var(--line-dark);
+    background:transparent;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .img-layout-btn.active{
+    border-color:var(--accent);
+    background:var(--accent);
+    color:#ffffff;
+  }
+  .img-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));
+    gap:10px;
+  }
+  .img-thumb{
+    position:relative;
+    border-radius:6px;
+    overflow:hidden;
+    border:1px solid var(--line-dark);
+    aspect-ratio:1;
+    background:var(--panel-2);
+  }
+  .img-thumb img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .img-thumb-del{
+    position:absolute;
+    top:4px; right:4px;
+    width:24px; height:24px;
+    border-radius:50%;
+    border:none;
+    background:rgba(0,0,0,0.6);
+    color:#ffffff;
+    font-weight:800;
+    font-size:14px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .img-thumb-del:hover{background:var(--danger);}
+  .img-add-tile{
+    position:relative;
+    aspect-ratio:1;
+    border:2px dashed var(--muted-2);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    color:var(--muted);
+    cursor:pointer;
+    padding:8px;
+  }
+  .img-add-tile:hover{border-color:var(--accent); color:var(--accent);}
+  .img-add-tile input[type=file]{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+  }
+
   /* ===== Trend paper preview ===== */
   .paper-trend-author{
     font-family:'Pretendard', sans-serif;
@@ -932,11 +1017,37 @@
     margin-bottom:14px;
     display:block;
   }
+  .trend-images{
+    display:flex;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .trend-images.layout-column{flex-direction:column;}
+  .trend-images.layout-row{flex-direction:row;}
+  .trend-images img{
+    flex:1;
+    min-width:0;
+    min-height:0;
+    width:100%;
+    border-radius:3px;
+    object-fit:cover;
+  }
+  .trend-images.layout-row img{max-height:220px;}
+  .trend-images.layout-column img{max-height:200px;}
   .paper-trend-content{
     font-size:13px;
     line-height:1.7;
     white-space:pre-wrap;
   }
+  .paper-trend-split{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+  }
+  .paper-trend-split-img{flex:0 0 42%; min-width:0;}
+  .paper-trend-split-img .paper-trend-img,
+  .paper-trend-split-img .trend-images{margin-bottom:0;}
+  .paper-trend-split-content{flex:1; min-width:0;}
 
   /* ===== Order panel ===== */
   .order-overlay{
@@ -1137,7 +1248,21 @@ function generateId(){
   return 't' + Math.random().toString(36).slice(2, 9);
 }
 function emptyTrendEntry(author){
-  return { id: author, author, title:'', image:'', content:'' };
+  return { id: author, author, title:'', images:[], imageLayout:'row', slideLayout:'row', content:'' };
+}
+function normalizeTrendEntry(entry){
+  // 예전 데이터(image 단일 문자열)를 images 배열로 이전
+  if(!Array.isArray(entry.images)){
+    entry.images = entry.image ? [entry.image] : [];
+  }
+  if(entry.imageLayout !== 'row' && entry.imageLayout !== 'column'){
+    entry.imageLayout = 'row';
+  }
+  if(entry.slideLayout !== 'row' && entry.slideLayout !== 'column'){
+    entry.slideLayout = 'row';
+  }
+  delete entry.image;
+  return entry;
 }
 function emptyTrendState(teamKey){
   return (ROSTER[teamKey] || []).map(name => emptyTrendEntry(name));
@@ -1149,7 +1274,7 @@ function syncTrendRoster(teamKey){
   const existing = trendState[teamKey] || [];
   trendState[teamKey] = roster.map(name => {
     const found = existing.find(e => e.author === name);
-    return found ? { ...found, id: name, author: name } : emptyTrendEntry(name);
+    return found ? normalizeTrendEntry({ ...found, id: name, author: name }) : emptyTrendEntry(name);
   });
 }
 
@@ -1412,7 +1537,7 @@ function renderTrendEditor(){
   peopleBar.className = 'trend-people-bar';
   entries.forEach((entry) => {
     const chip = document.createElement('button');
-    const hasContent = entry.title || entry.image || (entry.content && htmlToPlainText(entry.content));
+    const hasContent = entry.title || (entry.images && entry.images.length) || (entry.content && htmlToPlainText(entry.content));
     chip.className = 'trend-chip' + (entry.id === s.id ? ' active' : '') + (hasContent ? ' has-content' : '');
     chip.textContent = entry.author;
     chip.onclick = () => { activeTrendEntryId[activeTeam] = entry.id; renderEditor(); renderPaper(); };
@@ -1425,9 +1550,29 @@ function renderTrendEditor(){
   currentLabel.innerHTML = `작성자 <b>${escapeHtml(s.author)}</b>님의 트렌드보고`;
   wrap.appendChild(currentLabel);
 
+  const layoutField = document.createElement('div');
+  layoutField.className = 'trend-field';
+  layoutField.innerHTML = `<label><span class="num mono">01</span>전체 레이아웃</label>`;
+  const layoutRow2 = document.createElement('div');
+  layoutRow2.className = 'img-layout-row';
+  const slideRowBtn = document.createElement('button');
+  slideRowBtn.type = 'button';
+  slideRowBtn.className = 'img-layout-btn' + (s.slideLayout === 'row' ? ' active' : '');
+  slideRowBtn.textContent = '◫ 좌우형 (이미지·내용 나란히)';
+  slideRowBtn.onclick = () => { s.slideLayout = 'row'; renderEditor(); renderPaper(); markDirty(); };
+  const slideColBtn = document.createElement('button');
+  slideColBtn.type = 'button';
+  slideColBtn.className = 'img-layout-btn' + (s.slideLayout === 'column' ? ' active' : '');
+  slideColBtn.textContent = '⊟ 상하형 (이미지 위, 내용 아래)';
+  slideColBtn.onclick = () => { s.slideLayout = 'column'; renderEditor(); renderPaper(); markDirty(); };
+  layoutRow2.appendChild(slideRowBtn);
+  layoutRow2.appendChild(slideColBtn);
+  layoutField.appendChild(layoutRow2);
+  wrap.appendChild(layoutField);
+
   const titleField = document.createElement('div');
   titleField.className = 'trend-field';
-  titleField.innerHTML = `<label><span class="num mono">01</span>제목</label>`;
+  titleField.innerHTML = `<label><span class="num mono">02</span>제목</label>`;
   const titleInput = document.createElement('input');
   titleInput.type = 'text';
   titleInput.value = s.title;
@@ -1438,40 +1583,70 @@ function renderTrendEditor(){
 
   const imgField = document.createElement('div');
   imgField.className = 'trend-field';
-  imgField.innerHTML = `<label><span class="num mono">02</span>이미지</label>`;
-  const drop = document.createElement('div');
-  drop.className = 'image-drop';
-  if(s.image){
-    drop.innerHTML = `<img src="${s.image}" alt="trend image">`;
-  } else {
-    drop.innerHTML = `<div style="padding:20px 0;">클릭하거나 이미지를 끌어놓아 업로드</div>`;
+  imgField.innerHTML = `<label><span class="num mono">03</span>이미지</label>`;
+
+  if(s.images.length > 1){
+    const layoutRow = document.createElement('div');
+    layoutRow.className = 'img-layout-row';
+    layoutRow.innerHTML = `<span class="img-layout-label">이미지 배치</span>`;
+    const rowBtn = document.createElement('button');
+    rowBtn.type = 'button';
+    rowBtn.className = 'img-layout-btn' + (s.imageLayout === 'row' ? ' active' : '');
+    rowBtn.textContent = '◫ 좌우로';
+    rowBtn.onclick = () => { s.imageLayout = 'row'; renderEditor(); renderPaper(); markDirty(); };
+    const colBtn = document.createElement('button');
+    colBtn.type = 'button';
+    colBtn.className = 'img-layout-btn' + (s.imageLayout === 'column' ? ' active' : '');
+    colBtn.textContent = '⊟ 상하로';
+    colBtn.onclick = () => { s.imageLayout = 'column'; renderEditor(); renderPaper(); markDirty(); };
+    layoutRow.appendChild(rowBtn);
+    layoutRow.appendChild(colBtn);
+    imgField.appendChild(layoutRow);
   }
+
+  const grid = document.createElement('div');
+  grid.className = 'img-grid';
+
+  s.images.forEach((imgSrc, idx) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'img-thumb';
+    thumb.innerHTML = `<img src="${imgSrc}" alt="trend image ${idx+1}">`;
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'img-thumb-del';
+    del.textContent = '×';
+    del.onclick = () => { s.images.splice(idx, 1); renderEditor(); renderPaper(); markDirty(); };
+    thumb.appendChild(del);
+    grid.appendChild(thumb);
+  });
+
+  const addTile = document.createElement('div');
+  addTile.className = 'img-add-tile';
+  addTile.innerHTML = `<div>+ 이미지 추가</div>`;
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
+  fileInput.multiple = true;
   fileInput.onchange = async (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
+    const files = Array.from(e.target.files || []);
+    if(!files.length) return;
     try{
-      const compressed = await compressImage(file);
-      s.image = compressed;
+      for(const file of files){
+        const compressed = await compressImage(file);
+        s.images.push(compressed);
+      }
       renderEditor(); renderPaper(); markDirty();
     }catch(err){ console.error(err); }
   };
-  drop.appendChild(fileInput);
-  imgField.appendChild(drop);
-  if(s.image){
-    const removeLink = document.createElement('div');
-    removeLink.className = 'image-remove';
-    removeLink.textContent = '이미지 제거';
-    removeLink.onclick = (ev) => { ev.stopPropagation(); s.image = ''; renderEditor(); renderPaper(); markDirty(); };
-    imgField.appendChild(removeLink);
-  }
+  addTile.appendChild(fileInput);
+  grid.appendChild(addTile);
+
+  imgField.appendChild(grid);
   wrap.appendChild(imgField);
 
   const contentField = document.createElement('div');
   contentField.className = 'trend-field';
-  contentField.innerHTML = `<label><span class="num mono">03</span>내용</label>`;
+  contentField.innerHTML = `<label><span class="num mono">04</span>내용</label>`;
 
   const toolbar = document.createElement('div');
   toolbar.className = 'rte-toolbar';
@@ -1702,6 +1877,18 @@ function buildPaperHtmlForTeam(teamKey){
   return html;
 }
 
+function buildTrendImagesHtml(entry, singleClass){
+  const images = entry.images || [];
+  if(images.length === 0) return '';
+  if(images.length === 1){
+    return `<img class="${singleClass}" src="${images[0]}" alt="">`;
+  }
+  const layoutClass = entry.imageLayout === 'column' ? 'layout-column' : 'layout-row';
+  return `<div class="trend-images ${layoutClass}">` +
+    images.map(src => `<img src="${src}" alt="">`).join('') +
+    `</div>`;
+}
+
 function buildPaperHtmlForTrend(teamKey, entry){
   const t = TEAMS.find(x=>x.key===teamKey);
   const s = entry;
@@ -1713,14 +1900,23 @@ function buildPaperHtmlForTrend(teamKey, entry){
     </div>
   `;
 
-  if(!s.author && !s.title && !s.image && !s.content){
+  const hasImages = s.images && s.images.length > 0;
+  if(!s.author && !s.title && !hasImages && !s.content){
     html += `<div class="paper-empty">작성된 내용이 없습니다.</div>`;
     return html;
   }
 
   if(s.author) html += `<div class="paper-trend-author">작성자 · ${escapeHtml(s.author)}</div>`;
-  if(s.image) html += `<img class="paper-trend-img" src="${s.image}" alt="">`;
-  if(s.content) html += `<div class="paper-trend-content">${s.content}</div>`;
+
+  if(s.slideLayout === 'row' && hasImages && s.content){
+    html += `<div class="paper-trend-split">`;
+    html += `<div class="paper-trend-split-img">${buildTrendImagesHtml(s, 'paper-trend-img')}</div>`;
+    html += `<div class="paper-trend-split-content"><div class="paper-trend-content">${s.content}</div></div>`;
+    html += `</div>`;
+  } else {
+    html += buildTrendImagesHtml(s, 'paper-trend-img');
+    if(s.content) html += `<div class="paper-trend-content">${s.content}</div>`;
+  }
 
   return html;
 }
@@ -1750,7 +1946,7 @@ function paperToPlainText(teamKey, entry){
     lines.push('='.repeat(36));
     if(s.author){ lines.push(''); lines.push(`작성자: ${s.author}`); }
     if(s.title){ lines.push(''); lines.push(`제목: ${s.title}`); }
-    if(s.image){ lines.push(''); lines.push('(이미지 첨부됨 — 다운로드 파일에는 텍스트만 포함됩니다)'); }
+    if(s.images && s.images.length){ lines.push(''); lines.push(`(이미지 ${s.images.length}장 첨부됨 — 다운로드 파일에는 텍스트만 포함됩니다)`); }
     if(s.content){ lines.push(''); lines.push(htmlToPlainText(s.content)); }
     return lines.join('\n');
   }
@@ -1824,7 +2020,7 @@ document.addEventListener('click', async (e) => {
       TEAMS.forEach(t => {
         trendState[t.key].forEach(entry => {
           const hasText = entry.content && htmlToPlainText(entry.content).length > 0;
-          if(!entry.author && !entry.title && !entry.image && !hasText) return;
+          if(!entry.author && !entry.title && !(entry.images && entry.images.length) && !hasText) return;
           const idx = i;
           setTimeout(()=>{
             const label = entry.author.trim() || '이름미입력';
@@ -2037,7 +2233,7 @@ function slideHasContent(id){
     const s = findTrendEntry(team, entryId);
     if(!s) return false;
     const hasContent = s.content && htmlToPlainText(s.content).length > 0;
-    return !!(s.title || s.image || hasContent);
+    return !!(s.title || (s.images && s.images.length) || hasContent);
   }
 }
 function slideLabel(id){
@@ -2180,6 +2376,7 @@ function buildPresentHtmlForWork(teamKey){
 function buildPresentHtmlForTrend(teamKey, entry){
   const t = TEAMS.find(x=>x.key===teamKey);
   const s = entry;
+  const images = s.images || [];
 
   let html = `
     <div class="p-head">
@@ -2190,16 +2387,25 @@ function buildPresentHtmlForTrend(teamKey, entry){
     </div>
   `;
 
-  if(!s.author && !s.title && !s.image && !s.content){
+  if(!s.author && !s.title && images.length === 0 && !s.content){
     html += `<div class="p-empty" style="margin-top:20px;">작성된 내용이 없습니다.</div>`;
     return html;
   }
 
-  html += `<div style="flex:1; min-height:0; display:flex; gap:40px; align-items:stretch;">`;
-  if(s.image){
-    html += `<div style="flex:0 0 46%; display:flex; align-items:center; justify-content:center;">
-      <img src="${s.image}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:4px;">
+  const outerDir = s.slideLayout === 'column' ? 'column' : 'row';
+  const imgBasis = outerDir === 'row' ? '46%' : '50%';
+  html += `<div style="flex:1; min-height:0; display:flex; flex-direction:${outerDir}; gap:32px; align-items:stretch;">`;
+  if(images.length === 1){
+    html += `<div style="flex:0 0 ${imgBasis}; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center;">
+      <img src="${images[0]}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:4px;">
     </div>`;
+  } else if(images.length > 1){
+    const dir = s.imageLayout === 'column' ? 'column' : 'row';
+    html += `<div style="flex:0 0 ${imgBasis}; display:flex; flex-direction:${dir}; gap:10px; min-width:0; min-height:0;">`;
+    images.forEach(src => {
+      html += `<img src="${src}" style="flex:1; min-width:0; min-height:0; width:100%; height:100%; object-fit:cover; border-radius:4px;">`;
+    });
+    html += `</div>`;
   }
   html += `<div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; min-height:0; overflow:hidden;">`;
   if(s.content) html += `<div class="p-trend-body" style="font-size:18px; line-height:1.65;">${s.content}</div>`;
