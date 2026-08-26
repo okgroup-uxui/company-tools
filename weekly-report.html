@@ -611,8 +611,11 @@
     grid-template-columns:repeat(3, 1fr);
     gap:32px;
   }
-  .p-cols-work{
-    grid-template-columns:2fr 0.7fr 2fr;
+  .p-work-layout{
+    flex:1;
+    min-height:0;
+    display:flex;
+    gap:32px;
   }
   .p-col{
     min-width:0;
@@ -620,9 +623,7 @@
     flex-direction:column;
     overflow:hidden;
   }
-  .p-col-narrow{align-items:center;}
-  .p-col-narrow .p-col-title{width:100%; text-align:center;}
-  .p-col-narrow .p-col-body{width:100%;}
+  .p-col-remark{flex:2.35; min-width:0;}
   .p-col-body{
     flex:1;
     min-height:0;
@@ -636,21 +637,50 @@
     border-bottom:2px solid var(--line-strong);
     flex:0 0 auto;
   }
+  .p-col-title-center{text-align:center;}
+
+  /* 이번주 업무 + 진행날짜: 한 행(grid row)으로 묶어 항상 나란히 정렬 */
+  .p-worktable{
+    flex:2.35;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .p-worktable-head{
+    display:grid;
+    grid-template-columns:1fr 0.34fr;
+    gap:24px;
+    flex:0 0 auto;
+  }
+  .p-worktable-body{
+    flex:1;
+    min-height:0;
+  }
+  .p-workrow{
+    display:grid;
+    grid-template-columns:1fr 0.34fr;
+    gap:24px;
+    align-items:center;
+    margin-bottom:14px;
+    padding-bottom:12px;
+    border-bottom:1px dotted #ddd;
+  }
+  .p-workrow:last-child{border-bottom:none;}
+  .p-workrow-task{min-width:0;}
+  .p-workrow-date{
+    text-align:center;
+    font-size:17px;
+    font-weight:700;
+    color:var(--ink);
+  }
+
   .p-row{
     margin-bottom:14px;
     padding-bottom:12px;
     border-bottom:1px dotted #ddd;
   }
   .p-row:last-child{border-bottom:none;}
-  .p-row-date{
-    text-align:center;
-  }
-  .p-due-main{
-    display:block;
-    font-size:17px;
-    font-weight:700;
-    color:var(--ink);
-  }
   .p-row .p-tag{
     display:inline-block;
     font-size:11px;
@@ -674,6 +704,30 @@
     margin-top:4px;
   }
   .p-row .p-detail{
+    display:block;
+    font-size:14px;
+    line-height:1.5;
+    color:var(--muted-2);
+    margin-top:4px;
+    white-space:pre-wrap;
+  }
+  /* .p-workrow-task 안에도 동일한 태그/텍스트 스타일 재사용 */
+  .p-workrow-task .p-tag{
+    display:inline-block;
+    font-size:11px;
+    font-family:'Pretendard', sans-serif;
+    color:#fff;
+    background:var(--ink);
+    padding:2px 8px;
+    border-radius:2px;
+    margin-bottom:6px;
+  }
+  .p-workrow-task .p-txt{
+    font-size:19px;
+    line-height:1.45;
+    display:block;
+  }
+  .p-workrow-task .p-detail{
     display:block;
     font-size:14px;
     line-height:1.5;
@@ -2427,43 +2481,37 @@ function buildPresentHtmlForWork(teamKey){
     html += `<div class="p-summary">${escapeHtml(s.summary)}</div>`;
   }
 
-  html += `<div class="p-cols p-cols-work">`;
+  html += `<div class="p-work-layout">`;
 
   const doneItems = itemsOf(s, 'done');
   const doneTexts = s.polished['done'] || doneItems.map(it=>it.text);
   const issueItems = itemsOf(s, 'issue');
   const issueTexts = s.polished['issue'] || issueItems.map(it=>it.text);
 
-  // 컬럼 1: 이번주 업무 (넓게)
-  html += `<div class="p-col p-col-wide"><div class="p-col-title">이번주 업무</div><div class="p-col-body">`;
+  // 왼쪽: 이번주 업무 + 진행날짜를 같은 행(grid row)으로 묶어서 항상 나란히 정렬되게 함
+  html += `<div class="p-worktable">`;
+  html += `<div class="p-worktable-head"><div class="p-col-title">이번주 업무</div><div class="p-col-title p-col-title-center">진행날짜</div></div>`;
+  html += `<div class="p-worktable-body">`;
   if(!doneItems.length){
     html += `<div class="p-empty">작성된 내용이 없습니다.</div>`;
   } else {
     doneItems.forEach((it, i) => {
       const txt = doneTexts[i] || it.text;
-      html += `<div class="p-row">`;
+      const dueText = it.due ? (it.due === 'ongoing' ? '계속 진행' : fmtDue(it.due).replace('~','')) : '-';
+      html += `<div class="p-workrow">`;
+      html += `<div class="p-workrow-task">`;
       if(it.category) html += `<span class="p-tag">${escapeHtml(it.category)}</span>`;
       html += `<span class="p-txt">${escapeHtml(txt)}</span>`;
       if(it.detail) html += `<span class="p-detail">${escapeHtml(it.detail)}</span>`;
+      html += `</div>`;
+      html += `<div class="p-workrow-date">${escapeHtml(dueText)}</div>`;
       html += `</div>`;
     });
   }
   html += `</div></div>`;
 
-  // 컬럼 2: 진행날짜 / 완료예정일 (좁게) — 이번주 업무와 같은 순서로 매칭
-  html += `<div class="p-col p-col-narrow"><div class="p-col-title">진행날짜</div><div class="p-col-body">`;
-  if(!doneItems.length){
-    html += `<div class="p-empty">-</div>`;
-  } else {
-    doneItems.forEach((it) => {
-      const dueText = it.due ? (it.due === 'ongoing' ? '계속 진행' : fmtDue(it.due).replace('~','')) : '-';
-      html += `<div class="p-row p-row-date"><span class="p-due-main">${escapeHtml(dueText)}</span></div>`;
-    });
-  }
-  html += `</div></div>`;
-
-  // 컬럼 3: 비고 (넓게)
-  html += `<div class="p-col p-col-wide"><div class="p-col-title">비고</div><div class="p-col-body">`;
+  // 오른쪽: 비고 (이번주 업무와 무관한 별도 목록)
+  html += `<div class="p-col p-col-remark"><div class="p-col-title">비고</div><div class="p-col-body">`;
   if(!issueItems.length){
     html += `<div class="p-empty">작성된 내용이 없습니다.</div>`;
   } else {
@@ -2598,6 +2646,10 @@ function fitPresentStage(){
   document.querySelectorAll('#presentStage .p-col').forEach(col => {
     fitBlock(col, col.querySelector('.p-col-body'), 0.55);
   });
+  const worktable = document.querySelector('#presentStage .p-worktable');
+  if(worktable){
+    fitBlock(worktable, worktable.querySelector('.p-worktable-body'), 0.55);
+  }
   const trendWrap = document.querySelector('#presentStage .p-trend-body');
   if(trendWrap){
     const outer = trendWrap.parentElement;
