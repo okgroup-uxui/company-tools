@@ -479,6 +479,7 @@
   .preview-actions{
     display:flex;
     justify-content:flex-end;
+    flex-wrap:wrap;
     gap:8px;
     margin-top:16px;
   }
@@ -496,10 +497,19 @@
   }
   .preview-actions .btn:hover{background:var(--panel-2); border-color:var(--accent); color:var(--accent);}
 
+  .print-container{display:none;}
   @media print{
-    body *{visibility:hidden;}
-    .paper, .paper *{visibility:visible;}
-    .paper{position:absolute; top:0; left:0; width:100%; box-shadow:none;}
+    body > *{display:none !important;}
+    .print-container{display:block !important;}
+    .print-container .paper{
+      box-shadow:none;
+      page-break-after:always;
+      break-after:page;
+    }
+    .print-container .paper:last-child{
+      page-break-after:auto;
+      break-after:auto;
+    }
     .paper-trend-img{max-height:480px; object-fit:contain;}
     .trend-images{max-height:480px;}
     .trend-images img{object-fit:contain;}
@@ -575,7 +585,7 @@
   .p-head h2{
     font-family:'OK Font Light', 'Pretendard', sans-serif;
     font-weight:300;
-    font-size:42px;
+    font-size:32px;
     margin:0;
   }
   .p-head .p-meta{
@@ -601,12 +611,18 @@
     grid-template-columns:repeat(3, 1fr);
     gap:32px;
   }
+  .p-cols-work{
+    grid-template-columns:2fr 0.7fr 2fr;
+  }
   .p-col{
     min-width:0;
     display:flex;
     flex-direction:column;
     overflow:hidden;
   }
+  .p-col-narrow{align-items:center;}
+  .p-col-narrow .p-col-title{width:100%; text-align:center;}
+  .p-col-narrow .p-col-body{width:100%;}
   .p-col-body{
     flex:1;
     min-height:0;
@@ -626,6 +642,15 @@
     border-bottom:1px dotted #ddd;
   }
   .p-row:last-child{border-bottom:none;}
+  .p-row-date{
+    text-align:center;
+  }
+  .p-due-main{
+    display:block;
+    font-size:17px;
+    font-weight:700;
+    color:var(--ink);
+  }
   .p-row .p-tag{
     display:inline-block;
     font-size:11px;
@@ -1152,11 +1177,14 @@
         <button class="btn" id="copyBtn">복사하기</button>
         <button class="btn ghost" id="downloadBtn">다운로드</button>
         <button class="btn ghost" id="printBtn">인쇄</button>
+        <button class="btn ghost" id="printAllBtn">전체 인쇄</button>
       </div>
     </div>
   </div>
 
 </div>
+
+<div class="print-container" id="printContainer"></div>
 
 <div class="present" id="presentView">
   <div class="present-top">
@@ -1190,7 +1218,7 @@
 // 배포한 Cloudflare Worker 주소를 넣어주세요 (예: "https://weekly-report-storage.yourname.workers.dev")
 const API_BASE_URL = "https://report.okgroup0425.workers.dev";
 // worker.js에서 API_KEY 시크릿을 설정했다면 여기에 같은 값을 넣어주세요. 안 썼다면 빈 문자열로 두세요.
-const API_KEY = "28b1debcab5c9cd03429fff56532c5b7";
+const API_KEY = "";
 
 const TEAMS = [
   {key:'marketing', label:'마케팅팀'},
@@ -1198,9 +1226,8 @@ const TEAMS = [
   {key:'uxui', label:'UX/UI팀'}
 ];
 const BLOCKS = [
-  {key:'done', label:'이번 주 진행 업무', paperLabel:'진행 업무'},
-  {key:'plan', label:'다음 주 계획', paperLabel:'다음 주 계획'},
-  {key:'issue', label:'공유 / 이슈사항', paperLabel:'공유·이슈사항'}
+  {key:'done', label:'이번주 업무', paperLabel:'이번주 업무'},
+  {key:'issue', label:'비고', paperLabel:'비고'}
 ];
 const REPORT_TYPES = [
   {key:'work', label:'업무보고'},
@@ -1217,8 +1244,8 @@ let activeReportType = 'work';
 let activeTeam = 'marketing';
 let currentMonday = getMonday(new Date());
 
-// state[teamKey] = { done:[item], plan:[item], issue:[item], polished:{done:null,...}, summary:null }
-// item = { text:'', category:'', due:'' }
+// state[teamKey] = { done:[item], issue:[item], polished:{done:null,...}, summary:null }
+// item = { text:'', category:'', due:'', detail:'' }
 let state = {};
 TEAMS.forEach(t => state[t.key] = emptyTeamState());
 
@@ -1239,9 +1266,9 @@ function emptyItem(){ return { text:'', detail:'', category:'', due:'' }; }
 function emptyVacationItem(){ return { name:'', period:'' }; }
 function emptyTeamState(){
   return {
-    done:[emptyItem()], plan:[emptyItem()], issue:[emptyItem()],
+    done:[emptyItem()], issue:[emptyItem()],
     vacation:[emptyVacationItem()],
-    polished:{done:null, plan:null, issue:null}, summary:null
+    polished:{done:null, issue:null}, summary:null
   };
 }
 function generateId(){
@@ -1306,11 +1333,21 @@ function getWeekNum(d){
   const diff = target - firstThursday;
   return 1 + Math.round(diff/(7*24*3600*1000));
 }
+// 월요일에 보고하는 건 "다음 주" 업무를 미리 정리하는 것이므로,
+// 화면에 표시하는 주차 라벨은 현재 선택된 주(currentMonday) 기준이 아니라
+// 그 다음 주의 금요일이 속한 달/주차로 계산한다. (예: 8/24주 작성 -> "9월 1주차" 표시)
+function nextWeekLabel(monday){
+  const nextMonday = new Date(monday);
+  nextMonday.setDate(nextMonday.getDate()+7);
+  const nextFriday = new Date(nextMonday);
+  nextFriday.setDate(nextFriday.getDate()+4);
+  const month = nextFriday.getMonth()+1;
+  const weekNum = Math.ceil(nextFriday.getDate()/7);
+  return `${month}월 ${weekNum}주차`;
+}
 
 function renderWeekRange(){
-  const friday = new Date(currentMonday);
-  friday.setDate(friday.getDate()+4);
-  document.getElementById('weekRange').textContent = `${fmt(currentMonday)} – ${fmt(friday)}`;
+  document.getElementById('weekRange').textContent = nextWeekLabel(currentMonday);
 }
 
 function renderTypeTabs(){
@@ -1443,7 +1480,7 @@ function renderWorkEditor(){
   vacBlock.className = 'block';
   const vacHead = document.createElement('div');
   vacHead.className = 'block-head';
-  vacHead.innerHTML = `<div class="label"><span class="num mono">04</span>이번 주 휴가자</div>`;
+  vacHead.innerHTML = `<div class="label"><span class="num mono">03</span>이번 주 휴가자</div>`;
   vacBlock.appendChild(vacHead);
 
   const vacColLabels = document.createElement('div');
@@ -1735,8 +1772,7 @@ function compressImage(file){
 
 function placeholderFor(blockKey){
   if(blockKey==='done') return '예: 8월 신규 캠페인 랜딩페이지 초안 작성';
-  if(blockKey==='plan') return '예: 배너 A/B 테스트 착수';
-  return '예: 디자인 리소스 공유 지연 이슈';
+  return '예: 디자인 리소스 공유 지연';
 }
 
 function itemsOf(s, blockKey){
@@ -1828,14 +1864,12 @@ function escapeHtml(str){
 function buildPaperHtmlForTeam(teamKey){
   const t = TEAMS.find(x=>x.key===teamKey);
   const s = state[teamKey];
-  const friday = new Date(currentMonday);
-  friday.setDate(friday.getDate()+4);
 
   let html = `
     <div class="paper-head">
       <div class="dept">OK금융그룹 · AX마케팅부 · ${t.label}</div>
       <h2>${t.label} 주간업무 보고</h2>
-      <div class="meta"><span>기간 ${fmt(currentMonday)} – ${fmt(friday)}</span></div>
+      <div class="meta"><span>${nextWeekLabel(currentMonday)}</span></div>
     </div>
   `;
 
@@ -1928,6 +1962,8 @@ function renderPaper(){
   document.getElementById('paper').innerHTML = html;
   const downloadBtn = document.getElementById('downloadBtn');
   if(downloadBtn) downloadBtn.textContent = activeReportType === 'trend' ? 'PDF 다운로드' : '다운로드';
+  const printAllBtn = document.getElementById('printAllBtn');
+  if(printAllBtn) printAllBtn.textContent = activeReportType === 'trend' ? '트렌드보고 전체 인쇄' : '업무보고 전체 인쇄';
 }
 
 function htmlToPlainText(html){
@@ -1952,11 +1988,9 @@ function paperToPlainText(teamKey, entry){
   }
 
   const s = state[teamKey];
-  const friday = new Date(currentMonday);
-  friday.setDate(friday.getDate()+4);
   let lines = [];
   lines.push(`${t.label} 주간업무 보고`);
-  lines.push(`기간: ${fmt(currentMonday)} – ${fmt(friday)}`);
+  lines.push(nextWeekLabel(currentMonday));
   lines.push('='.repeat(36));
   if(s.summary){ lines.push(''); lines.push(`▶ ${s.summary}`); }
 
@@ -1994,6 +2028,37 @@ function downloadText(filename, content){
   URL.revokeObjectURL(url);
 }
 
+function printPages(htmlArray){
+  const container = document.getElementById('printContainer');
+  container.innerHTML = htmlArray.map(h => `<div class="paper">${h}</div>`).join('');
+  window.print();
+}
+function printCurrentPaper(){
+  const html = activeReportType === 'work'
+    ? buildPaperHtmlForTeam(activeTeam)
+    : buildPaperHtmlForTrend(activeTeam, getActiveTrendEntry());
+  printPages([html]);
+}
+function printAllPapers(){
+  if(activeReportType === 'work'){
+    printPages(TEAMS.map(t => buildPaperHtmlForTeam(t.key)));
+  } else {
+    const pages = [];
+    TEAMS.forEach(t => {
+      trendState[t.key].forEach(entry => {
+        const hasText = entry.content && htmlToPlainText(entry.content).length > 0;
+        if(!entry.title && !(entry.images && entry.images.length) && !hasText) return;
+        pages.push(buildPaperHtmlForTrend(t.key, entry));
+      });
+    });
+    if(pages.length === 0){
+      alert('작성된 트렌드보고가 없어요.');
+      return;
+    }
+    printPages(pages);
+  }
+}
+
 document.addEventListener('click', async (e) => {
   if(e.target.id === 'copyBtn'){
     try{
@@ -2005,14 +2070,17 @@ document.addEventListener('click', async (e) => {
   }
   if(e.target.id === 'downloadBtn'){
     if(activeReportType === 'trend'){
-      window.print();
+      printCurrentPaper();
     } else {
       const t = TEAMS.find(x=>x.key===activeTeam);
       downloadText(`${t.label}_주간업무_${weekKey(currentMonday)}.txt`, paperToPlainText(activeTeam));
     }
   }
   if(e.target.id === 'printBtn'){
-    window.print();
+    printCurrentPaper();
+  }
+  if(e.target.id === 'printAllBtn'){
+    printAllPapers();
   }
   if(e.target.id === 'exportAllBtn'){
     if(activeReportType === 'trend'){
@@ -2326,8 +2394,6 @@ let presentDeck = [];
 function buildPresentHtmlForWork(teamKey){
   const t = TEAMS.find(x=>x.key===teamKey);
   const s = state[teamKey];
-  const friday = new Date(currentMonday);
-  friday.setDate(friday.getDate()+4);
 
   let html = `
     <div class="p-head">
@@ -2335,7 +2401,7 @@ function buildPresentHtmlForWork(teamKey){
         <div class="p-dept">OK금융그룹 · AX마케팅부 · 업무보고</div>
         <h2>${t.label} 주간업무 보고</h2>
       </div>
-      <div class="p-meta">${fmt(currentMonday)} – ${fmt(friday)}</div>
+      <div class="p-meta">${nextWeekLabel(currentMonday)}</div>
     </div>
   `;
 
@@ -2343,26 +2409,58 @@ function buildPresentHtmlForWork(teamKey){
     html += `<div class="p-summary">${escapeHtml(s.summary)}</div>`;
   }
 
-  html += `<div class="p-cols">`;
-  BLOCKS.forEach(b=>{
-    const items = itemsOf(s, b.key);
-    html += `<div class="p-col"><div class="p-col-title">${b.paperLabel}</div><div class="p-col-body">`;
-    if(!items.length){
-      html += `<div class="p-empty">작성된 내용이 없습니다.</div>`;
-    } else {
-      const texts = s.polished[b.key] || items.map(it=>it.text);
-      items.forEach((it, i) => {
-        const txt = texts[i] || it.text;
-        html += `<div class="p-row">`;
-        if(it.category) html += `<span class="p-tag">${escapeHtml(it.category)}</span>`;
-        html += `<span class="p-txt">${escapeHtml(txt)}</span>`;
-        if(it.due) html += `<span class="p-due">${it.due === 'ongoing' ? '계속 진행' : '완료예정 ' + fmtDue(it.due).replace('~','')}</span>`;
-        if(it.detail) html += `<span class="p-detail">${escapeHtml(it.detail)}</span>`;
-        html += `</div>`;
-      });
-    }
-    html += `</div></div>`;
-  });
+  html += `<div class="p-cols p-cols-work">`;
+
+  const doneItems = itemsOf(s, 'done');
+  const doneTexts = s.polished['done'] || doneItems.map(it=>it.text);
+  const issueItems = itemsOf(s, 'issue');
+  const issueTexts = s.polished['issue'] || issueItems.map(it=>it.text);
+
+  // 컬럼 1: 이번주 업무 (넓게)
+  html += `<div class="p-col p-col-wide"><div class="p-col-title">이번주 업무</div><div class="p-col-body">`;
+  if(!doneItems.length){
+    html += `<div class="p-empty">작성된 내용이 없습니다.</div>`;
+  } else {
+    doneItems.forEach((it, i) => {
+      const txt = doneTexts[i] || it.text;
+      html += `<div class="p-row">`;
+      if(it.category) html += `<span class="p-tag">${escapeHtml(it.category)}</span>`;
+      html += `<span class="p-txt">${escapeHtml(txt)}</span>`;
+      if(it.detail) html += `<span class="p-detail">${escapeHtml(it.detail)}</span>`;
+      html += `</div>`;
+    });
+  }
+  html += `</div></div>`;
+
+  // 컬럼 2: 진행날짜 / 완료예정일 (좁게) — 이번주 업무와 같은 순서로 매칭
+  html += `<div class="p-col p-col-narrow"><div class="p-col-title">진행날짜</div><div class="p-col-body">`;
+  if(!doneItems.length){
+    html += `<div class="p-empty">-</div>`;
+  } else {
+    doneItems.forEach((it) => {
+      const dueText = it.due ? (it.due === 'ongoing' ? '계속 진행' : fmtDue(it.due).replace('~','')) : '-';
+      html += `<div class="p-row p-row-date"><span class="p-due-main">${escapeHtml(dueText)}</span></div>`;
+    });
+  }
+  html += `</div></div>`;
+
+  // 컬럼 3: 비고 (넓게)
+  html += `<div class="p-col p-col-wide"><div class="p-col-title">비고</div><div class="p-col-body">`;
+  if(!issueItems.length){
+    html += `<div class="p-empty">작성된 내용이 없습니다.</div>`;
+  } else {
+    issueItems.forEach((it, i) => {
+      const txt = issueTexts[i] || it.text;
+      html += `<div class="p-row">`;
+      if(it.category) html += `<span class="p-tag">${escapeHtml(it.category)}</span>`;
+      html += `<span class="p-txt">${escapeHtml(txt)}</span>`;
+      if(it.due) html += `<span class="p-due">${it.due === 'ongoing' ? '계속 진행' : '완료예정 ' + fmtDue(it.due).replace('~','')}</span>`;
+      if(it.detail) html += `<span class="p-detail">${escapeHtml(it.detail)}</span>`;
+      html += `</div>`;
+    });
+  }
+  html += `</div></div>`;
+
   html += `</div>`;
 
   const vac = (s.vacation || []).filter(v => v.name.trim().length > 0);
@@ -2432,9 +2530,7 @@ function renderPresent(){
       : `<div class="p-empty">삭제된 항목이에요.</div>`;
   }
   document.getElementById('presentIndex').textContent = `0${presentIndex+1} / 0${presentDeck.length}`;
-  const friday = new Date(currentMonday);
-  friday.setDate(friday.getDate()+4);
-  document.getElementById('presentRange').textContent = `${fmt(currentMonday)} – ${fmt(friday)}`;
+  document.getElementById('presentRange').textContent = nextWeekLabel(currentMonday);
 
   const dots = document.getElementById('presentDots');
   dots.innerHTML = '';
@@ -2446,7 +2542,17 @@ function renderPresent(){
     dots.appendChild(dot);
   });
 
-  requestAnimationFrame(fitPresentStage);
+  requestAnimationFrame(() => {
+    fitPresentStage();
+    // 이미지가 늦게 로드되면 실제 높이가 늘어나 글이 잘릴 수 있으므로,
+    // 이미지 로드가 끝날 때마다 다시 계산한다.
+    document.querySelectorAll('#presentStage img').forEach(img => {
+      if(!img.complete){
+        img.addEventListener('load', fitPresentStage, { once:true });
+        img.addEventListener('error', fitPresentStage, { once:true });
+      }
+    });
+  });
 }
 
 function fitBlock(box, body, minScale){
