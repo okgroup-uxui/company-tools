@@ -740,6 +740,10 @@
     color:var(--muted-2);
   }
   .p-vacation b{color:var(--ink); font-weight:800; margin-right:8px;}
+  .p-trend-body *{
+    font-size:inherit !important;
+    font-family:inherit !important;
+  }
   .p-empty{
     color:#bbb;
     font-size:16px;
@@ -947,6 +951,12 @@
     font-family:inherit;
     overflow-y:auto;
   }
+  /* 다른 사이트/문서에서 복사해 붙여넣을 때 딸려오는 폰트 크기·글꼴을 무시하고
+     항상 이 박스의 기본 크기·글꼴로 통일해서 보여준다 */
+  .content-editable *{
+    font-size:inherit !important;
+    font-family:inherit !important;
+  }
   .content-editable:focus{outline:none; border-color:var(--accent);}
   .content-editable:empty:before{
     content:attr(data-placeholder);
@@ -1114,6 +1124,10 @@
     font-size:13px;
     line-height:1.7;
     white-space:pre-wrap;
+  }
+  .paper-trend-content *{
+    font-size:inherit !important;
+    font-family:inherit !important;
   }
   .paper-trend-split{
     display:flex;
@@ -1790,6 +1804,13 @@ function renderTrendEditor(){
     markDirty();
   }
   contentDiv.oninput = syncContent;
+  // 다른 웹페이지/문서에서 붙여넣을 때 딸려오는 폰트 크기·색상 등 서식을 제거하고
+  // 순수 텍스트만 들어오게 한다 (굵게/색상은 붙여넣은 뒤 툴바로 다시 적용)
+  contentDiv.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  });
   contentField.appendChild(contentDiv);
 
   wrap.appendChild(contentField);
