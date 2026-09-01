@@ -187,6 +187,77 @@
     color:var(--muted-2);
     margin-right:6px;
   }
+  .field-row{
+    display:flex;
+    gap:14px;
+    align-items:flex-end;
+    margin-bottom:10px;
+  }
+  .field-row:last-child{margin-bottom:0;}
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    flex:1;
+    min-width:0;
+  }
+  .field label{
+    font-size:11px;
+    font-weight:500;
+    color:var(--muted);
+    letter-spacing:0.02em;
+  }
+  .field input,
+  .field textarea{
+    background:#f6f6f6;
+    border: none;
+    border-radius: 6px;
+    color:var(--white);
+    font-size:13px;
+    padding:6px;
+    width:100%;
+    min-width:0;
+  }
+  .field input:focus,
+  .field textarea:focus,
+  .line-item input:focus{
+    outline:none;
+    border-bottom-color:var(--white);
+  }
+  .field textarea{resize:vertical; min-height:40px; line-height:1.5;}
+  .field-due{flex:0 0 220px;}
+  .field-due .due-input-row{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .field-due input[type=date]{
+    flex:1;
+    min-width:0;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .field-due input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;}
+  .field-due input[type=date]:disabled{opacity:0.35;}
+  .due-group{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-width:0;
+  }
+  .due-group .due{flex:1; min-width:0;}
+  .ongoing-toggle{
+    font-size:11px;
+    padding:5px 9px;
+    border-radius:6px;
+    border:1px solid var(--line-dark);
+    background:transparent;
+    color:var(--muted);
+    cursor:pointer;
+    white-space:nowrap;
+    flex:0 0 auto;
+  }
+  .ongoing-toggle.active{border-color:var(--accent); color:var(--accent);}
   .line-item{
     display:grid;
     grid-template-columns:96px 1fr 150px 30px;
@@ -196,55 +267,14 @@
   }
   .line-item .dash{color:var(--muted); font-size:14px;}
   .line-item input{
-    background:transparent;
+    background:#f6f6f6;
     border:none;
-    border-bottom:1px solid var(--line-dark);
+    border-radius: 6px;
     color:var(--white);
     font-size:13px;
-    padding:6px 2px;
+    padding:6px;
     width:100%;
     min-width:0;
-  }
-  .line-item input.cat{
-    color:var(--muted);
-    font-size:12px;
-  }
-  .line-item input.due{
-    color:var(--muted);
-    font-size:12px;
-  }
-  .line-item input.due::-webkit-calendar-picker-indicator{
-    cursor:pointer;
-  }
-  .line-item input.due:disabled{
-    opacity:0.35;
-  }
-  .due-group{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    min-width:0;
-  }
-  .due-group .due{flex:1; min-width:0;}
-  .ongoing-label{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    font-size:12px;
-    color:var(--ink);
-    white-space:nowrap;
-    cursor:pointer;
-    flex:0 0 auto;
-  }
-  .ongoing-label input[type=checkbox]{
-    width:16px; height:16px;
-    accent-color:var(--accent);
-    cursor:pointer;
-  }
-  .line-item input:focus{
-    outline:none;
-    border-bottom:1px solid var(--white);
-    color:var(--white);
   }
   .line-item .del{
     width:26px; height:26px;
@@ -321,55 +351,87 @@
   .row-menu button:disabled{color:var(--muted); opacity:0.4; cursor:default;}
   .row-menu button:disabled:hover{background:transparent;}
   .row-menu button.danger{color:var(--danger);}
-  .detail-toggle{
+  .item-card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line-dark);
+    border-radius:10px;
+    padding:22px 16px;
+    margin-bottom:10px;
+  }
+  .item-card:last-child{margin-bottom:0;}
+  .item-card .line-item{margin-bottom:0;}
+  .item-card .row-menu-wrap{
+    position:absolute;
+    top:10px;
+    right:10px;
+  }
+  .card-detail{
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px solid var(--line-dark);
+  }
+  .card-detail textarea{
+    width:100%;
+    min-height:40px;
+    display:block;
+    background:transparent;
+    border:none;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.5;
+    padding:0;
+    resize:vertical;
+  }
+  .card-detail textarea:focus{outline:none; color:var(--white);}
+  .remark-toggle{
     background:none;
     border:none;
     color:var(--muted);
     font-size:12px;
-    padding:4px 0 10px 2px;
+    padding:6px 0 0;
     cursor:pointer;
     display:flex;
     align-items:center;
     gap:4px;
   }
-  .detail-toggle:hover{color:var(--ink);}
-  .line-detail{
-    margin:0 0 12px 0;
+  .remark-toggle:hover{color:var(--ink);}
+  .remark-box{
+    display:flex;
+    align-items:flex-start;
+    gap:6px;
+    margin-top:6px;
+    padding-top:6px;
+    border-top:1px solid var(--line-dark);
   }
-  .line-detail textarea{
-    width:100%;
-    min-height:44px;
-    background:transparent;
-    border:1px dashed var(--line-dark);
-    border-radius:3px;
+  .remark-box textarea{
+    flex:1;
+    min-width:0;
+    min-height:40px;
+    background:#f6f6f6;
+    border-radius: 6px;
+    border:none;
     color:var(--muted);
     font-size:12px;
     line-height:1.5;
-    padding:6px 8px;
+    padding:6px;
     resize:vertical;
   }
-  .line-detail textarea:focus{
-    outline:none;
-    color:var(--white);
-    border-color:var(--white);
-  }
-  .line-remark{
-    margin:0 0 12px 0;
-  }
-  .line-remark input{
-    width:100%;
-    background:transparent;
-    border:1px dashed var(--line-dark);
-    border-radius:3px;
+  .remark-box textarea:focus{outline:none; color:var(--white);}
+  .remark-box .remark-close{
+    background:none;
+    border:none;
     color:var(--muted);
-    font-size:12px;
-    padding:7px 8px;
+    cursor:pointer;
+    padding:0;
+    display:flex;
+    align-items:center;
+    flex:0 0 auto;
+    margin-top:3px;
+    position: absolute;
+    right: 20px;
   }
-  .line-remark input:focus{
-    outline:none;
-    color:var(--white);
-    border-color:var(--white);
-  }
+  .remark-box .remark-close:hover{color:var(--ink);}
   .vacation-row{
     grid-template-columns:16px 1fr 1fr 28px;
   }
@@ -388,21 +450,19 @@
     color:var(--muted);
     letter-spacing:0.03em;
   }
-  .add-line{
-    background:none;
-    border:2px dashed var(--muted-2);
-    color:var(--ink);
-    font-size:13px;
-    font-weight:500;
-    padding:9px 16px;
+  .add-line-small{
+    background:var(--muted);
+    border:none;
+    color:var(--panel);
+    font-size:12px;
+    padding:6px 10px;
     border-radius:6px;
     cursor:pointer;
-    margin-top:2px;
     display:inline-flex;
     align-items:center;
-    gap:6px;
+    gap:4px;
+    margin-top:2px;
   }
-  .add-line:hover{border-style:solid; border-color:var(--accent); color:var(--accent);}
 
   .editor-actions{
     display:flex;
@@ -1499,59 +1559,9 @@ function renderWorkEditor(){
     head.innerHTML = `<div class="label"><span class="num ">0${bi+1}</span>${b.label}</div>`;
     block.appendChild(head);
 
-    const colLabels = document.createElement('div');
-    colLabels.className = 'col-labels';
-    colLabels.innerHTML = `<span>카테고리</span><span>업무 제목</span><span>완료예정일</span><span></span>`;
-    block.appendChild(colLabels);
-
     s[b.key].forEach((item, idx) => {
-      const row = document.createElement('div');
-      row.className = 'line-item';
-
-      const catInput = document.createElement('input');
-      catInput.type = 'text';
-      catInput.className = 'cat';
-      catInput.value = item.category;
-      catInput.placeholder = '분류';
-      catInput.oninput = (e) => { item.category = e.target.value; renderPaper(); markDirty(); };
-      row.appendChild(catInput);
-
-      const textInput = document.createElement('input');
-      textInput.type = 'text';
-      textInput.value = item.text;
-      textInput.placeholder = idx === 0 ? placeholderFor(b.key) : '';
-      textInput.oninput = (e) => { item.text = e.target.value; s.polished[b.key] = null; s.summary = null; renderPaper(); markDirty(); };
-      row.appendChild(textInput);
-
-      const dueGroup = document.createElement('div');
-      dueGroup.className = 'due-group';
-
-      const dueInput = document.createElement('input');
-      dueInput.type = 'date';
-      dueInput.className = 'due';
-      dueInput.value = item.due === 'ongoing' ? '' : item.due;
-      dueInput.disabled = item.due === 'ongoing';
-      dueInput.oninput = (e) => { item.due = e.target.value; renderPaper(); markDirty(); };
-      dueGroup.appendChild(dueInput);
-
-      const ongoingLabel = document.createElement('label');
-      ongoingLabel.className = 'ongoing-label';
-      const ongoingCheckbox = document.createElement('input');
-      ongoingCheckbox.type = 'checkbox';
-      ongoingCheckbox.checked = item.due === 'ongoing';
-      ongoingCheckbox.onchange = (e) => {
-        if(e.target.checked){
-          item.due = 'ongoing';
-        } else {
-          item.due = '';
-        }
-        renderEditor(); renderPaper(); markDirty();
-      };
-      ongoingLabel.appendChild(ongoingCheckbox);
-      ongoingLabel.appendChild(document.createTextNode('계속'));
-      dueGroup.appendChild(ongoingLabel);
-
-      row.appendChild(dueGroup);
+      const itemCard = document.createElement('div');
+      itemCard.className = 'item-card';
 
       const menuWrap = document.createElement('div');
       menuWrap.className = 'row-menu-wrap';
@@ -1602,50 +1612,125 @@ function renderWorkEditor(){
         document.querySelectorAll('.row-menu.open').forEach(m => m.classList.remove('open'));
         if(!wasOpen) menu.classList.add('open');
       };
-      row.appendChild(menuWrap);
+      itemCard.appendChild(menuWrap);
 
-      block.appendChild(row);
+      // 1행: 카테고리 + 완료예정일
+      const row1 = document.createElement('div');
+      row1.className = 'field-row';
 
-      const hasDetail = !!(item.detail || item.remark);
-      const detailWrap = document.createElement('div');
-      detailWrap.style.display = (item._detailOpen || hasDetail) ? '' : 'none';
+      const catField = document.createElement('div');
+      catField.className = 'field';
+      const catLabel = document.createElement('label');
+      catLabel.textContent = '카테고리';
+      catField.appendChild(catLabel);
+      const catInput = document.createElement('input');
+      catInput.type = 'text';
+      catInput.className = 'cat';
+      catInput.value = item.category;
+      catInput.placeholder = '카테고리 작성';
+      catInput.oninput = (e) => { item.category = e.target.value; renderPaper(); markDirty(); };
+      catField.appendChild(catInput);
+      row1.appendChild(catField);
 
-      const detailRow = document.createElement('div');
-      detailRow.className = 'line-detail';
+      const dueField = document.createElement('div');
+      dueField.className = 'field field-due';
+      const dueLabel = document.createElement('label');
+      dueLabel.textContent = '완료예정일';
+      dueField.appendChild(dueLabel);
+      const dueInputRow = document.createElement('div');
+      dueInputRow.className = 'due-input-row';
+      const dueInput = document.createElement('input');
+      dueInput.type = 'date';
+      dueInput.className = 'due';
+      dueInput.value = item.due === 'ongoing' ? '' : item.due;
+      dueInput.disabled = item.due === 'ongoing';
+      dueInput.oninput = (e) => { item.due = e.target.value; renderPaper(); markDirty(); };
+      dueInputRow.appendChild(dueInput);
+      const ongoingToggle = document.createElement('button');
+      ongoingToggle.type = 'button';
+      ongoingToggle.className = 'ongoing-toggle' + (item.due === 'ongoing' ? ' active' : '');
+      ongoingToggle.textContent = '계속';
+      ongoingToggle.onclick = () => {
+        item.due = (item.due === 'ongoing') ? '' : 'ongoing';
+        renderEditor(); renderPaper(); markDirty();
+      };
+      dueInputRow.appendChild(ongoingToggle);
+      dueField.appendChild(dueInputRow);
+      row1.appendChild(dueField);
+
+      itemCard.appendChild(row1);
+
+      // 2행: 업무 제목
+      const row2 = document.createElement('div');
+      row2.className = 'field-row';
+      const titleField = document.createElement('div');
+      titleField.className = 'field';
+      const titleLabel = document.createElement('label');
+      titleLabel.textContent = '업무 제목';
+      titleField.appendChild(titleLabel);
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.value = item.text;
+      textInput.placeholder = '업무 제목 작성';
+      textInput.oninput = (e) => { item.text = e.target.value; s.polished[b.key] = null; s.summary = null; renderPaper(); markDirty(); };
+      titleField.appendChild(textInput);
+      row2.appendChild(titleField);
+      itemCard.appendChild(row2);
+
+      // 3행: 상세내용
+      const row3 = document.createElement('div');
+      row3.className = 'field-row';
+      const detailField = document.createElement('div');
+      detailField.className = 'field';
+      const detailLabel = document.createElement('label');
+      detailLabel.textContent = '상세내용';
+      detailField.appendChild(detailLabel);
       const detailTextarea = document.createElement('textarea');
       detailTextarea.value = item.detail || '';
-      detailTextarea.placeholder = '상세내용 (선택)';
+      detailTextarea.placeholder = '업무 상세내용 작성';
       detailTextarea.oninput = (e) => { item.detail = e.target.value; renderPaper(); markDirty(); };
-      detailRow.appendChild(detailTextarea);
-      detailWrap.appendChild(detailRow);
+      detailField.appendChild(detailTextarea);
+      row3.appendChild(detailField);
+      itemCard.appendChild(row3);
 
-      const remarkRow = document.createElement('div');
-      remarkRow.className = 'line-remark';
-      const remarkInput = document.createElement('input');
-      remarkInput.type = 'text';
-      remarkInput.value = item.remark || '';
-      remarkInput.placeholder = '비고 (선택)';
-      remarkInput.oninput = (e) => { item.remark = e.target.value; renderPaper(); markDirty(); };
-      remarkRow.appendChild(remarkInput);
-      detailWrap.appendChild(remarkRow);
+      const hasRemark = !!item.remark;
+      if(item._remarkOpen || hasRemark){
+        const remarkBox = document.createElement('div');
+        remarkBox.className = 'remark-box';
+        const remarkInput = document.createElement('textarea');
+        remarkInput.value = item.remark || '';
+        remarkInput.placeholder = '비고 (선택)';
+        remarkInput.oninput = (e) => { item.remark = e.target.value; renderPaper(); markDirty(); };
+        remarkBox.appendChild(remarkInput);
 
-      block.appendChild(detailWrap);
-
-      if(!(item._detailOpen || hasDetail)){
-        const toggle = document.createElement('button');
-        toggle.className = 'detail-toggle';
-        toggle.innerHTML = icon('chevron-down') + ' 상세내용·비고 추가';
-        toggle.onclick = () => {
-          item._detailOpen = true;
-          detailWrap.style.display = '';
-          toggle.remove();
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'remark-close';
+        closeBtn.innerHTML = icon('x');
+        closeBtn.setAttribute('aria-label', '비고 닫기');
+        closeBtn.onclick = () => {
+          item.remark = '';
+          item._remarkOpen = false;
+          renderEditor(); renderPaper(); markDirty();
         };
-        block.appendChild(toggle);
+        remarkBox.appendChild(closeBtn);
+
+        itemCard.appendChild(remarkBox);
+      } else {
+        const remarkToggle = document.createElement('button');
+        remarkToggle.className = 'remark-toggle';
+        remarkToggle.innerHTML = icon('chevron-down') + ' 비고 추가';
+        remarkToggle.onclick = () => {
+          item._remarkOpen = true;
+          renderEditor();
+        };
+        itemCard.appendChild(remarkToggle);
       }
+
+      block.appendChild(itemCard);
     });
 
     const addBtn = document.createElement('button');
-    addBtn.className = 'add-line';
+    addBtn.className = 'add-line-small';
     addBtn.innerHTML = icon('plus') + ' 항목 추가';
     addBtn.onclick = () => { s[b.key].push(emptyItem()); renderEditor(); };
     block.appendChild(addBtn);
@@ -1696,7 +1781,7 @@ function renderWorkEditor(){
   });
 
   const vacAddBtn = document.createElement('button');
-  vacAddBtn.className = 'add-line';
+  vacAddBtn.className = 'add-line-small';
   vacAddBtn.innerHTML = icon('plus') + ' 휴가자 추가';
   vacAddBtn.onclick = () => { s.vacation.push(emptyVacationItem()); renderEditor(); };
   vacBlock.appendChild(vacAddBtn);
@@ -1953,11 +2038,6 @@ function compressImage(file){
     };
     reader.readAsDataURL(file);
   });
-}
-
-function placeholderFor(blockKey){
-  if(blockKey==='done') return '예: 8월 신규 캠페인 랜딩페이지 초안 작성';
-  return '예: 디자인 리소스 공유 지연';
 }
 
 function itemsOf(s, blockKey){
