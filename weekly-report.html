@@ -25,6 +25,7 @@
     --danger:#EC3444;
   }
   *{box-sizing:border-box; font-family:'OK Font', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', sans-serif;font-weight:300;}
+  .icon{width:16px;height:16px;flex-shrink:0;display:inline-block;vertical-align:-3px;}
   html,body{margin:0;padding:0;}
   body{
     background:var(--black);
@@ -146,6 +147,9 @@
     border-radius:8px;
     cursor:pointer;
     padding:9px 16px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
   }
   .export-all:hover{background:var(--accent); color:#ffffff;}
 
@@ -185,9 +189,9 @@
   }
   .line-item{
     display:grid;
-    grid-template-columns:16px 88px 1fr 142px 84px;
+    grid-template-columns:96px 1fr 150px 30px;
     align-items:center;
-    gap:6px;
+    gap:8px;
     margin-bottom:4px;
   }
   .line-item .dash{color:var(--muted); font-size:14px;}
@@ -275,8 +279,62 @@
   .row-actions .move-btn:hover{border-color:var(--accent); color:var(--accent);}
   .row-actions .move-btn:disabled{opacity:0.25; cursor:default;}
   .row-actions .move-btn:disabled:hover{border-color:var(--line-dark); color:var(--ink);}
+  .row-menu-wrap{position:relative; display:flex; justify-content:flex-end;}
+  .row-menu-btn{
+    width:28px; height:28px;
+    background:transparent;
+    border:none;
+    border-radius:4px;
+    color:var(--muted);
+    cursor:pointer;
+    font-size:18px;
+    line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    padding:0;
+  }
+  .row-menu-btn:hover{background:var(--line-dark); color:var(--ink);}
+  .row-menu{
+    position:absolute;
+    top:30px; right:0;
+    background:var(--panel);
+    border:1px solid var(--line-dark);
+    border-radius:6px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    min-width:112px;
+    z-index:20;
+    overflow:hidden;
+    display:none;
+  }
+  .row-menu.open{display:block;}
+  .row-menu button{
+    display:flex; align-items:center; gap:6px;
+    width:100%;
+    background:transparent;
+    border:none;
+    color:var(--ink);
+    font-size:12px;
+    padding:8px 10px;
+    cursor:pointer;
+    text-align:left;
+  }
+  .row-menu button:hover{background:var(--line-dark);}
+  .row-menu button:disabled{color:var(--muted); opacity:0.4; cursor:default;}
+  .row-menu button:disabled:hover{background:transparent;}
+  .row-menu button.danger{color:var(--danger);}
+  .detail-toggle{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:12px;
+    padding:4px 0 10px 2px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .detail-toggle:hover{color:var(--ink);}
   .line-detail{
-    margin:0 0 12px 20px;
+    margin:0 0 12px 0;
   }
   .line-detail textarea{
     width:100%;
@@ -296,7 +354,7 @@
     border-color:var(--white);
   }
   .line-remark{
-    margin:0 0 12px 20px;
+    margin:0 0 12px 0;
   }
   .line-remark input{
     width:100%;
@@ -317,8 +375,8 @@
   }
   .col-labels{
     display:grid;
-    grid-template-columns:16px 88px 1fr 142px 84px;
-    gap:6px;
+    grid-template-columns:96px 1fr 150px 30px;
+    gap:8px;
     margin-bottom:6px;
   }
   .col-labels.vacation-cols{
@@ -340,6 +398,9 @@
     border-radius:6px;
     cursor:pointer;
     margin-top:2px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
   }
   .add-line:hover{border-style:solid; border-color:var(--accent); color:var(--accent);}
 
@@ -369,6 +430,10 @@
     background:var(--accent);
     color:#ffffff;
     transition:background-color .15s, color .15s;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    justify-content:center;
   }
   .btn:hover{background:var(--accent-dark); border-color:var(--accent-dark);}
   .btn:disabled{opacity:0.4; cursor:default;}
@@ -571,6 +636,9 @@
     border-radius:8px;
     padding:9px 16px;
     cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
   }
   .present-btn:hover{background:var(--accent); color:#ffffff;}
   .present-btn:disabled{opacity:0.4; cursor:default;}
@@ -761,6 +829,9 @@
     font-size:22px;
     font-weight:500;
     cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
   .present-arrow:hover{background:var(--accent); color:#ffffff;}
   .present-dots{display:flex; gap:10px;}
@@ -1162,9 +1233,9 @@
   <div class="team-tabs">
     <div class="tabs-left" id="teamTabs"></div>
     <div class="tabs-right">
-      <button class="export-all" id="orderBtn">발표 순서 ⋮</button>
-      <button class="export-all" id="presentBtn">발표 모드 ▸</button>
-      <button class="export-all" id="exportAllBtn">팀별로 각각 다운로드 ↓</button>
+      <button class="export-all" id="orderBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><line x1="4" y1="6" x2="4.01" y2="6"/><line x1="4" y1="12" x2="4.01" y2="12"/><line x1="4" y1="18" x2="4.01" y2="18"/></svg> 발표 순서</button>
+      <button class="export-all" id="presentBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 4 20 12 6 20" fill="currentColor" stroke="none"/></svg> 발표 모드</button>
+      <button class="export-all" id="exportAllBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><line x1="4" y1="20" x2="20" y2="20"/></svg> 팀별로 각각 다운로드</button>
     </div>
   </div>
 
@@ -1174,10 +1245,10 @@
     <div class="paper-wrap">
       <div class="paper" id="paper"></div>
       <div class="preview-actions">
-        <button class="btn" id="copyBtn">복사하기</button>
-        <button class="btn ghost" id="downloadBtn">다운로드</button>
-        <button class="btn ghost" id="printBtn">인쇄</button>
-        <button class="btn ghost" id="printAllBtn">전체 인쇄</button>
+        <button class="btn" id="copyBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg> 복사하기</button>
+        <button class="btn ghost" id="downloadBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><polyline points="14 3 14 8 19 8"/><line x1="12" y1="12" x2="12" y2="17"/><polyline points="9.5 14.5 12 17 14.5 14.5"/></svg> 다운로드</button>
+        <button class="btn ghost" id="printBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 3 18 3 18 9"/><rect x="4" y="9" width="16" height="8" rx="1"/><rect x="7" y="14" width="10" height="6"/></svg> 인쇄</button>
+        <button class="btn ghost" id="printAllBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 3 18 3 18 9"/><rect x="4" y="9" width="16" height="8" rx="1"/><rect x="7" y="14" width="10" height="6"/></svg> 전체 인쇄</button>
       </div>
     </div>
   </div>
@@ -1191,17 +1262,18 @@
     <div class="present-index " id="presentIndex">01 / 03</div>
     <div class="present-range " id="presentRange">-</div>
     <div class="present-controls">
-      <button class="present-btn" id="fullscreenBtn">전체화면</button>
-      <button class="present-btn" id="exitPresentBtn">편집으로 돌아가기 (Esc)</button>
+      <button class="present-btn" id="fullscreenBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 3 3 3 3 9"/><polyline points="15 3 21 3 21 9"/><polyline points="3 15 3 21 9 21"/><polyline points="15 21 21 21 21 15"/></svg> 전체화면</button>
+      <button class="present-btn" id="exitPresentBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg> 편집으로 돌아가기 (Esc)</button>
     </div>
   </div>
   <div class="present-stage" id="presentStage"></div>
   <div class="present-nav">
-    <button class="present-arrow" id="presentPrev">‹</button>
+    <button class="present-arrow" id="presentPrev" aria-label="이전"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg></button>
     <div class="present-dots" id="presentDots"></div>
-    <button class="present-arrow" id="presentNext">›</button>
+    <button class="present-arrow" id="presentNext" aria-label="다음"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg></button>
   </div>
 </div>
+
 
 <div class="order-overlay" id="orderOverlay">
   <div class="order-panel">
@@ -1213,6 +1285,36 @@
 </div>
 
 <script>
+
+// ===== 아이콘 (외부 폰트 의존 없이 인라인 SVG로 렌더링) =====
+const ICON_PATHS = {
+  'dots-vertical': '<circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/>',
+  'arrow-up': '<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>',
+  'arrow-down': '<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>',
+  'trash': '<line x1="4" y1="7" x2="20" y2="7"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>',
+  'chevron-down': '<polyline points="6 9 12 15 18 9"/>',
+  'chevron-up': '<polyline points="6 15 12 9 18 15"/>',
+  'chevron-left': '<polyline points="15 6 9 12 15 18"/>',
+  'chevron-right': '<polyline points="9 6 15 12 9 18"/>',
+  'plus': '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  'x': '<line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/>',
+  'refresh': '<path d="M3 12a9 9 0 1 1 2.6 6.4"/><polyline points="3 21 3 15 9 15"/>',
+  'device-floppy': '<path d="M5 4h11l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M9 4v5h7V4"/><path d="M8 14h8v6H8z"/>',
+  'check': '<polyline points="5 13 10 18 19 7"/>',
+  'alert-triangle': '<path d="M12 3l9 16H3z"/><line x1="12" y1="9" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  'copy': '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  'file-download': '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><polyline points="14 3 14 8 19 8"/><line x1="12" y1="12" x2="12" y2="17"/><polyline points="9.5 14.5 12 17 14.5 14.5"/>',
+  'printer': '<polyline points="6 9 6 3 18 3 18 9"/><rect x="4" y="9" width="16" height="8" rx="1"/><rect x="7" y="14" width="10" height="6"/>',
+  'list-numbers': '<line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><line x1="4" y1="6" x2="4.01" y2="6"/><line x1="4" y1="12" x2="4.01" y2="12"/><line x1="4" y1="18" x2="4.01" y2="18"/>',
+  'player-play': '<polygon points="6 4 20 12 6 20" fill="currentColor" stroke="none"/>',
+  'download': '<path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><line x1="4" y1="20" x2="20" y2="20"/>',
+  'maximize': '<polyline points="9 3 3 3 3 9"/><polyline points="15 3 21 3 21 9"/><polyline points="3 15 3 21 9 21"/><polyline points="15 21 21 21 21 15"/>',
+  'photo-plus': '<rect x="3" y="5" width="14" height="14" rx="2"/><circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="M3 16l4-4 3 3 4-4 3 3"/><line x1="19" y1="5" x2="19" y2="11"/><line x1="16" y1="8" x2="22" y2="8"/>'
+};
+function icon(name){
+  const inner = ICON_PATHS[name] || '';
+  return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+}
 
 // ===== Backend config =====
 // 배포한 Cloudflare Worker 주소를 넣어주세요 (예: "https://weekly-report-storage.yourname.workers.dev")
@@ -1399,19 +1501,18 @@ function renderWorkEditor(){
 
     const colLabels = document.createElement('div');
     colLabels.className = 'col-labels';
-    colLabels.innerHTML = `<span></span><span>카테고리</span><span>업무 제목</span><span>완료예정일</span><span></span>`;
+    colLabels.innerHTML = `<span>카테고리</span><span>업무 제목</span><span>완료예정일</span><span></span>`;
     block.appendChild(colLabels);
 
     s[b.key].forEach((item, idx) => {
       const row = document.createElement('div');
       row.className = 'line-item';
-      row.innerHTML = `<span class="dash">–</span>`;
 
       const catInput = document.createElement('input');
       catInput.type = 'text';
       catInput.className = 'cat';
       catInput.value = item.category;
-      catInput.placeholder = '분류 입력';
+      catInput.placeholder = '분류';
       catInput.oninput = (e) => { item.category = e.target.value; renderPaper(); markDirty(); };
       row.appendChild(catInput);
 
@@ -1452,13 +1553,20 @@ function renderWorkEditor(){
 
       row.appendChild(dueGroup);
 
-      const rowActions = document.createElement('div');
-      rowActions.className = 'row-actions';
+      const menuWrap = document.createElement('div');
+      menuWrap.className = 'row-menu-wrap';
+
+      const menuBtn = document.createElement('button');
+      menuBtn.className = 'row-menu-btn';
+      menuBtn.innerHTML = icon('dots-vertical');
+      menuBtn.setAttribute('aria-label', '더보기');
+      menuWrap.appendChild(menuBtn);
+
+      const menu = document.createElement('div');
+      menu.className = 'row-menu';
 
       const upBtn = document.createElement('button');
-      upBtn.className = 'move-btn';
-      upBtn.textContent = '▲';
-      upBtn.title = '위로 이동';
+      upBtn.innerHTML = icon('arrow-up') + ' 위로 이동';
       upBtn.disabled = idx === 0;
       upBtn.onclick = () => {
         if(idx === 0) return;
@@ -1467,12 +1575,10 @@ function renderWorkEditor(){
         s.polished[b.key] = null;
         renderEditor(); renderPaper(); markDirty();
       };
-      rowActions.appendChild(upBtn);
+      menu.appendChild(upBtn);
 
       const downBtn = document.createElement('button');
-      downBtn.className = 'move-btn';
-      downBtn.textContent = '▼';
-      downBtn.title = '아래로 이동';
+      downBtn.innerHTML = icon('arrow-down') + ' 아래로 이동';
       downBtn.disabled = idx === s[b.key].length - 1;
       downBtn.onclick = () => {
         const arr = s[b.key];
@@ -1481,17 +1587,28 @@ function renderWorkEditor(){
         s.polished[b.key] = null;
         renderEditor(); renderPaper(); markDirty();
       };
-      rowActions.appendChild(downBtn);
+      menu.appendChild(downBtn);
 
       const del = document.createElement('button');
-      del.className = 'del';
-      del.textContent = '×';
+      del.className = 'danger';
+      del.innerHTML = icon('trash') + ' 삭제';
       del.onclick = () => { s[b.key].splice(idx,1); if(s[b.key].length===0) s[b.key].push(emptyItem()); s.polished[b.key]=null; renderEditor(); renderPaper(); markDirty(); };
-      rowActions.appendChild(del);
+      menu.appendChild(del);
 
-      row.appendChild(rowActions);
+      menuWrap.appendChild(menu);
+      menuBtn.onclick = (e) => {
+        e.stopPropagation();
+        const wasOpen = menu.classList.contains('open');
+        document.querySelectorAll('.row-menu.open').forEach(m => m.classList.remove('open'));
+        if(!wasOpen) menu.classList.add('open');
+      };
+      row.appendChild(menuWrap);
 
       block.appendChild(row);
+
+      const hasDetail = !!(item.detail || item.remark);
+      const detailWrap = document.createElement('div');
+      detailWrap.style.display = (item._detailOpen || hasDetail) ? '' : 'none';
 
       const detailRow = document.createElement('div');
       detailRow.className = 'line-detail';
@@ -1500,7 +1617,7 @@ function renderWorkEditor(){
       detailTextarea.placeholder = '상세내용 (선택)';
       detailTextarea.oninput = (e) => { item.detail = e.target.value; renderPaper(); markDirty(); };
       detailRow.appendChild(detailTextarea);
-      block.appendChild(detailRow);
+      detailWrap.appendChild(detailRow);
 
       const remarkRow = document.createElement('div');
       remarkRow.className = 'line-remark';
@@ -1510,12 +1627,26 @@ function renderWorkEditor(){
       remarkInput.placeholder = '비고 (선택)';
       remarkInput.oninput = (e) => { item.remark = e.target.value; renderPaper(); markDirty(); };
       remarkRow.appendChild(remarkInput);
-      block.appendChild(remarkRow);
+      detailWrap.appendChild(remarkRow);
+
+      block.appendChild(detailWrap);
+
+      if(!(item._detailOpen || hasDetail)){
+        const toggle = document.createElement('button');
+        toggle.className = 'detail-toggle';
+        toggle.innerHTML = icon('chevron-down') + ' 상세내용·비고 추가';
+        toggle.onclick = () => {
+          item._detailOpen = true;
+          detailWrap.style.display = '';
+          toggle.remove();
+        };
+        block.appendChild(toggle);
+      }
     });
 
     const addBtn = document.createElement('button');
     addBtn.className = 'add-line';
-    addBtn.textContent = '+ 항목 추가';
+    addBtn.innerHTML = icon('plus') + ' 항목 추가';
     addBtn.onclick = () => { s[b.key].push(emptyItem()); renderEditor(); };
     block.appendChild(addBtn);
 
@@ -1556,7 +1687,8 @@ function renderWorkEditor(){
 
     const del = document.createElement('button');
     del.className = 'del';
-    del.textContent = '×';
+    del.innerHTML = icon('x');
+    del.setAttribute('aria-label', '삭제');
     del.onclick = () => { s.vacation.splice(idx,1); if(s.vacation.length===0) s.vacation.push(emptyVacationItem()); renderEditor(); renderPaper(); markDirty(); };
     row.appendChild(del);
 
@@ -1565,7 +1697,7 @@ function renderWorkEditor(){
 
   const vacAddBtn = document.createElement('button');
   vacAddBtn.className = 'add-line';
-  vacAddBtn.textContent = '+ 휴가자 추가';
+  vacAddBtn.innerHTML = icon('plus') + ' 휴가자 추가';
   vacAddBtn.onclick = () => { s.vacation.push(emptyVacationItem()); renderEditor(); };
   vacBlock.appendChild(vacAddBtn);
 
@@ -1578,8 +1710,8 @@ function renderWorkEditor(){
       <button class="btn ghost" id="clearBtn">이 팀 초기화</button>
     </div>
     <div class="actions-right">
-      <button class="btn ghost" id="refreshBtn">↻ 새로고침</button>
-      <button class="btn" id="saveBtn">💾 저장하기</button>
+      <button class="btn ghost" id="refreshBtn">${icon('refresh')} 새로고침</button>
+      <button class="btn" id="saveBtn">${icon('device-floppy')} 저장하기</button>
     </div>
   `;
   wrap.appendChild(actions);
@@ -1696,7 +1828,8 @@ function renderTrendEditor(){
     const del = document.createElement('button');
     del.type = 'button';
     del.className = 'img-thumb-del';
-    del.textContent = '×';
+    del.innerHTML = icon('x');
+    del.setAttribute('aria-label', '이미지 삭제');
     del.onclick = () => { s.images.splice(idx, 1); renderEditor(); renderPaper(); markDirty(); };
     thumb.appendChild(del);
     grid.appendChild(thumb);
@@ -1704,7 +1837,7 @@ function renderTrendEditor(){
 
   const addTile = document.createElement('div');
   addTile.className = 'img-add-tile';
-  addTile.innerHTML = `<div>+ 이미지 추가</div>`;
+  addTile.innerHTML = `<div>${icon('photo-plus')} 이미지 추가</div>`;
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
@@ -1791,8 +1924,8 @@ function renderTrendEditor(){
   actions.innerHTML = `
     <div class="actions-left"></div>
     <div class="actions-right">
-      <button class="btn ghost" id="refreshBtn">↻ 새로고침</button>
-      <button class="btn" id="saveBtn">💾 저장하기</button>
+      <button class="btn ghost" id="refreshBtn">${icon('refresh')} 새로고침</button>
+      <button class="btn" id="saveBtn">${icon('device-floppy')} 저장하기</button>
     </div>
   `;
   wrap.appendChild(actions);
@@ -2068,6 +2201,12 @@ function printAllPapers(){
   }
 }
 
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.row-menu-wrap')){
+    document.querySelectorAll('.row-menu.open').forEach(m => m.classList.remove('open'));
+  }
+});
+
 document.addEventListener('click', async (e) => {
   if(e.target.id === 'copyBtn'){
     try{
@@ -2169,12 +2308,12 @@ function updateSaveIndicator(status){
     return;
   }
   if(status === 'saved'){
-    if(el) el.textContent = '✓ 저장 완료';
+    if(el) el.innerHTML = icon('check') + ' 저장 완료';
     if(btn) btn.classList.remove('dirty');
     return;
   }
   if(status === 'failed'){
-    if(el) el.textContent = '⚠ 저장 실패 — 다시 눌러주세요';
+    if(el) el.innerHTML = icon('alert-triangle') + ' 저장 실패 — 다시 눌러주세요';
     if(btn) btn.classList.add('dirty');
     return;
   }
@@ -2488,11 +2627,13 @@ function renderOrderPanel(){
     const btns = document.createElement('div');
     btns.className = 'order-btns';
     const up = document.createElement('button');
-    up.textContent = '▲';
+    up.innerHTML = icon('chevron-up');
+    up.setAttribute('aria-label', '위로 이동');
     up.disabled = idx === 0;
     up.onclick = () => { moveSlide(id, -1); };
     const down = document.createElement('button');
-    down.textContent = '▼';
+    down.innerHTML = icon('chevron-down');
+    down.setAttribute('aria-label', '아래로 이동');
     down.disabled = idx === active.length - 1;
     down.onclick = () => { moveSlide(id, 1); };
     btns.appendChild(up); btns.appendChild(down);
@@ -2670,7 +2811,7 @@ async function enterPresent(){
   await loadWeek();
   updateSaveIndicator();
   document.getElementById('presentBtn').disabled = false;
-  document.getElementById('presentBtn').textContent = '발표 모드 ▸';
+  document.getElementById('presentBtn').innerHTML = icon('player-play') + ' 발표 모드';
 
   renderAll();
   presentDeck = activeSlideOrder();
@@ -2746,7 +2887,7 @@ async function handleRefreshClick(){
   updateSaveIndicator();
   renderAll();
   const btn2 = document.getElementById('refreshBtn');
-  if(btn2){ btn2.disabled = false; btn2.textContent = '↻ 새로고침'; }
+  if(btn2){ btn2.disabled = false; btn2.innerHTML = icon('refresh') + ' 새로고침'; }
 }
 window.addEventListener('beforeunload', (e) => {
   if(isDirty){
