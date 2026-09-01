@@ -9,20 +9,20 @@
   @font-face{font-family:'OKFont';font-weight:300;src:url('./fonts/OKFont-Light.woff2') format('woff2');}
   @font-face{font-family:'OKFont';font-weight:500;src:url('./fonts/OKFont-Medium.woff2') format('woff2');}
   :root{
-    --black:#f2f1ed;
+    --black:#F1F3F5;
     --panel:#ffffff;
-    --panel-2:#eceae5;
+    --panel-2:#EFEFEF;
     --line-dark:#dedad2;
     --paper:#ffffff;
     --ink:#111111;
-    --muted:#726f68;
-    --muted-2:#a6a29a;
-    --line:#e4e4e4;
+    --muted:#545964;
+    --muted-2:#4D5764;
+    --line:#E9EBF0;
     --line-strong:#111111;
-    --white:#161512;
+    --white:#161C26;
     --accent:#FF571F;
-    --accent-dark:#d6440f;
-    --danger:#c0392b;
+    --accent-dark:#E64813;
+    --danger:#EC3444;
   }
   *{box-sizing:border-box; font-family:'OK Font', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', sans-serif;font-weight:300;}
   html,body{margin:0;padding:0;}
@@ -596,7 +596,7 @@
     flex:0 0 auto;
   }
   .p-head .p-dept{
-    font-size:13px;
+    font-size:15px;
     letter-spacing:0.18em;
     color:var(--muted);
     margin-bottom:8px;
@@ -668,15 +668,11 @@
     align-items:stretch;
     border-bottom:1px solid var(--line-dark);
   }
-  .p-workrow:nth-child(even){background:var(--panel-2);}
   .p-workrow:last-child{border-bottom:none;}
   .p-workrow-task{
     min-width:0;
     padding:16px 20px;
     border-right:1px solid var(--line-dark);
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
   }
   .p-workrow-date{
     text-align:center;
@@ -2601,9 +2597,7 @@ function buildPresentHtmlForWork(teamKey){
 
   let html = `
     <div class="p-head">
-      <div>
         <h2>${t.label} 주간업무 보고</h2>
-      </div>
     </div>
   `;
 
@@ -2660,10 +2654,8 @@ function buildPresentHtmlForTrend(teamKey, entry){
 
   let html = `
     <div class="p-head">
-      <div>
-        <div class="p-dept">${t.label} · 트렌드보고${s.author ? ' · ' + escapeHtml(s.author) : ''}</div>
-        <h2>${s.title ? escapeHtml(s.title) : t.label + ' 트렌드보고'}</h2>
-      </div>
+      <h2>${s.title ? escapeHtml(s.title) : t.label + ' 트렌드보고'}</h2>
+      <div class="p-dept">${t.label} ${s.author ? ' · ' + escapeHtml(s.author) : ''}</div>
     </div>
   `;
 
