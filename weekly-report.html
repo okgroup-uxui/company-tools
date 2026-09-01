@@ -34,7 +34,6 @@
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
   }
-  .mono{font-family:'Pretendard', sans-serif;}
 
   .app{
     max-width:1180px;
@@ -1145,14 +1144,14 @@
 
   <div class="masthead">
     <div class="masthead-left">
-      <div class="eyebrow mono">WEEKLY REPORT AGENT</div>
+      <div class="eyebrow">WEEKLY REPORT AGENT</div>
       <h1>AX마케팅부 주간업무</h1>
     </div>
     <div class="masthead-right">
-      <div class="save-state mono" id="saveState"></div>
+      <div class="save-state" id="saveState"></div>
       <div class="week-nav">
         <button id="prevWeek">‹</button>
-        <div class="range mono" id="weekRange">-</div>
+        <div class="range " id="weekRange">-</div>
         <button id="nextWeek">›</button>
       </div>
     </div>
@@ -1189,8 +1188,8 @@
 
 <div class="present" id="presentView">
   <div class="present-top">
-    <div class="present-index mono" id="presentIndex">01 / 03</div>
-    <div class="present-range mono" id="presentRange">-</div>
+    <div class="present-index " id="presentIndex">01 / 03</div>
+    <div class="present-range " id="presentRange">-</div>
     <div class="present-controls">
       <button class="present-btn" id="fullscreenBtn">전체화면</button>
       <button class="present-btn" id="exitPresentBtn">편집으로 돌아가기 (Esc)</button>
@@ -1373,7 +1372,7 @@ function renderTabs(){
   TEAMS.forEach((t, i) => {
     const btn = document.createElement('button');
     btn.className = 'team-tab' + (activeTeam === t.key ? ' active' : '');
-    btn.innerHTML = `<span class="n mono">0${i+1}</span>${t.label}`;
+    btn.innerHTML = `<span class="n ">0${i+1}</span>${t.label}`;
     btn.onclick = () => { activeTeam = t.key; renderAll(); };
     wrap.appendChild(btn);
   });
@@ -1395,7 +1394,7 @@ function renderWorkEditor(){
 
     const head = document.createElement('div');
     head.className = 'block-head';
-    head.innerHTML = `<div class="label"><span class="num mono">0${bi+1}</span>${b.label}</div>`;
+    head.innerHTML = `<div class="label"><span class="num ">0${bi+1}</span>${b.label}</div>`;
     block.appendChild(head);
 
     const colLabels = document.createElement('div');
@@ -1528,7 +1527,7 @@ function renderWorkEditor(){
   vacBlock.className = 'block';
   const vacHead = document.createElement('div');
   vacHead.className = 'block-head';
-  vacHead.innerHTML = `<div class="label"><span class="num mono">02</span>이번 주 휴가자</div>`;
+  vacHead.innerHTML = `<div class="label"><span class="num ">02</span>이번 주 휴가자</div>`;
   vacBlock.appendChild(vacHead);
 
   const vacColLabels = document.createElement('div');
@@ -1635,7 +1634,7 @@ function renderTrendEditor(){
 
   const layoutField = document.createElement('div');
   layoutField.className = 'trend-field';
-  layoutField.innerHTML = `<label><span class="num mono">01</span>전체 레이아웃</label>`;
+  layoutField.innerHTML = `<label><span class="num ">01</span>전체 레이아웃</label>`;
   const layoutRow2 = document.createElement('div');
   layoutRow2.className = 'img-layout-row';
   const slideRowBtn = document.createElement('button');
@@ -1655,7 +1654,7 @@ function renderTrendEditor(){
 
   const titleField = document.createElement('div');
   titleField.className = 'trend-field';
-  titleField.innerHTML = `<label><span class="num mono">02</span>제목</label>`;
+  titleField.innerHTML = `<label><span class="num ">02</span>제목</label>`;
   const titleInput = document.createElement('input');
   titleInput.type = 'text';
   titleInput.value = s.title;
@@ -1666,7 +1665,7 @@ function renderTrendEditor(){
 
   const imgField = document.createElement('div');
   imgField.className = 'trend-field';
-  imgField.innerHTML = `<label><span class="num mono">03</span>이미지</label>`;
+  imgField.innerHTML = `<label><span class="num ">03</span>이미지</label>`;
 
   if(s.images.length > 1){
     const layoutRow = document.createElement('div');
@@ -1729,7 +1728,7 @@ function renderTrendEditor(){
 
   const contentField = document.createElement('div');
   contentField.className = 'trend-field';
-  contentField.innerHTML = `<label><span class="num mono">04</span>내용</label>`;
+  contentField.innerHTML = `<label><span class="num ">04</span>내용</label>`;
 
   const toolbar = document.createElement('div');
   toolbar.className = 'rte-toolbar';
@@ -2485,7 +2484,7 @@ function renderOrderPanel(){
   active.forEach((id, idx) => {
     const row = document.createElement('div');
     row.className = 'order-row';
-    row.innerHTML = `<span class="order-num mono">0${idx+1}</span><span class="order-label">${slideLabel(id)}</span>`;
+    row.innerHTML = `<span class="order-num ">0${idx+1}</span><span class="order-label">${slideLabel(id)}</span>`;
     const btns = document.createElement('div');
     btns.className = 'order-btns';
     const up = document.createElement('button');
