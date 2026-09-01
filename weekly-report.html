@@ -6,8 +6,8 @@
 <title>AX마케팅부 주간업무</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <style>
-  @font-face{font-family:'OKFont';font-weight:300;src:url('./fonts/OKFont-Light.woff2') format('woff2');}
-  @font-face{font-family:'OKFont';font-weight:500;src:url('./fonts/OKFont-Medium.woff2') format('woff2');}
+  @font-face{font-family:'OK Font';font-weight:300;src:url('./fonts/OKFont-Light.woff2') format('woff2');}
+  @font-face{font-family:'OK Font';font-weight:500;src:url('./fonts/OKFont-Medium.woff2') format('woff2');}
   :root{
     --black:#F1F3F5;
     --panel:#ffffff;
@@ -34,6 +34,7 @@
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
   }
+  .mono{font-family:'Pretendard', sans-serif;}
 
   .app{
     max-width:1180px;
@@ -673,6 +674,9 @@
     min-width:0;
     padding:16px 20px;
     border-right:1px solid var(--line-dark);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
   }
   .p-workrow-date{
     text-align:center;
@@ -1571,7 +1575,6 @@ function renderWorkEditor(){
   actions.className = 'editor-actions';
   actions.innerHTML = `
     <div class="actions-left">
-      <button class="btn" id="polishBtn">AI로 다듬기</button>
       <button class="btn ghost" id="clearBtn">이 팀 초기화</button>
     </div>
     <div class="actions-right">
@@ -1586,7 +1589,6 @@ function renderWorkEditor(){
   status.id = 'statusLine';
   wrap.appendChild(status);
 
-  document.getElementById('polishBtn').onclick = polishTeamAndSummarize;
   document.getElementById('clearBtn').onclick = () => {
     if(!confirm('이 팀의 업무보고 내용을 전부 지울까요? 되돌릴 수 없어요.')) return;
     state[activeTeam] = emptyTeamState();
@@ -1842,69 +1844,6 @@ async function callClaude(promptText){
   const data = await res.json();
   const text = (data.content || []).filter(b=>b.type==='text').map(b=>b.text).join('\n');
   return text.trim();
-}
-
-async function polishTeamAndSummarize(){
-  const s = state[activeTeam];
-  const teamLabel = TEAMS.find(t=>t.key===activeTeam).label;
-  const status = document.getElementById('statusLine');
-  const btn = document.getElementById('polishBtn');
-  btn.disabled = true;
-  status.textContent = 'AI가 문구를 다듬는 중...';
-
-  try{
-    for(const b of BLOCKS){
-      const items = itemsOf(s, b.key);
-      if(items.length === 0){ s.polished[b.key] = null; continue; }
-      const prompt = `너는 사내 주간업무 보고서를 다듬는 담당자야. 아래는 "${teamLabel}"의 "${b.label}" 항목을 담당자가 대충 적은 메모야.
-이걸 격식 있고 간결한 사내 보고서용 한국어 문장으로 다듬어줘.
-
-조건:
-- 각 항목은 한 줄, 개조식(명사형 종결, 예: "~진행", "~완료", "~예정")으로 작성
-- 불필요한 수식어 제거, 핵심만 남길 것
-- 항목 수는 입력한 개수와 동일하게 유지 (합치거나 나누지 말 것)
-- 각 줄 앞에 "-" 만 붙이고 그 외 마크다운, 번호, 설명, 인사말은 절대 넣지 말 것
-- 출력은 오직 다듬어진 줄들만
-
-메모:
-${items.map(v=>'- '+v.text).join('\n')}`;
-
-      const result = await callClaude(prompt);
-      const lines = result.split('\n').map(l=>l.replace(/^[-•·\s]+/, '').trim()).filter(Boolean);
-      s.polished[b.key] = (lines.length === items.length) ? lines : items.map(it=>it.text);
-    }
-
-    status.textContent = '총평 생성 중...';
-    const parts = [];
-    BLOCKS.forEach(b=>{
-      const items = itemsOf(s, b.key);
-      const texts = s.polished[b.key] || items.map(it=>it.text);
-      if(texts.length) parts.push(`[${b.paperLabel}]\n${texts.join('\n')}`);
-    });
-    if(parts.length){
-      const summaryPrompt = `아래는 "${teamLabel}"의 이번 주 주간업무 내용이야. 이 팀 관점에서 한 줄로 핵심을 요약하는 총평을 작성해줘.
-
-조건:
-- 한 문장, 40자 내외
-- 격식 있고 간결한 사내 보고서 톤
-- 따옴표, 설명, 다른 문장 없이 요약 문장 하나만 출력
-
-내용:
-${parts.join('\n\n')}`;
-      const summary = await callClaude(summaryPrompt);
-      s.summary = summary.replace(/^["'“”]|["'“”]$/g,'').trim();
-    }
-
-    status.textContent = '다듬기 완료';
-  }catch(err){
-    console.error(err);
-    status.textContent = 'AI 다듬기에 실패했어요. 원문으로 표시할게요.';
-  }finally{
-    btn.disabled = false;
-    renderPaper();
-    markDirty();
-    setTimeout(()=>{ if(status) status.textContent=''; }, 3000);
-  }
 }
 
 function escapeHtml(str){
