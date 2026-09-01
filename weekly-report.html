@@ -655,9 +655,9 @@
       page-break-after:auto;
       break-after:auto;
     }
-    .paper-trend-img{max-height:480px; object-fit:contain;}
-    .trend-images{max-height:480px;}
-    .trend-images img{object-fit:contain;}
+    .paper-trend-img{max-height:420px; object-fit:contain;}
+    .trend-images{max-height:420px;}
+    .trend-images img{max-height:420px; object-fit:contain;}
   }
 
   /* ===== Presentation mode (landscape / TV) ===== */
@@ -2075,7 +2075,6 @@ function buildPaperHtmlForTeam(teamKey){
 
   let html = `
     <div class="paper-head">
-      <div class="dept">OK금융그룹 · AX마케팅부 · ${t.label}</div>
       <h2>${t.label} 주간업무 보고</h2>
       <div class="meta"><span>${nextWeekLabel(currentMonday)}</span></div>
     </div>
@@ -2138,7 +2137,6 @@ function buildPaperHtmlForTrend(teamKey, entry){
 
   let html = `
     <div class="paper-head">
-      <div class="dept">OK금융그룹 · AX마케팅부 · ${t.label} · 트렌드보고</div>
       <h2>${s.title ? escapeHtml(s.title) : t.label + ' 트렌드보고'}</h2>
     </div>
   `;
