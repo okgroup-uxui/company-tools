@@ -1369,7 +1369,8 @@ const ICON_PATHS = {
   'player-play': '<polygon points="6 4 20 12 6 20" fill="currentColor" stroke="none"/>',
   'download': '<path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><line x1="4" y1="20" x2="20" y2="20"/>',
   'maximize': '<polyline points="9 3 3 3 3 9"/><polyline points="15 3 21 3 21 9"/><polyline points="3 15 3 21 9 21"/><polyline points="15 21 21 21 21 15"/>',
-  'photo-plus': '<rect x="3" y="5" width="14" height="14" rx="2"/><circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="M3 16l4-4 3 3 4-4 3 3"/><line x1="19" y1="5" x2="19" y2="11"/><line x1="16" y1="8" x2="22" y2="8"/>'
+  'photo-plus': '<rect x="3" y="5" width="14" height="14" rx="2"/><circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="M3 16l4-4 3 3 4-4 3 3"/><line x1="19" y1="5" x2="19" y2="11"/><line x1="16" y1="8" x2="22" y2="8"/>',
+  'history': '<path d="M3 4v5h5"/><path d="M3.5 12a8.5 8.5 0 1 0 2.4-6"/><path d="M12 8v4l3 2"/>'
 };
 function icon(name){
   const inner = ICON_PATHS[name] || '';
@@ -1557,6 +1558,11 @@ function renderWorkEditor(){
     const head = document.createElement('div');
     head.className = 'block-head';
     head.innerHTML = `<div class="label"><span class="num ">0${bi+1}</span>${b.label}</div>`;
+    const loadLastBtn = document.createElement('button');
+    loadLastBtn.className = 'add-line-small';
+    loadLastBtn.innerHTML = icon('history') + ' 저번주 업무 불러오기';
+    loadLastBtn.onclick = () => loadLastWeekItems(b.key, loadLastBtn);
+    head.appendChild(loadLastBtn);
     block.appendChild(head);
 
     s[b.key].forEach((item, idx) => {
@@ -2346,6 +2352,11 @@ function flashBtn(btn, msg){
   btn.textContent = msg;
   setTimeout(()=> btn.textContent = orig, 1500);
 }
+function flashBtnHtml(btn, msg){
+  const orig = btn.innerHTML;
+  btn.innerHTML = msg;
+  setTimeout(()=> btn.innerHTML = orig, 1800);
+}
 
 document.getElementById('prevWeek').onclick = () => { changeWeek(-7); };
 document.getElementById('nextWeek').onclick = () => { changeWeek(7); };
@@ -2511,6 +2522,70 @@ async function migrateLegacyToGranular(wk){
   });
   writes.push(putKV(wk, 'order', slideOrder));
   await Promise.allSettled(writes);
+}
+
+async function loadLastWeekItems(blockKey, btn){
+  if(!API_BASE_URL){
+    flashBtnHtml(btn, icon('alert-triangle') + ' API 미설정');
+    return;
+  }
+  const s = state[activeTeam];
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = icon('refresh') + ' 불러오는 중...';
+  try{
+    const lastMonday = new Date(currentMonday);
+    lastMonday.setDate(lastMonday.getDate() - 7);
+    const wk = weekKey(getMonday(lastMonday));
+    const val = await fetchKV(wk, `work:${activeTeam}`);
+    const lastItems = (val && Array.isArray(val[blockKey])) ? val[blockKey] : [];
+    const filled = lastItems.filter(it => it && it.text && it.text.trim().length > 0);
+
+    if(filled.length === 0){
+      btn.disabled = false;
+      btn.innerHTML = orig;
+      flashBtnHtml(btn, icon('alert-triangle') + ' 지난주 업무가 없어요');
+      return;
+    }
+
+    // 완전히 빈 기본 항목(빈 줄)은 정리하고, 이미 같은 제목이 있으면 중복 추가하지 않음
+    s[blockKey] = s[blockKey].filter(it => it.text || it.category || it.detail || it.remark || it.due);
+    const existingTexts = new Set(s[blockKey].map(it => it.text.trim()));
+    let addedCount = 0;
+    filled.forEach(it => {
+      const text = it.text.trim();
+      if(existingTexts.has(text)) return;
+      s[blockKey].push({
+        text,
+        category: it.category || '',
+        detail: it.detail || '',
+        remark: '',
+        due: it.due === 'ongoing' ? 'ongoing' : ''
+      });
+      existingTexts.add(text);
+      addedCount++;
+    });
+    if(s[blockKey].length === 0) s[blockKey].push(emptyItem());
+
+    s.polished[blockKey] = null;
+    s.summary = null;
+    markDirty(`work:${activeTeam}`);
+    renderEditor();
+    renderPaper();
+
+    const statusEl = document.getElementById('saveState');
+    if(statusEl){
+      const msg = addedCount === 0
+        ? (icon('check') + ' 이미 모두 있어요')
+        : (icon('check') + ` 지난주 업무 ${addedCount}개 불러옴`);
+      statusEl.innerHTML = msg;
+      setTimeout(() => updateSaveIndicator(), 1800);
+    }
+  }catch(e){
+    btn.disabled = false;
+    btn.innerHTML = orig;
+    flashBtnHtml(btn, icon('alert-triangle') + ' 불러오기 실패');
+  }
 }
 
 async function loadWeek(){
