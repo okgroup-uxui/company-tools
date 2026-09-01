@@ -2284,13 +2284,25 @@ async function changeWeek(days){
   d.setDate(d.getDate()+days);
   currentMonday = getMonday(d);
   await loadWeek();
+  dirtyKeys.clear();
   isDirty = false;
   updateSaveIndicator();
   renderAll();
 }
 
+// dirtyKeys: 저장 안 된 부분들의 목록. 'work:marketing', 'trend:design:공주원', 'order' 형태.
+// 팀별/사람별로 나눠서 저장하므로, 실제로 편집한 부분만 저장 요청을 보낸다.
+let dirtyKeys = new Set();
 let isDirty = false;
-function markDirty(){
+function currentDirtyScope(){
+  if(activeReportType === 'work'){
+    return `work:${activeTeam}`;
+  }
+  const entry = getActiveTrendEntry();
+  return `trend:${activeTeam}:${entry.author}`;
+}
+function markDirty(scope){
+  dirtyKeys.add(scope || currentDirtyScope());
   isDirty = true;
   updateSaveIndicator();
 }
@@ -2318,6 +2330,52 @@ function updateSaveIndicator(status){
   }
 }
 
+function kvKey(wk, suffix){
+  return suffix ? `weeklyreport:${wk}:${suffix}` : `weeklyreport:${wk}`;
+}
+async function fetchKV(wk, suffix){
+  const res = await fetch(`${API_BASE_URL}/?key=${encodeURIComponent(kvKey(wk, suffix))}`, {
+    headers: { ...(API_KEY ? {'X-API-Key': API_KEY} : {}) }
+  });
+  if(!res.ok){
+    const text = await res.text().catch(()=>'');
+    throw new Error(`load failed: ${res.status} ${text}`);
+  }
+  const result = await res.json();
+  if(result && result.value){
+    try{ return JSON.parse(result.value); }catch(e){ return null; }
+  }
+  return null;
+}
+async function putKV(wk, suffix, value){
+  const res = await fetch(`${API_BASE_URL}/?key=${encodeURIComponent(kvKey(wk, suffix))}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(API_KEY ? {'X-API-Key': API_KEY} : {})
+    },
+    body: JSON.stringify(value)
+  });
+  if(!res.ok){
+    const text = await res.text().catch(()=>'');
+    throw new Error(`save failed: ${res.status} ${text}`);
+  }
+  return true;
+}
+
+function valueForDirtyKey(k){
+  if(k === 'order') return slideOrder;
+  if(k.startsWith('work:')) return state[k.slice(5)];
+  if(k.startsWith('trend:')){
+    const rest = k.slice(6);
+    const sepIdx = rest.indexOf(':');
+    const team = rest.slice(0, sepIdx);
+    const author = rest.slice(sepIdx+1);
+    return (trendState[team] || []).find(e => e.author === author);
+  }
+  return undefined;
+}
+
 let saveInFlight = null;
 async function saveCurrentWeek(){
   if(!API_BASE_URL){
@@ -2325,31 +2383,31 @@ async function saveCurrentWeek(){
     if(el) el.textContent = '⚠ API 미설정';
     return false;
   }
+  if(dirtyKeys.size === 0) return true;
   // 이전 저장 요청이 아직 진행 중이면 먼저 끝날 때까지 기다린다.
-  // (이미지가 포함된 느린 요청이 나중에 도착해서 최신 내용을 덮어쓰는 경합을 막기 위함)
   if(saveInFlight){
     await saveInFlight.catch(()=>{});
   }
   const doFetch = (async () => {
-    try{
-      const payload = { state, trendState, slideOrder };
-      const res = await fetch(`${API_BASE_URL}/?key=${encodeURIComponent('weeklyreport:'+weekKey(currentMonday))}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(API_KEY ? {'X-API-Key': API_KEY} : {})
-        },
-        body: JSON.stringify(payload)
-      });
-      if(!res.ok){
-        const text = await res.text().catch(()=>'');
-        throw new Error(`save failed: ${res.status} ${text}`);
+    const wk = weekKey(currentMonday);
+    const keysToSave = Array.from(dirtyKeys);
+    const results = await Promise.allSettled(keysToSave.map(async (k) => {
+      const value = valueForDirtyKey(k);
+      await putKV(wk, k, value);
+      return k;
+    }));
+    let allOk = true;
+    results.forEach((r, i) => {
+      const k = keysToSave[i];
+      if(r.status === 'fulfilled'){
+        dirtyKeys.delete(k);
+      } else {
+        console.error('save failed for', k, r.reason);
+        allOk = false;
       }
-      return true;
-    }catch(err){
-      console.error('save failed', err);
-      return false;
-    }
+    });
+    isDirty = dirtyKeys.size > 0;
+    return allOk;
   })();
   saveInFlight = doFetch;
   const ok = await doFetch;
@@ -2362,9 +2420,20 @@ async function handleSaveClick(){
   if(btn) btn.disabled = true;
   updateSaveIndicator('saving');
   const ok = await saveCurrentWeek();
-  if(ok) isDirty = false;
   updateSaveIndicator(ok ? 'saved' : 'failed');
   if(btn) btn.disabled = false;
+}
+
+async function migrateLegacyToGranular(wk){
+  const writes = [];
+  TEAMS.forEach(t => {
+    writes.push(putKV(wk, `work:${t.key}`, state[t.key]));
+    (trendState[t.key] || []).forEach(entry => {
+      writes.push(putKV(wk, `trend:${t.key}:${entry.author}`, entry));
+    });
+  });
+  writes.push(putKV(wk, 'order', slideOrder));
+  await Promise.allSettled(writes);
 }
 
 async function loadWeek(){
@@ -2375,45 +2444,90 @@ async function loadWeek(){
     return;
   }
   try{
-    const res = await fetch(`${API_BASE_URL}/?key=${encodeURIComponent('weeklyreport:'+weekKey(currentMonday))}`, {
-      headers: { ...(API_KEY ? {'X-API-Key': API_KEY} : {}) }
-    });
-    if(!res.ok){
-      const text = await res.text().catch(()=>'');
-      throw new Error(`load failed: ${res.status} ${text}`);
-    }
-    const result = await res.json();
-    if(result && result.value){
-      const payload = JSON.parse(result.value);
-      state = payload.state || {};
-      trendState = payload.trendState || {};
-      slideOrder = payload.slideOrder || [];
-      TEAMS.forEach(t=>{
-        if(!state[t.key]) state[t.key] = emptyTeamState();
-        // 이전 버전 데이터 호환: vacation, detail 필드가 없으면 채워준다
-        const ts = state[t.key];
-        if(!ts.vacation || !ts.vacation.length) ts.vacation = [emptyVacationItem()];
-        BLOCKS.forEach(b => {
-          if(!ts[b.key]) ts[b.key] = [emptyItem()];
-          ts[b.key].forEach(item => {
-            if(item.detail === undefined) item.detail = '';
-            if(item.remark === undefined) item.remark = '';
-          });
-        });
+    const wk = weekKey(currentMonday);
+    const workSuffixes = TEAMS.map(t => `work:${t.key}`);
+    const trendSuffixes = [];
+    TEAMS.forEach(t => (ROSTER[t.key] || []).forEach(name => trendSuffixes.push(`trend:${t.key}:${name}`)));
+    const allSuffixes = [...workSuffixes, ...trendSuffixes, 'order'];
 
-        // 이전 버전 데이터 호환: 트렌드보고가 팀당 1개(객체)였던 구조를
-        // 팀당 여러 명(배열) 구조로 변환한 뒤, 고정 명단(ROSTER)에 맞춘다
-        const trend = trendState[t.key];
-        if(!trend){
-          trendState[t.key] = [];
-        } else if(!Array.isArray(trend)){
-          trendState[t.key] = [{ id: trend.author || generateId(), author: trend.author||'', title: trend.title||'', image: trend.image||'', content: trend.content||'' }];
+    const values = await Promise.all(allSuffixes.map(suf => fetchKV(wk, suf)));
+
+    let anyFound = false;
+    const newState = {};
+    const newTrendByTeam = {};
+    let newOrder = null;
+
+    allSuffixes.forEach((suf, i) => {
+      const val = values[i];
+      if(val === null || val === undefined) return;
+      anyFound = true;
+      if(suf.startsWith('work:')){
+        newState[suf.slice(5)] = val;
+      } else if(suf.startsWith('trend:')){
+        const rest = suf.slice(6);
+        const sepIdx = rest.indexOf(':');
+        const team = rest.slice(0, sepIdx);
+        newTrendByTeam[team] = newTrendByTeam[team] || [];
+        newTrendByTeam[team].push(val);
+      } else if(suf === 'order'){
+        newOrder = val;
+      }
+    });
+
+    if(anyFound){
+      TEAMS.forEach(t => {
+        if(newState[t.key]){
+          const ts = newState[t.key];
+          if(!ts.vacation || !ts.vacation.length) ts.vacation = [emptyVacationItem()];
+          BLOCKS.forEach(b => {
+            if(!ts[b.key]) ts[b.key] = [emptyItem()];
+            ts[b.key].forEach(item => {
+              if(item.detail === undefined) item.detail = '';
+              if(item.remark === undefined) item.remark = '';
+            });
+          });
+          state[t.key] = ts;
+        } else {
+          state[t.key] = emptyTeamState();
         }
+        trendState[t.key] = newTrendByTeam[t.key] || [];
         syncTrendRoster(t.key);
       });
+      slideOrder = Array.isArray(newOrder) ? newOrder : [];
       reconcileSlideOrder();
     } else {
-      resetAll();
+      // 새 방식(팀/사람별 키) 데이터가 없으면, 예전 통합 저장 방식 데이터가 있는지 확인해서 불러온다
+      const legacy = await fetchKV(wk, null);
+      if(legacy){
+        state = legacy.state || {};
+        trendState = legacy.trendState || {};
+        slideOrder = legacy.slideOrder || [];
+        TEAMS.forEach(t=>{
+          if(!state[t.key]) state[t.key] = emptyTeamState();
+          const ts = state[t.key];
+          if(!ts.vacation || !ts.vacation.length) ts.vacation = [emptyVacationItem()];
+          BLOCKS.forEach(b => {
+            if(!ts[b.key]) ts[b.key] = [emptyItem()];
+            ts[b.key].forEach(item => {
+              if(item.detail === undefined) item.detail = '';
+              if(item.remark === undefined) item.remark = '';
+            });
+          });
+
+          const trend = trendState[t.key];
+          if(!trend){
+            trendState[t.key] = [];
+          } else if(!Array.isArray(trend)){
+            trendState[t.key] = [{ id: trend.author || generateId(), author: trend.author||'', title: trend.title||'', image: trend.image||'', content: trend.content||'' }];
+          }
+          syncTrendRoster(t.key);
+        });
+        reconcileSlideOrder();
+        // 다음부터는 팀/사람별로 나뉜 새 방식으로 저장되도록, 지금 불러온 내용을 새 키들에도 그대로 옮겨 써둔다
+        migrateLegacyToGranular(wk).catch(err => console.error('migration failed', err));
+      } else {
+        resetAll();
+      }
     }
   }catch(err){
     console.error('load failed', err);
@@ -2426,6 +2540,8 @@ function resetAll(){
   trendState = {};
   TEAMS.forEach(t => { state[t.key] = emptyTeamState(); trendState[t.key] = emptyTrendState(t.key); });
   activeTrendEntryId = {};
+  dirtyKeys = new Set();
+  isDirty = false;
   slideOrder = [];
   TEAMS.forEach(t => { slideOrder.push(`work:${t.key}`); });
   reconcileSlideOrder();
@@ -2530,7 +2646,7 @@ function moveSlide(id, dir){
   slideOrder[from] = slideOrder[to];
   slideOrder[to] = tmp;
   renderOrderPanel();
-  markDirty();
+  markDirty('order');
 }
 
 document.getElementById('orderBtn').addEventListener('click', () => {
@@ -2688,6 +2804,7 @@ async function enterPresent(){
   document.getElementById('presentBtn').textContent = '불러오는 중...';
   if(isDirty){
     await saveCurrentWeek();
+    dirtyKeys.clear();
     isDirty = false;
   }
   await loadWeek();
@@ -2743,6 +2860,7 @@ async function handleRefreshClick(){
   const btn = document.getElementById('refreshBtn');
   if(btn){ btn.disabled = true; btn.textContent = '불러오는 중...'; }
   await loadWeek();
+  dirtyKeys.clear();
   isDirty = false;
   updateSaveIndicator();
   renderAll();
