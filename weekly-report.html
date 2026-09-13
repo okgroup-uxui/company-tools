@@ -6,8 +6,8 @@
 <title>AX마케팅부 주간업무</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <style>
-  @font-face{font-family:'OK Font';font-weight:300;src:url('fonts/OKFont-Light.woff2') format('woff2');}
-  @font-face{font-family:'OK Font';font-weight:500;src:url('fonts/OKFont-Medium.woff2') format('woff2');}
+  @font-face{font-family:'OK Font';font-weight:300;src:url('/company-tools/fonts/OKFont-Light.woff2') format('woff2');}
+  @font-face{font-family:'OK Font';font-weight:500;src:url('/company-tools/fonts/OKFont-Medium.woff2') format('woff2');}
   :root{
     --black:#F1F3F5;
     --panel:#ffffff;
@@ -1074,6 +1074,7 @@
     line-height:1.6;
     padding:12px;
     overflow-y:auto;
+    font-family: 'Pretendard';
   }
   /* 다른 사이트/문서에서 복사해 붙여넣을 때 딸려오는 폰트 크기·글꼴을 무시하고
      항상 이 박스의 기본 크기·글꼴로 통일해서 보여준다 */
@@ -1209,6 +1210,7 @@
     font-size:13px;
     line-height:1.7;
     white-space:pre-wrap;
+    font-family: 'Pretendard';
   }
   .paper-trend-content *{
     font-size:inherit !important;
@@ -2977,7 +2979,7 @@ function buildPresentHtmlForTrend(teamKey, entry){
     html += `</div>`;
   }
   html += `<div class="p-scroll-area" style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:flex-start; min-height:0; overflow-y:auto;">`;
-  if(s.content) html += `<div class="p-trend-body" style="font-size:22px; line-height:1.65;">${s.content}</div>`;
+  if(s.content) html += `<div class="p-trend-body" style="font-size:22px; line-height:1.65; font-family: 'Pretendard';">${s.content}</div>`;
   html += `</div>`;
   html += `</div>`;
 
