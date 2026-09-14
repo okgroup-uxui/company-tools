@@ -15,20 +15,20 @@
   }
 
   :root {
-    --bg: #0A0A0A;
-    --surface: #141414;
-    --surface-2: #1C1C1C;
-    --surface-3: #232323;
-    --amber: #ADADB4;
+    --bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --surface-2: #FBFAF7;
+    --surface-3: #EFEDE7;
+    --amber: #6B6B72;
     --orange: #FF571F;
-    --cream: #FFFFFF;
-    --cream-dim: #FFFFFF99;
-    --cream-faint: #FFFFFF4d;
-    --line: #FFFFFF14;
-    --line-amber: #ADADB433;
+    --cream: #1A1A1A;
+    --cream-dim: #55555A;
+    --cream-faint: #8A8A90;
+    --line: #1A1A1A14;
+    --line-amber: #6B6B7233;
     --white-strong: #FFFFFF;
-    --owned: #6FA8DC;
-    --social: #B48EAD;
+    --owned: #2E6DA4;
+    --social: #8B5F86;
     --font-hud: 'Space Grotesk', sans-serif;
     --font-kr: 'OKLight', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
     --radius: 3px;
@@ -93,7 +93,7 @@
     background: var(--surface-2); border: 1px solid var(--line); color: var(--cream);
     font-family: var(--font-kr); font-size: 13.5px; padding: 10px 12px; border-radius: var(--radius);
   }
-  input::placeholder { color: #FFFFFF4a; }
+  input::placeholder { color: #1A1A1A4a; }
   input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.85); cursor: pointer; }
 
   .btn { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.08em; border-radius: var(--radius); border: 1px solid transparent; cursor: pointer; padding: 10px 16px; white-space: nowrap; transition: filter .15s, opacity .15s; }
@@ -111,7 +111,7 @@
     color: var(--cream); font-family: var(--font-kr); font-size: 12.5px; padding: 9px 12px; border-radius: var(--radius);
     cursor: pointer; white-space: nowrap;
   }
-  .dd-trigger:hover { border-color: #FFFFFF33; }
+  .dd-trigger:hover { border-color: #1A1A1A33; }
   .dd-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
   .dd-caret { color: var(--cream-faint); font-size: 9px; margin-left: 2px; }
   .dd-menu {
@@ -150,13 +150,18 @@
   /* ---------- rank list (brand ranking with pagination) ---------- */
   .rank-list { display: flex; flex-direction: column; gap: 4px; }
   .rank-row { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-radius: var(--radius); }
-  .rank-row:hover { background: #FFFFFF08; }
+  .rank-row:hover { background: #1A1A1A08; }
   .rank-num { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--font-hud); font-size: 10.5px; color: var(--cream-dim); flex-shrink: 0; }
   .rank-row.is-own .rank-num { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 600; }
   .rank-name { flex: 1; font-size: 13px; color: var(--cream-dim); }
   .rank-row.is-own .rank-name { color: var(--cream); font-weight: 600; }
   .rank-pct { font-family: var(--font-hud); font-size: 12.5px; color: var(--cream-dim); }
   .rank-row.is-own .rank-pct { color: var(--orange); }
+  .rank-change { font-family: var(--font-hud); font-size: 10.5px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .rank-change.up { color: #6FA8DC; background: #6FA8DC1A; }
+  .rank-change.down { color: #FF571F; background: #FF571F1A; }
+  .rank-change.same { color: var(--cream-faint); background: #1A1A1A0A; }
+  .rank-change.new { color: #7FBF7F; background: #7FBF7F1A; }
   .pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
   .pagination button { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); border-radius: var(--radius); padding: 5px 12px; font-size: 11.5px; cursor: pointer; }
   .pagination button:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -214,14 +219,10 @@
   table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   table.data-table th { text-align: left; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.06em; color: var(--cream-faint); font-weight: 500; padding: 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   table.data-table td { padding: 10px; border-bottom: 1px solid var(--line); color: var(--cream-dim); vertical-align: middle; }
-  table.data-table tr:hover td { background: #FFFFFF06; }
+  table.data-table tr:hover td { background: #1A1A1A06; }
   tr.lowsov-row { cursor: pointer; }
   tr.lowsov-row.selected td { background: #FF571F14; }
   tr.lowsov-row.selected:hover td { background: #FF571F1F; }
-  .content-table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 12.5px; }
-  .content-table th, .content-table td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; }
-  .content-table th { background: var(--surface-3); color: var(--cream); font-weight: 600; }
-  .content-table td { color: var(--cream-dim); }
   table.data-table tr.own-row td:first-child { color: var(--orange); }
   .cell-mono { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; color: var(--cream); }
   .cell-snippet { max-width: 320px; color: var(--cream-faint); }
@@ -286,7 +287,7 @@
   .legend-swatch { width: 10px; height: 3px; border-radius: 2px; }
   .cat-pill { font-family: var(--font-hud); font-size: 8.5px; padding: 1px 6px; border-radius: 6px; }
   .cat-pill.owned { background: #6FA8DC26; color: var(--owned); }
-  .cat-pill.earned { background: #FFFFFF14; color: var(--cream-dim); }
+  .cat-pill.earned { background: #1A1A1A14; color: var(--cream-dim); }
   .cat-pill.social { background: #B48EAD26; color: var(--social); }
 
   /* ---------- modal ---------- */
@@ -535,7 +536,7 @@
               <th>프롬프트</th>
               <th>그룹</th>
               <th>모델</th>
-              <th>노출 점유율</th>
+              <th class="sortable" id="sortByShare">노출 점유율 <span class="sort-arrow"></span></th>
               <th class="sortable" id="sortByDate">생성일 <span class="sort-arrow">↓</span></th>
               <th></th>
             </tr>
@@ -596,7 +597,7 @@
       <div class="subtab-content" id="subtab-page">
         <div class="data-table-wrap">
           <table class="data-table" id="sourcePageTable">
-            <thead><tr><th>시간</th><th>사이트</th><th>페이지</th><th>프롬프트</th><th>엔진</th></tr></thead>
+            <thead><tr><th>순위</th><th>페이지</th><th>점유율</th><th>프롬프트</th><th>엔진</th></tr></thead>
             <tbody id="sourcePageBody"></tbody>
           </table>
         </div>
@@ -675,7 +676,7 @@
           </div>
         </div>
         <div id="produceMetaInfo" style="font-size:11.5px; color:var(--cream-faint); margin-bottom:12px; display:flex; flex-direction:column; gap:3px;"></div>
-        <div id="produceQualityWarning" style="display:none; font-size:12px; color:#FFB199; background:#FF571F14; border:1px solid #FF571F40; border-radius:var(--radius); padding:10px 12px; margin-bottom:12px;"></div>
+        <div id="produceQualityWarning" style="display:none; font-size:12px; color:#B23C0F; background:#FF571F14; border:1px solid #FF571F40; border-radius:var(--radius); padding:10px 12px; margin-bottom:12px;"></div>
         <div id="produceResultContent" style="white-space:pre-wrap; font-size:13.5px; line-height:1.7; color:var(--cream-dim); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:16px; max-height:520px; overflow-y:auto;"></div>
         <div id="produceStrategyNotes" style="margin-top:12px; font-size:12.5px; color:var(--cream-faint); border-left:2px solid var(--orange); padding-left:12px; line-height:1.6;"></div>
 
@@ -688,7 +689,6 @@
               <button class="btn btn-ghost btn-sm" id="downloadThumbnailSvgBtn" style="display:none;">SVG 다운로드</button>
             </div>
           </div>
-          <input type="text" id="thumbnailSubtitleInput" placeholder="부제목 (선택, 예: 시중은행 VS 저축은행) — 'VS'는 자동으로 오렌지색 강조됩니다" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:12.5px; padding:8px 10px; border-radius:var(--radius); margin-bottom:12px;">
           <div id="thumbnailPreview" style="width:100%; max-width:480px; aspect-ratio:1200/630; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:11.5px; color:var(--cream-faint);">콘텐츠 생성 후 썸네일을 만들 수 있습니다</div>
         </div>
       </div>
@@ -755,7 +755,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var CATEGORIES = ['OK 브랜드', '수신상품', '여신상품'];
   var ENGINES = ['gpt', 'gemini', 'claude'];
   var ENGINE_LABEL = { gpt: 'GPT', gemini: 'GEMINI', claude: 'CLAUDE' };
-  var ENGINE_COLOR = { gpt: '#FFFFFF99', gemini: '#ADADB4', claude: '#FF571F' };
+  var ENGINE_COLOR = { gpt: '#5A5A62', gemini: '#ADADB4', claude: '#FF571F' };
   // ★ 변경: 경쟁 브랜드를 미리 등록할 필요 없음 — 랭킹/점유율은 AI 응답에
   //   실제 등장한 브랜드를 자동으로 전부 집계함. 여기 목록은 "언급 0번이어도
   //   항상 랭킹에 표시하고 싶은 필수 포함 브랜드"만 남기면 됨.
@@ -980,8 +980,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width:100%;height:auto;display:block;" id="' + wrapId + 'Svg">';
     (opts.gridlines || []).forEach(function (g) {
       var gy = y(g.value);
-      svg += '<line x1="' + pad + '" y1="' + gy + '" x2="' + (width - pad) + '" y2="' + gy + '" stroke="#FFFFFF14" stroke-width="1"/>';
-      svg += '<text x="' + (pad - 8) + '" y="' + (gy + 3) + '" font-size="9" fill="#FFFFFF66" text-anchor="end">' + escapeHtml(g.label) + '</text>';
+      svg += '<line x1="' + pad + '" y1="' + gy + '" x2="' + (width - pad) + '" y2="' + gy + '" stroke="#1A1A1A14" stroke-width="1"/>';
+      svg += '<text x="' + (pad - 8) + '" y="' + (gy + 3) + '" font-size="9" fill="#1A1A1A66" text-anchor="end">' + escapeHtml(g.label) + '</text>';
     });
     nonEmpty.forEach(function (s) {
       if (s.points.length < 2) {
@@ -1063,7 +1063,29 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     }
   }
 
+  // ★ 신규: 브랜드 랭킹 1~5위에 "직전 동일 기간(현재 조회 기간 바로 이전, 같은 길이)"
+  // 대비 순위 변동을 표시하기 위해, 현재 필터 기간 바로 앞의 같은 길이 구간을
+  // 별도로 집계해서 그 기간 기준 순위를 계산합니다. (예: "최근 10일"이면 그 직전 10일)
+  function prevPeriodShareData(f) {
+    if (!f.dateFrom || !f.dateTo) return null; // 전체 기간 등 범위가 없으면 비교 불가
+    var fromTs = new Date(f.dateFrom).getTime();
+    var toTs = new Date(f.dateTo).getTime() + 86399999;
+    var span = toTs - fromTs;
+    var prevTo = fromTs - 1;
+    var prevFrom = prevTo - span;
+    var prevResults = state.results.filter(function (r) {
+      if (f.category && f.category !== 'all' && r.category !== f.category) return false;
+      return r.ts >= prevFrom && r.ts <= prevTo;
+    });
+    return computeShare(prevResults);
+  }
+
   function renderBrandRankList(shareData) {
+    var f = state.filters.share;
+    var prevShareData = prevPeriodShareData(f);
+    var prevRankOf = {};
+    if (prevShareData) prevShareData.forEach(function (s, i) { prevRankOf[s.brand] = i + 1; });
+
     var totalPages = Math.max(Math.ceil(shareData.length / BRAND_RANK_PAGE_SIZE), 1);
     if (state.brandRankPage > totalPages) state.brandRankPage = totalPages;
     var start = (state.brandRankPage - 1) * BRAND_RANK_PAGE_SIZE;
@@ -1075,9 +1097,23 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     } else {
       pageItems.forEach(function (s, i) {
         var rank = start + i + 1;
+        var changeHtml = '';
+        // 순위 변동 배지는 1~5위에만 반영 (직전 동일 기간 데이터가 있을 때만)
+        if (rank <= 5 && prevShareData) {
+          var prevRank = prevRankOf.hasOwnProperty(s.brand) ? prevRankOf[s.brand] : null;
+          if (prevRank == null) {
+            changeHtml = '<span class="rank-change new" title="직전 기간에는 순위권 밖이었습니다">NEW</span>';
+          } else if (prevRank > rank) {
+            changeHtml = '<span class="rank-change up" title="직전 기간 ' + prevRank + '위">▲' + (prevRank - rank) + '</span>';
+          } else if (prevRank < rank) {
+            changeHtml = '<span class="rank-change down" title="직전 기간 ' + prevRank + '위">▼' + (rank - prevRank) + '</span>';
+          } else {
+            changeHtml = '<span class="rank-change same" title="직전 기간과 동일한 순위">-</span>';
+          }
+        }
         var row = document.createElement('div');
         row.className = 'rank-row' + (s.brand === OWN_BRAND ? ' is-own' : '');
-        row.innerHTML = '<span class="rank-num">' + rank + '</span><span class="rank-name">' + escapeHtml(s.brand) + '</span><span class="rank-pct">' + s.share.toFixed(2) + '%</span>';
+        row.innerHTML = '<span class="rank-num">' + rank + '</span><span class="rank-name">' + escapeHtml(s.brand) + '</span>' + changeHtml + '<span class="rank-pct">' + s.share.toFixed(2) + '%</span>';
         listEl.appendChild(row);
       });
     }
@@ -1116,18 +1152,18 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     grid.innerHTML = html;
   }
 
+  // ★ 변경: 프롬프트 그룹은 임의의 type이 아니라 CATEGORIES(OK 브랜드/수신상품/여신상품)
+  //   3개 고정 그룹으로만 집계합니다. (데이터가 없는 그룹도 항상 표시)
   function renderGroupRankGrid() {
     var f = state.filters.share;
     var allResults = resultsByFilter(f);
-    var types = []; allResults.forEach(function (r) { if (types.indexOf(r.type) === -1) types.push(r.type); });
     var grid = $('groupRankGrid');
-    if (!types.length) { grid.innerHTML = '<div class="empty-hint" style="grid-column:1/-1;">데이터 없음</div>'; return; }
-    var rows = types.map(function (t) {
-      var tr = allResults.filter(function (r) { return r.type === t; });
+    var rows = CATEGORIES.map(function (cat) {
+      var tr = allResults.filter(function (r) { return r.category === cat; });
       var sd = computeShare(tr);
       var ownIdx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
-      var promptCount = state.prompts.filter(function (p) { return p.type === t; }).length;
-      return { type: t, scans: tr.length, ownRank: tr.length ? ownIdx + 1 : null, top5: sd.slice(0, 5), promptCount: promptCount };
+      var promptCount = state.prompts.filter(function (p) { return p.category === cat; }).length;
+      return { type: cat, scans: tr.length, ownRank: tr.length ? ownIdx + 1 : null, top5: sd.slice(0, 5), promptCount: promptCount };
     }).sort(function (a, b) { return (a.ownRank || 999) - (b.ownRank || 999); });
     var html = '<div class="rg-head-cell">그룹</div>';
     for (var i = 1; i <= 5; i++) html += '<div class="rg-head-cell">#' + i + '</div>';
@@ -1137,7 +1173,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         '<span class="rg-sub">프롬프트 ' + r.promptCount + '개</span></div>';
       for (var i = 0; i < 5; i++) html += '<div class="rg-cell">' + topNCell(r.top5[i]) + '</div>';
     });
-    grid.innerHTML = html;
+    grid.innerHTML = html || '<div class="empty-hint" style="grid-column:1/-1;">데이터 없음</div>';
   }
 
   function renderShareTab() {
@@ -1338,7 +1374,16 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       if (pf.search && p.text.toLowerCase().indexOf(pf.search) === -1) return false;
       return true;
     });
+    // ★ 변경: '노출 점유율' 기준 정렬 지원. 스캔 안 된(점유율 null) 프롬프트는
+    //   정렬 방향과 무관하게 항상 맨 아래로 보냅니다.
     visible.sort(function (a, b) {
+      if (state.promptSort.key === 'share') {
+        var as = promptShare(a, pf.model), bs = promptShare(b, pf.model);
+        if (as === null && bs === null) return 0;
+        if (as === null) return 1;
+        if (bs === null) return -1;
+        return state.promptSort.dir === 'asc' ? as - bs : bs - as;
+      }
       var av = state.promptSort.key === 'createdAt' ? a.createdAt : a[state.promptSort.key];
       var bv = state.promptSort.key === 'createdAt' ? b.createdAt : b[state.promptSort.key];
       return state.promptSort.dir === 'asc' ? av - bv : bv - av;
@@ -1354,20 +1399,20 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       var share = promptShare(p, pf.model);
       var scannedEngines = promptScannedEngines(p);
       var tr = document.createElement('tr');
-      var catDotColor = p.category === 'OK 브랜드' ? '#FF571F' : (p.category === '수신상품' ? '#ADADB4' : '#6FA8DC');
+      var catDotColor = categoryDotColor(p.category);
       tr.innerHTML =
         '<td><input type="checkbox" class="row-check" data-id="' + p.id + '" ' + (state.selectedPrompts[p.id] ? 'checked' : '') + '></td>' +
         '<td class="cell-snippet" style="max-width:360px;">' + escapeHtml(truncate(p.text, 60)) + '</td>' +
-        '<td><span class="dot-badge"><span class="d" style="background:' + catDotColor + '"></span>' + escapeHtml(p.category) + '</span></td>' +
+        '<td class="group-cell" title="클릭해서 그룹 수정"><span class="dot-badge"><span class="d" style="background:' + catDotColor + '"></span>' + escapeHtml(p.category) + '</span></td>' +
         '<td><span class="model-icons">' + ENGINES.map(function (e) { return '<span class="model-dot' + (scannedEngines[e] ? ' on' : '') + '" title="' + ENGINE_LABEL[e] + (scannedEngines[e] ? ' 스캔됨' : ' 스캔 안됨') + '"></span>'; }).join('') + '</span></td>' +
         '<td>' + (share === null ? '<span class="pct-pill">—</span>' : '<span class="pct-pill' + (share >= 50 ? ' hi' : '') + '">' + share.toFixed(1) + '%</span>') + '</td>' +
         '<td>' + new Date(p.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + '</td>' +
         '<td><button class="row-icon-btn" data-act="del" title="삭제">✕</button></td>';
       
-      // 프롬프트 행 클릭 시 상세 분석 열기
+      // 프롬프트 행 클릭 시 상세 분석 열기 (그룹 셀 편집 중일 때는 제외)
       tr.style.cursor = 'pointer';
       tr.addEventListener('click', function(e) {
-        if (e.target.closest('button') || e.target.closest('input')) return;
+        if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.group-cell')) return;
         openPromptDetail(p.id);
       });
       tr.addEventListener('mouseover', function() {
@@ -1386,12 +1431,50 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       tr.querySelector('.row-check').addEventListener('change', function () {
         if (this.checked) state.selectedPrompts[p.id] = true; else delete state.selectedPrompts[p.id];
       });
+
+      // ★ 신규: 그룹 배지를 클릭하면 select로 바뀌어 그룹을 바로 수정할 수 있음
+      tr.querySelector('.group-cell').addEventListener('click', function (e) {
+        e.stopPropagation();
+        var cell = this;
+        if (cell.querySelector('select')) return;
+        var select = document.createElement('select');
+        select.className = 'group-edit-select';
+        select.style.cssText = 'background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-size:12px; padding:3px 4px; border-radius:4px;';
+        CATEGORIES.forEach(function (c) {
+          var opt = document.createElement('option');
+          opt.value = c; opt.textContent = c;
+          if (c === p.category) opt.selected = true;
+          select.appendChild(opt);
+        });
+        cell.innerHTML = '';
+        cell.appendChild(select);
+        select.focus();
+        select.addEventListener('click', function (e2) { e2.stopPropagation(); });
+        select.addEventListener('change', function () {
+          if (select.value !== p.category) {
+            p.category = select.value;
+            save(LS_PROMPTS, state.prompts);
+            pushPrompts();
+          }
+          renderPromptsTable();
+        });
+        select.addEventListener('blur', function () { renderPromptsTable(); });
+      });
       body.appendChild(tr);
     });
   }
   $('sortByDate').addEventListener('click', function () {
+    state.promptSort.key = 'createdAt';
     state.promptSort.dir = state.promptSort.dir === 'asc' ? 'desc' : 'asc';
     this.querySelector('.sort-arrow').textContent = state.promptSort.dir === 'asc' ? '↑' : '↓';
+    $('sortByShare').querySelector('.sort-arrow').textContent = '';
+    renderPromptsTable();
+  });
+  $('sortByShare').addEventListener('click', function () {
+    state.promptSort.dir = (state.promptSort.key === 'share' && state.promptSort.dir === 'asc') ? 'desc' : 'asc';
+    state.promptSort.key = 'share';
+    this.querySelector('.sort-arrow').textContent = state.promptSort.dir === 'asc' ? '↑' : '↓';
+    $('sortByDate').querySelector('.sort-arrow').textContent = '';
     renderPromptsTable();
   });
   $('selectAllPrompts').addEventListener('change', function () {
@@ -1583,43 +1666,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   // 아주 가벼운 마크다운 프리뷰: 링크/소제목만 실제 HTML로 변환하고, 나머지는
   // escapeHtml로 이스케이프한 뒤에만 태그를 덧붙이므로 XSS 위험이 없음.
-  // 마크다운 표(| a | b |\n|---|---|\n| 1 | 2 |) 블록을 실제 <table>로 변환.
-  // escapeHtml 이후의 텍스트에 대해 동작 (파이프/대시는 escapeHtml 대상이 아니라 안전함).
-  function renderTablesInLines(lines) {
-    var out = [];
-    var i = 0;
-    var rowRe = /^\s*\|.*\|\s*$/;
-    var sepRe = /^\s*\|?[\s:-]*-[\s:|-]*\|[\s:|-]*$/;
-    function splitCells(line) {
-      var t = line.trim();
-      if (t.charAt(0) === '|') t = t.slice(1);
-      if (t.charAt(t.length - 1) === '|') t = t.slice(0, -1);
-      return t.split('|').map(function (c) { return c.trim(); });
-    }
-    while (i < lines.length) {
-      if (rowRe.test(lines[i]) && i + 1 < lines.length && sepRe.test(lines[i + 1])) {
-        var headerCells = splitCells(lines[i]);
-        var rows = [];
-        var j = i + 2;
-        while (j < lines.length && rowRe.test(lines[j])) { rows.push(splitCells(lines[j])); j++; }
-        var html = '<table class="content-table"><thead><tr>' +
-          headerCells.map(function (c) { return '<th>' + c + '</th>'; }).join('') +
-          '</tr></thead><tbody>' +
-          rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') +
-          '</tbody></table>';
-        out.push(html);
-        i = j;
-      } else {
-        out.push(lines[i]);
-        i++;
-      }
-    }
-    return out;
-  }
-
   function renderContentPreview(md) {
     var esc = escapeHtml(md || '');
-    esc = renderTablesInLines(esc.split('\n')).join('\n');
     esc = esc.replace(/^###\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:13.5px;">$1</strong>');
     esc = esc.replace(/^##\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:14.5px;">$1</strong>');
     esc = esc.replace(/^#\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:16px;">$1</strong>');
@@ -1643,11 +1691,6 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var metaBits = [];
     if (r.slug) metaBits.push('<span>slug: <span class="cell-mono">' + escapeHtml(r.slug) + '</span></span>');
     if (r.metaDescription) metaBits.push('<span>meta: ' + escapeHtml(r.metaDescription) + '</span>');
-    if (r.citationLinksUsed && r.citationLinksUsed.length) {
-      metaBits.push('<span>참고 가능했던 출처: ' + r.citationLinksUsed.map(function (l) {
-        return '<a class="link-chip" href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener" style="margin-left:4px;">🔗 ' + escapeHtml(l.title || l.url) + '</a>';
-      }).join('') + '</span>');
-    }
     $('produceMetaInfo').innerHTML = metaBits.join('');
 
     var qEl = $('produceQualityWarning');
@@ -1672,7 +1715,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function renderContentHistoryRow(item) {
     var date = item.createdAt ? new Date(item.createdAt).toLocaleString('ko-KR') : '';
     var typeLabel = { blog: '블로그', tistory: '티스토리', faq: 'FAQ' }[item.contentType] || item.contentType || '';
-    var qualityLabel = (item.qualityFlags && item.qualityFlags.length) ? '<span style="color:#FFB199;">⚠ 확인필요</span>' : '<span style="color:var(--cream-faint);">정상</span>';
+    var qualityLabel = (item.qualityFlags && item.qualityFlags.length) ? '<span style="color:#B23C0F;">⚠ 확인필요</span>' : '<span style="color:var(--cream-faint);">정상</span>';
     return '<tr class="lowsov-row" data-hid="' + item.id + '">' +
       '<td>' + escapeHtml(truncate(item.title || item.promptText || '', 50)) + '</td>' +
       '<td><span class="dot-badge"><span class="dd-dot" style="background:' + categoryDotColor(item.category) + '"></span>' + escapeHtml(item.category || '') + '</span></td>' +
@@ -1817,52 +1860,46 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     return lines;
   }
 
-  // 1200x630(OG 이미지 표준 비율). 화이트 배경 + 굵은 타이틀 + (선택)VS 강조 부제목
-  // + 오렌지 뱃지 + 라인아트 은행 아이콘. 외부 이미지 생성 API 없이 SVG로만 구성.
+  // 1200x630(OG 이미지 표준 비율) 심플 타이틀 카드 + 그라디언트 3D 스피어 일러스트.
+  // 외부 이미지 생성 API 없이 SVG만으로 입체감(하이라이트+그림자)을 낸 것.
   // 폰트는 PNG 변환 시 문제 없이 렌더되도록 구글 폰트(Space Grotesk / Noto Sans KR)만 사용.
-  function buildThumbnailSVG(title, category, subtitle) {
-    var lines = wrapTitleLines(title, 13, 3);
-    var lineHeight = 76;
-    var startY = 190;
+  function buildThumbnailSVG(title, category) {
+    var lines = wrapTitleLines(title, 14, 3);
     var titleTspans = lines.map(function (line, i) {
-      return '<tspan x="70" y="' + (startY + i * lineHeight) + '">' + escapeHtml(line) + '</tspan>';
+      return '<tspan x="80" y="' + (300 + i * 60) + '">' + escapeHtml(line) + '</tspan>';
     }).join('');
-
-    var cursorY = startY + lines.length * lineHeight + 20;
-    var subtitleSvg = '';
-    var sub = (subtitle || '').trim();
-    if (sub) {
-      cursorY += 46;
-      var parts = sub.split(/(vs)/i).filter(function (p) { return p !== ''; });
-      var tspans = parts.map(function (part) {
-        var isVs = /^vs$/i.test(part);
-        return '<tspan fill="' + (isVs ? '#FF571F' : '#161616') + '">' + escapeHtml(part) + '</tspan>';
-      }).join('');
-      subtitleSvg = '<text x="70" y="' + cursorY + '" font-family="Noto Sans KR, sans-serif" font-size="34" font-weight="700">' + tspans + '</text>';
-      cursorY += 20;
-    }
-
-    var badgeY = cursorY + 30;
+    var catColor = categoryDotColor(category || '');
     var catLabel = escapeHtml(category || 'GEO');
-    var badgeWidth = Math.max(150, catLabel.length * 20 + 60);
+    var badgeWidth = Math.max(96, catLabel.length * 15 + 46);
 
     return '<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">' +
-      '<rect width="1200" height="630" fill="#FAFAF7"/>' +
-      '<text font-family="Noto Sans KR, sans-serif" font-size="64" font-weight="800" fill="#161616">' + titleTspans + '</text>' +
-      subtitleSvg +
-      '<rect x="70" y="' + badgeY + '" width="' + badgeWidth + '" height="54" rx="27" fill="#FF571F"/>' +
-      '<text x="' + (70 + badgeWidth / 2) + '" y="' + (badgeY + 35) + '" font-family="Noto Sans KR, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle">' + catLabel + '</text>' +
-      // 은행 아이콘 (오렌지 라인아트), 우하단
-      '<g transform="translate(960,410)" stroke="#FF571F" stroke-width="7" fill="none" stroke-linejoin="round" stroke-linecap="round">' +
-        '<polygon points="90,0 180,55 0,55"/>' +
-        '<circle cx="90" cy="24" r="7" fill="#FF571F" stroke="none"/>' +
-        '<line x1="15" y1="55" x2="15" y2="145"/>' +
-        '<line x1="55" y1="55" x2="55" y2="145"/>' +
-        '<line x1="125" y1="55" x2="125" y2="145"/>' +
-        '<line x1="165" y1="55" x2="165" y2="145"/>' +
-        '<line x1="0" y1="145" x2="180" y2="145"/>' +
-        '<text x="90" y="112" font-family="Space Grotesk, sans-serif" font-size="36" font-weight="700" fill="#FF571F" text-anchor="middle" stroke="none">₩</text>' +
-      '</g>' +
+      '<defs>' +
+        '<linearGradient id="tnBg" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0%" stop-color="#0A0A0A"/>' +
+          '<stop offset="100%" stop-color="#181818"/>' +
+        '</linearGradient>' +
+        '<radialGradient id="tnSphere" cx="35%" cy="28%" r="72%">' +
+          '<stop offset="0%" stop-color="#FF9A5C"/>' +
+          '<stop offset="48%" stop-color="#FF571F"/>' +
+          '<stop offset="100%" stop-color="#6e2609"/>' +
+        '</radialGradient>' +
+        '<filter id="tnBlur" x="-60%" y="-60%" width="220%" height="220%">' +
+          '<feGaussianBlur stdDeviation="22"/>' +
+        '</filter>' +
+      '</defs>' +
+      '<rect width="1200" height="630" fill="url(#tnBg)"/>' +
+      '<ellipse cx="955" cy="478" rx="170" ry="34" fill="#000000" opacity="0.45" filter="url(#tnBlur)"/>' +
+      '<circle cx="955" cy="325" r="165" fill="url(#tnSphere)"/>' +
+      '<ellipse cx="893" cy="253" rx="52" ry="32" fill="#FFFFFF" opacity="0.32"/>' +
+      '<circle cx="1112" cy="168" r="9" fill="#FF571F" opacity="0.75"/>' +
+      '<circle cx="1078" cy="468" r="14" fill="#ADADB4" opacity="0.5"/>' +
+      '<circle cx="1142" cy="398" r="6" fill="#FF571F" opacity="0.6"/>' +
+      '<circle cx="80" cy="82" r="7" fill="#FF571F"/>' +
+      '<text x="100" y="90" font-family="Space Grotesk, sans-serif" font-size="20" letter-spacing="2" fill="#FFFFFF" font-weight="600">GEO MONITOR</text>' +
+      '<rect x="78" y="148" width="' + badgeWidth + '" height="34" rx="17" fill="#232323" stroke="#FFFFFF14"/>' +
+      '<circle cx="99" cy="165" r="5" fill="' + catColor + '"/>' +
+      '<text x="114" y="170" font-family="Noto Sans KR, sans-serif" font-size="13" fill="#ADADB4">' + catLabel + '</text>' +
+      '<text font-family="Noto Sans KR, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF">' + titleTspans + '</text>' +
     '</svg>';
   }
 
@@ -1890,8 +1927,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var r = state.produce.lastResult;
     if (!r) { showStatusIn('produceStatusLine', 'error', '먼저 콘텐츠를 생성하세요.'); return; }
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
-    var subtitle = $('thumbnailSubtitleInput').value;
-    currentThumbnailSVG = buildThumbnailSVG(r.title || '', p ? p.category : '', subtitle);
+    currentThumbnailSVG = buildThumbnailSVG(r.title || '', p ? p.category : '');
     $('thumbnailPreview').innerHTML = currentThumbnailSVG;
     $('downloadThumbnailPngBtn').style.display = '';
     $('downloadThumbnailSvgBtn').style.display = '';
@@ -1961,7 +1997,6 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
           content: '(데모 모드입니다 — 설정에서 실제 워커 엔드포인트를 연결하면 Claude가 아래 지식베이스를 바탕으로 실제 ' + typeLabel + ' 콘텐츠를 생성합니다.)\n\n---\n\n참고한 지식베이스(' + category + '):\n' + knowledgeText.slice(0, 300) + (knowledgeText.length > 300 ? '...' : '') + linksNote + relNote,
           strategyNotes: '데모 콘텐츠에는 전략 메모가 포함되지 않습니다.',
           qualityFlags: [],
-          citationLinksUsed: citationLinks || [],
         });
       }, 900);
     });
@@ -2005,7 +2040,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       domainSelectionInit = true;
     }
     var selected = domains.filter(function (d) { return state.selectedDomains[d.site]; });
-    var colorPalette = ['#FF571F', '#ADADB4', '#6FA8DC', '#B48EAD', '#FFFFFF99', '#7FBF7F', '#D4A24C', '#5FA8A0'];
+    var colorPalette = ['#FF571F', '#ADADB4', '#6FA8DC', '#B48EAD', '#5A5A62', '#7FBF7F', '#D4A24C', '#5FA8A0'];
     var colorOf = {}; domains.forEach(function (d, i) { colorOf[d.site] = colorPalette[i % colorPalette.length]; });
 
     var sorted = results.slice().sort(function (a, b) { return a.ts - b.ts; });
@@ -2038,6 +2073,22 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     }).join('');
     return colorOf;
   }
+  // ★ 신규: 사이트 하위 페이지(도메인 URL) 목록을 열고 닫을 수 있게 렌더링
+  function buildSubPagesHtml(site, pages) {
+    var map = {};
+    (pages || []).forEach(function (p) {
+      var key = p.url || p.title || site;
+      if (!map[key]) map[key] = { url: p.url, title: p.title, count: 0 };
+      map[key].count++;
+    });
+    var arr = Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return b.count - a.count; });
+    if (!arr.length) return '<div class="empty-hint" style="padding:8px 0;">하위 페이지 없음</div>';
+    return arr.slice(0, 20).map(function (p) {
+      var label = p.url ? escapeHtml(p.url) : escapeHtml(p.title || '-');
+      var link = p.url ? '<a href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">' + label + '</a>' : label;
+      return '<div style="display:flex; justify-content:space-between; gap:10px; padding:5px 0; border-bottom:1px solid var(--line); font-size:11.5px;"><span class="cell-mono" style="word-break:break-all;">' + link + '</span><span style="color:var(--cream-faint); flex-shrink:0;">' + p.count + '회</span></div>';
+    }).join('');
+  }
   function renderSourceSiteTable(sourceData, colorOf) {
     var body = $('sourceSiteBody');
     body.innerHTML = '';
@@ -2050,11 +2101,28 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       var checked = !!state.selectedDomains[s.site];
       tr.innerHTML =
         '<td><input type="checkbox" class="domain-check" data-site="' + escapeHtml(s.site) + '" ' + (checked ? 'checked' : '') + '></td>' +
-        '<td class="cell-mono">' + (colorOf[s.site] ? '<span class="legend-swatch" style="background:' + colorOf[s.site] + '; display:inline-block; margin-right:6px;"></span>' : '') + escapeHtml(s.site) + '</td>' +
+        '<td class="cell-mono"><span class="site-expand-toggle" style="cursor:pointer; display:inline-block; width:14px; color:var(--cream-faint);">▸</span>' + (colorOf[s.site] ? '<span class="legend-swatch" style="background:' + colorOf[s.site] + '; display:inline-block; margin-right:6px;"></span>' : '') + escapeHtml(s.site) + '</td>' +
         '<td><span class="cat-pill ' + s.category + '">' + SOURCE_CAT_LABEL[s.category] + '</span></td>' +
         '<td><span class="model-icons">' + ENGINES.map(function () { return '<span class="model-dot on"></span>'; }).join('') + '</span></td>' +
         '<td>' + s.share.toFixed(1) + '%</td>';
       body.appendChild(tr);
+
+      var detailTr = document.createElement('tr');
+      detailTr.style.display = 'none';
+      detailTr.className = 'site-subpages-row';
+      var td = document.createElement('td');
+      td.colSpan = 5;
+      td.style.cssText = 'padding:6px 10px 12px 34px; background: var(--surface);';
+      td.innerHTML = buildSubPagesHtml(s.site, s.pages);
+      detailTr.appendChild(td);
+      body.appendChild(detailTr);
+
+      tr.querySelector('.site-expand-toggle').addEventListener('click', function (e) {
+        e.stopPropagation();
+        var isOpen = detailTr.style.display !== 'none';
+        detailTr.style.display = isOpen ? 'none' : 'table-row';
+        this.textContent = isOpen ? '▸' : '▾';
+      });
     });
     body.querySelectorAll('.domain-check').forEach(function (cb) {
       cb.addEventListener('change', function () {
@@ -2063,19 +2131,45 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       });
     });
   }
+  // ★ 변경: 개별 인용 시각 순으로 나열하던 방식 → 페이지(URL) 기준으로 집계해서
+  //   순위(인용 많이 된 순), 점유율, 이 페이지를 인용한 프롬프트 수를 보여줌.
   function renderSourcePageTable(results) {
     var body = $('sourcePageBody');
-    var allPages = [];
-    results.forEach(function (r) { (r.sources || []).forEach(function (s) { allPages.push({ site: s.site || domainFrom(s.url), url: s.url, title: s.title, ts: r.ts, promptText: r.promptText, engine: r.engine }); }); });
-    allPages.sort(function (a, b) { return b.ts - a.ts; });
+    var pageMap = {};
+    var totalCitations = 0;
+    results.forEach(function (r) {
+      (r.sources || []).forEach(function (s) {
+        var site = s.site || domainFrom(s.url);
+        var key = s.url || (site + '::' + (s.title || ''));
+        if (!pageMap[key]) pageMap[key] = { site: site, url: s.url, title: s.title, count: 0, promptIds: {}, engines: {} };
+        pageMap[key].count++;
+        totalCitations++;
+        if (r.promptId) pageMap[key].promptIds[r.promptId] = true;
+        if (r.engine) pageMap[key].engines[r.engine] = true;
+      });
+    });
+    var pages = Object.keys(pageMap).map(function (k) { return pageMap[k]; }).sort(function (a, b) { return b.count - a.count; });
     body.innerHTML = '';
-    if (!allPages.length) { body.innerHTML = '<tr><td colspan="5" class="empty-hint" style="border:none;">데이터 없음</td></tr>'; return; }
-    allPages.slice(0, 300).forEach(function (item) {
+    if (!pages.length) { body.innerHTML = '<tr><td colspan="5" class="empty-hint" style="border:none;">데이터 없음</td></tr>'; return; }
+    pages.slice(0, 300).forEach(function (item, idx) {
       var tr = document.createElement('tr');
-      var timeStr = new Date(item.ts).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-      var pageCell = item.url ? '<a href="' + escapeHtml(item.url) + '" target="_blank" rel="noopener">' + escapeHtml(item.title || item.url) + '</a>' : escapeHtml(item.title || '-');
-      tr.innerHTML = '<td>' + timeStr + '</td><td class="cell-mono">' + escapeHtml(item.site) + '</td><td class="cell-snippet">' + pageCell + '</td><td class="cell-snippet">' + escapeHtml(truncate(item.promptText, 36)) + '</td><td class="cell-mono">' + ENGINE_LABEL[item.engine] + '</td>';
+      var rank = idx + 1;
+      var share = totalCitations ? (item.count / totalCitations * 100) : 0;
+      var promptCount = Object.keys(item.promptIds).length;
+      var pageCell = item.url ? '<a href="' + escapeHtml(item.url) + '" target="_blank" rel="noopener">' + escapeHtml(item.url) + '</a>' : escapeHtml(item.site);
+      tr.innerHTML = '<td class="cell-mono">#' + rank + '</td>' +
+        '<td class="cell-snippet cell-mono" style="word-break:break-all;">' + pageCell + '</td>' +
+        '<td>' + share.toFixed(1) + '%</td>' +
+        '<td><span class="page-prompt-count" data-url="' + escapeHtml(item.url || '') + '" data-site="' + escapeHtml(item.site) + '" style="cursor:pointer; text-decoration:underline; text-underline-offset:2px;">' + promptCount + '</span></td>' +
+        '<td class="cell-mono"><span class="model-icons">' + ENGINES.map(function (e) { return '<span class="model-dot' + (item.engines[e] ? ' on' : '') + '"></span>'; }).join('') + '</span></td>';
       body.appendChild(tr);
+    });
+    body.querySelectorAll('.page-prompt-count').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var url = this.dataset.url;
+        var site = this.dataset.site;
+        window.openCitingPrompts(url ? { url: url, title: url } : { site: site, title: site });
+      });
     });
   }
   function renderSourcesTab(keepSelection) {
@@ -2641,6 +2735,10 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
                 (lower.includes('okbank') || lower.includes('ok금융') ? '브랜드' : '매체');
       var catColor = cat === '브랜드' ? '#FF571F' : (cat === '소셜' ? '#B48EAD' : '#6FA8DC');
       row.innerHTML = '<td style="padding: 8px;">' + escapeHtml(site) + '</td><td style="padding: 8px; text-align: right;">' + count + '회</td><td style="padding: 8px;"><span style="color: ' + catColor + '; font-size: 11px;">' + cat + '</span></td>';
+      // ★ 신규: 인용 출처 행 클릭 시 해당 출처의 상세 페이지(전체 데이터 기준)를 보여줌
+      row.style.cursor = 'pointer';
+      row.title = '클릭해서 이 출처의 상세 정보 보기';
+      row.addEventListener('click', function () { window.openSourceDetail(site); });
       sourcesBody.appendChild(row);
     });
 
@@ -2657,8 +2755,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       var mentionedColor = mentioned && mentioned.mentioned ? '#6FA8DC' : '#ADADB4';
       var sentimentColor = sentiment === 'positive' ? '#6FA8DC' : (sentiment === 'negative' ? '#FF571F' : '#ADADB4');
       var ts = new Date(r.ts || Date.now());
-      var timeStr = (ts.getHours().toString().padStart(2, '0')) + ':' + (ts.getMinutes().toString().padStart(2, '0')) + ':' + (ts.getSeconds().toString().padStart(2, '0'));
-      row.innerHTML = '<td style="padding: 8px;">' + timeStr + '</td><td style="padding: 8px;">' + (ENGINE_LABEL_MAP[r.engine] || r.engine) + '</td><td style="padding: 8px; color: ' + mentionedColor + ';">' + mentionedText + '</td><td style="padding: 8px; color: ' + sentimentColor + ';">' + (sentiment || '-') + '</td><td style="padding: 8px; font-size: 11px;">' + escapeHtml(source) + '</td>';
+      var dateStr = ts.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      row.innerHTML = '<td style="padding: 8px;">' + dateStr + '</td><td style="padding: 8px;">' + (ENGINE_LABEL_MAP[r.engine] || r.engine) + '</td><td style="padding: 8px; color: ' + mentionedColor + ';">' + mentionedText + '</td><td style="padding: 8px; color: ' + sentimentColor + ';">' + (sentiment || '-') + '</td><td style="padding: 8px; font-size: 11px;">' + escapeHtml(source) + '</td>';
       row.style.cursor = 'pointer';
       row.title = '클릭해서 답변 전체 보기';
       row.addEventListener('click', function () { window.openAnswerDetailFor(r); });
@@ -2775,6 +2873,87 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     $('answerDetailModal').style.display = 'block';
   };
 
+  /* ---------------- 인용출처 상세 페이지 (프롬프트 상세 팝업 · 인용출처 탭 공용) ---------------- */
+  // ★ 신규: 특정 출처(도메인)를 클릭했을 때, 이 프롬프트뿐 아니라 전체 데이터 기준으로
+  // 해당 출처의 인용 통계와 하위 페이지, 인용한 프롬프트 목록을 보여줌.
+  window.openSourceDetail = function (site) {
+    var matches = [];
+    state.results.forEach(function (r) {
+      (r.sources || []).forEach(function (s) {
+        var d = s.site || domainFrom(s.url);
+        if (d === site) matches.push({ result: r, source: s });
+      });
+    });
+    var promptIds = {};
+    matches.forEach(function (m) { promptIds[m.result.promptId] = true; });
+    var cat = sourceCategory(site);
+
+    $('sdSiteName').textContent = site;
+    $('sdCategoryBadge').innerHTML = '<span class="cat-pill ' + cat + '">' + SOURCE_CAT_LABEL[cat] + '</span>';
+    $('sdTotalCitations').textContent = matches.length + '회';
+    $('sdPromptCount').innerHTML = '<span id="sdPromptCountBtn" style="cursor:pointer; text-decoration:underline; text-underline-offset:2px;">' + Object.keys(promptIds).length + '개</span>';
+    $('sdPromptCountBtn').addEventListener('click', function () { window.openCitingPrompts({ site: site, title: site }); });
+
+    var pageMap = {};
+    matches.forEach(function (m) {
+      var key = m.source.url || m.source.title || site;
+      if (!pageMap[key]) pageMap[key] = { url: m.source.url, title: m.source.title, count: 0 };
+      pageMap[key].count++;
+    });
+    var pages = Object.keys(pageMap).map(function (k) { return pageMap[k]; }).sort(function (a, b) { return b.count - a.count; });
+    var pagesBody = $('sdPagesBody');
+    pagesBody.innerHTML = '';
+    if (!pages.length) {
+      pagesBody.innerHTML = '<tr><td colspan="2" class="empty-hint" style="border:none;">데이터 없음</td></tr>';
+    } else {
+      pages.slice(0, 30).forEach(function (pg) {
+        var tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--line)';
+        var label = pg.url ? '<a href="' + escapeHtml(pg.url) + '" target="_blank" rel="noopener">' + escapeHtml(pg.title || pg.url) + '</a>' : escapeHtml(pg.title || '-');
+        tr.innerHTML = '<td style="padding:8px; font-size:12px;">' + label + '</td><td style="padding:8px; text-align:right; font-size:12px;">' + pg.count + '회</td>';
+        pagesBody.appendChild(tr);
+      });
+    }
+    $('sourceDetailModal').style.display = 'block';
+  };
+  window.closeSourceDetail = function () { $('sourceDetailModal').style.display = 'none'; };
+
+  // ★ 신규: 특정 출처(site) 또는 특정 페이지(url)를 인용한 프롬프트 목록 팝업.
+  // opts: { site, url, title }  — url이 있으면 그 페이지 기준, 없으면 site 기준으로 집계.
+  window.openCitingPrompts = function (opts) {
+    opts = opts || {};
+    var uniqueByPrompt = {};
+    state.results.forEach(function (r) {
+      (r.sources || []).forEach(function (s) {
+        var isMatch = opts.url ? (s.url === opts.url) : ((s.site || domainFrom(s.url)) === opts.site);
+        if (isMatch && !uniqueByPrompt[r.promptId]) uniqueByPrompt[r.promptId] = r;
+      });
+    });
+    var list = Object.keys(uniqueByPrompt).map(function (k) { return uniqueByPrompt[k]; });
+
+    $('cpTitle').textContent = opts.title || opts.site || '';
+    $('cpCount').textContent = list.length + '개 프롬프트';
+    var body = $('cpListBody');
+    body.innerHTML = '';
+    if (!list.length) {
+      body.innerHTML = '<div class="empty-hint">이 출처를 인용한 프롬프트가 없습니다.</div>';
+    } else {
+      list.forEach(function (r) {
+        var row = document.createElement('div');
+        row.className = 'rank-row';
+        row.style.cursor = 'pointer';
+        row.innerHTML = '<span class="rank-name">' + escapeHtml(truncate(r.promptText, 70)) + '</span><span class="rank-pct">' + (ENGINE_LABEL[r.engine] || r.engine) + '</span>';
+        row.addEventListener('click', function () {
+          window.closeCitingPrompts();
+          if (r.promptId) window.openPromptDetail(r.promptId);
+        });
+        body.appendChild(row);
+      });
+    }
+    $('citingPromptsModal').style.display = 'block';
+  };
+  window.closeCitingPrompts = function () { $('citingPromptsModal').style.display = 'none'; };
+
 })();
 </script>
 
@@ -2803,7 +2982,7 @@ function toggleAnswerConvo() {
     <div style="margin-bottom: 30px;"><h2 style="font-family: var(--font-hud); color: var(--orange); margin-bottom: 12px; font-size: 14px;">🏆 브랜드 랭킹</h2><div style="overflow-x: auto;"><table style="width: 100%; font-size: 12px; border-collapse: collapse;"><thead><tr style="border-bottom: 1px solid var(--line);"><th style="text-align: left; padding: 8px; color: var(--cream-faint);">순위</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">브랜드</th><th style="text-align: right; padding: 8px; color: var(--cream-faint);">점유율</th><th style="text-align: right; padding: 8px; color: var(--cream-faint);">감성</th><th style="text-align: right; padding: 8px; color: var(--cream-faint);">언급 수</th></tr></thead><tbody id="detailBrandRankingBody" style="color: var(--cream);"></tbody></table></div></div>
     <div style="margin-bottom: 30px;"><h2 style="font-family: var(--font-hud); color: var(--orange); margin-bottom: 12px; font-size: 14px;">🔍 AI가 검색한 키워드</h2><div id="detailKeywords"></div></div>
     <div style="margin-bottom: 30px;"><h2 style="font-family: var(--font-hud); color: var(--orange); margin-bottom: 12px; font-size: 14px;">📍 인용 출처</h2><div style="overflow-x: auto;"><table style="width: 100%; font-size: 12px; border-collapse: collapse;"><thead><tr style="border-bottom: 1px solid var(--line);"><th style="text-align: left; padding: 8px; color: var(--cream-faint);">도메인</th><th style="text-align: right; padding: 8px; color: var(--cream-faint);">언급 수</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">카테고리</th></tr></thead><tbody id="detailSourcesBody" style="color: var(--cream);"></tbody></table></div></div>
-    <div><h2 style="font-family: var(--font-hud); color: var(--orange); margin-bottom: 12px; font-size: 14px;">📅 실행 기록 (최근 50회)</h2><div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px;"><table style="width: 100%; font-size: 11px; border-collapse: collapse;"><thead><tr style="position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line);"><th style="text-align: left; padding: 8px; color: var(--cream-faint);">시각</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">AI 모델</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">브랜드 언급</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">감성</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">출처</th></tr></thead><tbody id="detailHistoryBody" style="color: var(--cream);"></tbody></table></div></div>
+    <div><h2 style="font-family: var(--font-hud); color: var(--orange); margin-bottom: 12px; font-size: 14px;">📅 실행 기록 (최근 50회)</h2><div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px;"><table style="width: 100%; font-size: 11px; border-collapse: collapse;"><thead><tr style="position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line);"><th style="text-align: left; padding: 8px; color: var(--cream-faint);">날짜</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">AI 모델</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">브랜드 언급</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">감성</th><th style="text-align: left; padding: 8px; color: var(--cream-faint);">출처</th></tr></thead><tbody id="detailHistoryBody" style="color: var(--cream);"></tbody></table></div></div>
   </div>
 </div>
 
@@ -2847,6 +3026,41 @@ function toggleAnswerConvo() {
       <div style="font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.08em; color: var(--cream-faint); margin-bottom: 8px;">인용 출처</div>
       <div id="adSources" style="font-size: 12px; color: var(--cream-dim);"></div>
     </div>
+  </div>
+</div>
+
+<!-- 인용출처 상세 모달 (프롬프트 상세 팝업의 인용 출처 행 클릭 시) -->
+<div id="sourceDetailModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1001; overflow-y: auto; padding: 20px 0;">
+  <div style="background: var(--bg); margin: 20px auto; max-width: 700px; border: 1px solid var(--line); border-radius: 8px; padding: 28px; max-height: 90vh; overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+      <div>
+        <h1 style="margin: 0 0 6px; font-family: var(--font-hud); font-size: 18px; color: var(--cream);" id="sdSiteName">-</h1>
+        <div id="sdCategoryBadge"></div>
+      </div>
+      <button style="background: none; border: none; color: var(--cream-dim); font-size: 22px; cursor: pointer; padding: 0;" onclick="closeSourceDetail()">✕</button>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
+      <div style="background: var(--surface); padding: 16px; border-radius: 6px;"><div style="color: var(--cream-faint); font-size: 11px; margin-bottom: 8px;">총 인용 횟수</div><div id="sdTotalCitations" style="font-size: 20px; font-weight: bold; color: var(--orange);">0회</div></div>
+      <div style="background: var(--surface); padding: 16px; border-radius: 6px;"><div style="color: var(--cream-faint); font-size: 11px; margin-bottom: 8px;">인용한 프롬프트</div><div id="sdPromptCount" style="font-size: 20px; font-weight: bold; color: var(--orange2);">0개</div></div>
+    </div>
+    <div>
+      <h2 style="font-family: var(--font-hud); color: var(--orange); margin-bottom: 12px; font-size: 13px;">하위 페이지</h2>
+      <div style="overflow-x: auto;"><table style="width: 100%; font-size: 12px; border-collapse: collapse;"><thead><tr style="border-bottom: 1px solid var(--line);"><th style="text-align: left; padding: 8px; color: var(--cream-faint);">페이지</th><th style="text-align: right; padding: 8px; color: var(--cream-faint);">인용 수</th></tr></thead><tbody id="sdPagesBody" style="color: var(--cream);"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- 인용 프롬프트 목록 팝업 (출처 상세 · 인용출처 탭 페이지 리스트 공용) -->
+<div id="citingPromptsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.92); z-index: 1002; overflow-y: auto; padding: 20px 0;">
+  <div style="background: var(--bg); margin: 20px auto; max-width: 600px; border: 1px solid var(--line); border-radius: 8px; padding: 26px; max-height: 90vh; overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+      <div>
+        <h1 style="margin: 0 0 4px; font-family: var(--font-hud); font-size: 16px; color: var(--cream);" id="cpTitle">-</h1>
+        <p style="margin: 0; font-size: 12px; color: var(--cream-faint);" id="cpCount"></p>
+      </div>
+      <button style="background: none; border: none; color: var(--cream-dim); font-size: 22px; cursor: pointer; padding: 0;" onclick="closeCitingPrompts()">✕</button>
+    </div>
+    <div id="cpListBody"></div>
   </div>
 </div>
 
