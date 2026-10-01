@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GEO MONITOR</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- 서체: Pretendard(제목·숫자·UI) + OKLight(본문)만 사용 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
 <style>
   @font-face {
     font-family: 'OKLight';
@@ -15,24 +15,32 @@
   }
 
   :root {
-    --bg: #F5F4F0;
+    /* OK저축은행 Library — Color (Figma node 7367:22696) */
+    --ink-100: #F7F7F9; --ink-200: #F1F3F5; --ink-250: #E9EBF0; --ink-300: #C8CBD5; --ink-400: #B2B7C0;
+    --ink-450: #8C94A2; --ink-500: #6C7080; --ink-600: #4D5764; --ink-700: #545964; --ink-800: #161C26;
+    --point: #FF571F; --point-strong: #E64813;
+    --bg-o-100: #FFF8F6; --bg-o-200: #FFF2EE; --bg-o-300: #FFEAE4;
+    --positive: #5FD14C; --warning: #FFD339; --negative: #EC3444;
+
+    --bg: var(--ink-200);
     --surface: #FFFFFF;
-    --surface-2: #FBFAF7;
-    --surface-3: #EFEDE7;
-    --amber: #6B6B72;
-    --orange: #FF571F;
-    --cream: #1A1A1A;
-    --cream-dim: #55555A;
-    --cream-faint: #8A8A90;
-    --line: #1A1A1A14;
-    --line-amber: #6B6B7233;
+    --surface-2: var(--ink-100);
+    --surface-3: var(--ink-250);
+    --amber: var(--ink-500);
+    --orange: var(--point);
+    --cream: var(--ink-800);
+    --cream-dim: var(--ink-700);
+    --cream-faint: var(--ink-500);
+    --line: var(--ink-250);
+    --line-amber: var(--ink-300);
     --white-strong: #FFFFFF;
-    --owned: #2E6DA4;
-    --social: #8B5F86;
-    --font-hud: 'Space Grotesk', sans-serif;
-    --font-kr: 'OKLight', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    --owned: #0E56C4;
+    --social: #5F3082;
+    --font-hud: 'Pretendard', sans-serif;            /* 제목·숫자·라벨·버튼 */
+    --font-kr: 'OKLight', 'Pretendard', sans-serif;  /* 본문 (OKLight가 없으면 Pretendard) */
     --radius: 3px;
   }
+
 
   * { box-sizing: border-box; }
   html, body {
@@ -44,6 +52,7 @@
     -webkit-font-smoothing: antialiased;
   }
   body { min-height: 100vh; }
+  h1, h2, h3, h4, h5, strong, b, th, button, .btn, select, input { font-family: var(--font-hud); }
   a { color: var(--orange); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
@@ -60,7 +69,7 @@
 
   .status-cluster { display: flex; align-items: center; gap: 14px; }
   .conn-pill { display: flex; align-items: center; gap: 7px; font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.08em; padding: 7px 12px; border: 1px solid var(--line); border-radius: 20px; color: var(--cream-dim); }
-  .conn-pill .pip { width: 6px; height: 6px; border-radius: 50%; background: #5A5A5D; }
+  .conn-pill .pip { width: 6px; height: 6px; border-radius: 50%; background: #4D5764; }
   .conn-pill.live .pip { background: var(--orange); box-shadow: 0 0 6px 1px #FF571F99; }
   .conn-pill.live { color: var(--cream); border-color: #FF571F44; }
 
@@ -93,12 +102,12 @@
     background: var(--surface-2); border: 1px solid var(--line); color: var(--cream);
     font-family: var(--font-kr); font-size: 13.5px; padding: 10px 12px; border-radius: var(--radius);
   }
-  input::placeholder { color: #1A1A1A4a; }
+  input::placeholder { color: #161C264a; }
   input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.85); cursor: pointer; }
 
   .btn { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.08em; border-radius: var(--radius); border: 1px solid transparent; cursor: pointer; padding: 10px 16px; white-space: nowrap; transition: filter .15s, opacity .15s; }
   .btn-primary { background: var(--orange); color: #FFFFFF; font-weight: 600; }
-  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary:hover { background: var(--point-strong); }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); }
   .btn-ghost:hover { border-color: #FF571F66; color: var(--cream); }
@@ -111,7 +120,7 @@
     color: var(--cream); font-family: var(--font-kr); font-size: 12.5px; padding: 9px 12px; border-radius: var(--radius);
     cursor: pointer; white-space: nowrap;
   }
-  .dd-trigger:hover { border-color: #1A1A1A33; }
+  .dd-trigger:hover { border-color: #161C2633; }
   .dd-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
   .dd-caret { color: var(--cream-faint); font-size: 9px; margin-left: 2px; }
   .dd-menu {
@@ -150,7 +159,7 @@
   /* ---------- rank list (brand ranking with pagination) ---------- */
   .rank-list { display: flex; flex-direction: column; gap: 4px; }
   .rank-row { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-radius: var(--radius); }
-  .rank-row:hover { background: #1A1A1A08; }
+  .rank-row:hover { background: #161C2608; }
   .rank-num { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--font-hud); font-size: 10.5px; color: var(--cream-dim); flex-shrink: 0; }
   .rank-row.is-own .rank-num { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 600; }
   .rank-name { flex: 1; font-size: 13px; color: var(--cream-dim); }
@@ -158,10 +167,10 @@
   .rank-pct { font-family: var(--font-hud); font-size: 12.5px; color: var(--cream-dim); }
   .rank-row.is-own .rank-pct { color: var(--orange); }
   .rank-change { font-family: var(--font-hud); font-size: 10.5px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
-  .rank-change.up { color: #6FA8DC; background: #6FA8DC1A; }
-  .rank-change.down { color: #FF571F; background: #FF571F1A; }
-  .rank-change.same { color: var(--cream-faint); background: #1A1A1A0A; }
-  .rank-change.new { color: #7FBF7F; background: #7FBF7F1A; }
+  .rank-change.up { color: #6BA6FF; background: #6BA6FF1A; }
+  .rank-change.down { color: #FF571F; background: var(--bg-o-300); }
+  .rank-change.same { color: var(--cream-faint); background: #161C260A; }
+  .rank-change.new { color: #53B368; background: #53B3681A; }
   .pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
   .pagination button { background: transparent; border: 1px solid var(--line); color: var(--cream-dim); border-radius: var(--radius); padding: 5px 12px; font-size: 11.5px; cursor: pointer; }
   .pagination button:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -187,7 +196,7 @@
   .agent-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .agent-name { font-family: var(--font-hud); font-size: 13px; letter-spacing: 0.04em; color: var(--cream); }
   .agent-status { font-size: 11px; color: var(--cream-faint); margin-bottom: 12px; display:flex; align-items:center; gap:6px; }
-  .agent-status .pip { width: 6px; height: 6px; border-radius: 50%; background: #5A5A5D; }
+  .agent-status .pip { width: 6px; height: 6px; border-radius: 50%; background: #4D5764; }
   .agent-status.on .pip { background: var(--orange); }
   .switch { width: 38px; height: 20px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); position: relative; cursor: pointer; flex-shrink: 0; }
   .switch .knob { width: 14px; height: 14px; border-radius: 50%; background: var(--cream-faint); position: absolute; top: 2px; left: 2px; transition: transform .15s, background .15s; }
@@ -219,10 +228,10 @@
   table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   table.data-table th { text-align: left; font-family: var(--font-hud); font-size: 10px; letter-spacing: 0.06em; color: var(--cream-faint); font-weight: 500; padding: 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   table.data-table td { padding: 10px; border-bottom: 1px solid var(--line); color: var(--cream-dim); vertical-align: middle; }
-  table.data-table tr:hover td { background: #1A1A1A06; }
+  table.data-table tr:hover td { background: #161C2606; }
   tr.lowsov-row { cursor: pointer; }
-  tr.lowsov-row.selected td { background: #FF571F14; }
-  tr.lowsov-row.selected:hover td { background: #FF571F1F; }
+  tr.lowsov-row.selected td { background: var(--bg-o-200); }
+  tr.lowsov-row.selected:hover td { background: var(--bg-o-300); }
   table.data-table tr.own-row td:first-child { color: var(--orange); }
   .cell-mono { font-family: var(--font-hud); font-size: 10.5px; letter-spacing: 0.04em; color: var(--cream); }
   .cell-snippet { max-width: 320px; color: var(--cream-faint); }
@@ -245,6 +254,19 @@
 
   .status-line { font-family: var(--font-hud); font-size: 11.5px; letter-spacing: 0.03em; color: var(--cream-dim); display: flex; align-items: center; gap: 8px; min-height: 20px; }
   .status-line .marker { color: var(--orange); }
+  .status-line.has-error { display: block; }
+  .err-box { font-family: var(--font-kr); font-size: 12.5px; letter-spacing: 0; color: var(--cream); background: #EC34440D; border: 1px solid #EC344440; border-radius: var(--radius); padding: 10px 12px; line-height: 1.6; }
+  .err-box .err-title { font-weight: 700; color: var(--negative); }
+  .err-box .err-cause { color: var(--cream-dim); margin-top: 2px; }
+  .err-box .err-fix { margin-top: 6px; color: var(--cream); }
+  .err-box .err-fix b { color: var(--negative); }
+  .err-box details { margin-top: 8px; }
+  .err-box summary { cursor: pointer; color: var(--cream-faint); font-size: 11.5px; }
+  .err-box table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 11.5px; }
+  .err-box td { padding: 3px 6px; border-top: 1px solid var(--line); vertical-align: top; word-break: break-all; }
+  .err-box td:first-child { width: 96px; color: var(--cream-faint); white-space: nowrap; word-break: normal; }
+  .err-box .err-raw { font-family: var(--font-hud); white-space: pre-wrap; }
+  .err-box .err-copy { margin-top: 8px; font-size: 11px; padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--line); background: transparent; color: var(--cream-dim); cursor: pointer; }
   .bounce-dots { display: inline-flex; gap: 3px; }
   .bounce-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--orange); animation: bounce 1s infinite ease-in-out; }
   .bounce-dots span:nth-child(2) { animation-delay: .15s; }
@@ -253,7 +275,7 @@
 
   /* ---------- refresh candidate card ---------- */
   .refresh-cand { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--radius); padding: 12px 14px; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
-  .refresh-cand:has(input:checked) { border-color: #FF571F44; background: #FF571F08; }
+  .refresh-cand:has(input:checked) { border-color: var(--bg-o-300); background: var(--bg-o-100); }
   .refresh-cand-body { display: flex; flex-direction: column; gap: 6px; }
   .refresh-cand-new { font-size: 13px; color: var(--cream); line-height: 1.5; }
   .refresh-cand-old { font-size: 11.5px; color: var(--cream-faint); display: flex; align-items: baseline; gap: 6px; }
@@ -286,12 +308,12 @@
   .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--cream-dim); }
   .legend-swatch { width: 10px; height: 3px; border-radius: 2px; }
   .cat-pill { font-family: var(--font-hud); font-size: 8.5px; padding: 1px 6px; border-radius: 6px; }
-  .cat-pill.owned { background: #6FA8DC26; color: var(--owned); }
-  .cat-pill.earned { background: #1A1A1A14; color: var(--cream-dim); }
-  .cat-pill.social { background: #B48EAD26; color: var(--social); }
+  .cat-pill.owned { background: #6BA6FF26; color: var(--owned); }
+  .cat-pill.earned { background: #161C2614; color: var(--cream-dim); }
+  .cat-pill.social { background: #916BAD26; color: var(--social); }
 
   /* ---------- modal ---------- */
-  .modal-backdrop { position: fixed; inset: 0; background: #0A0A0Acc; display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal-backdrop { position: fixed; inset: 0; background: #00000099; display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
   .modal-backdrop.open { display: flex; }
   .modal { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 24px; max-width: 480px; width: 100%; max-height: 88vh; overflow-y: auto; }
   .modal h3 { font-family: var(--font-hud); font-size: 13px; letter-spacing: 0.1em; color: var(--cream-dim); margin: 0 0 16px; }
@@ -426,7 +448,7 @@
       <div id="refreshPanelBody">
 
         <!-- 자동 수집 결과 배너 -->
-        <div id="trendBanner" style="display:none; border:1px solid #FF571F44; background:#FF571F08; border-radius:var(--radius); padding:14px 16px; margin-bottom:16px;">
+        <div id="trendBanner" style="display:none; border:1px solid var(--bg-o-300); background:var(--bg-o-100); border-radius:var(--radius); padding:14px 16px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
             <div>
               <div style="font-family:var(--font-hud); font-size:11.5px; color:var(--orange); margin-bottom:6px;" id="trendBannerTitle">이번 달 트렌드 자동 수집 완료</div>
@@ -651,6 +673,25 @@
         <div id="produceSelectedText" style="font-size:13.5px; color:var(--cream-dim);">위 표에서 프롬프트를 선택하세요.</div>
       </div>
 
+      <!-- 생성 계획: 질의 해석(라우팅) → 하위 질문 팬아웃 → 근거(지식베이스) 수집 -->
+      <div id="producePlanWrap" style="display:none; border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+          <div style="font-size:11.5px; color:var(--cream-faint);">생성 계획 <span>(질의 해석 → 하위 질문 → 근거 수집 → 품질 게이트)</span></div>
+          <label style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--cream-dim);">질의 유형
+            <select id="produceIntentSelect" style="background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:12.5px; padding:6px 10px; border-radius:var(--radius);">
+              <option value="comparison">비교·추천형</option>
+              <option value="brand">브랜드 단독형</option>
+              <option value="howto">절차·방법형</option>
+              <option value="explainer">개념·설명형</option>
+            </select>
+          </label>
+        </div>
+        <div id="produceIntentRule" style="font-size:12.5px; color:var(--cream-dim); line-height:1.6; margin-bottom:12px;"></div>
+        <div style="font-size:11.5px; color:var(--cream-dim); margin-bottom:6px;">하위 질문 <span style="color:var(--cream-faint);">(본문에서 모두 다룹니다 · 한 줄에 하나 · 직접 수정 가능)</span></div>
+        <textarea id="produceFanoutInput" rows="6" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:12.5px; padding:8px 10px; border-radius:var(--radius); resize:vertical;"></textarea>
+        <div id="produceKbScope" style="font-size:11.5px; color:var(--cream-faint); margin-top:8px; line-height:1.6;"></div>
+      </div>
+
       <div style="margin-bottom:16px;">
         <div style="font-size:11.5px; color:var(--cream-dim); margin-bottom:6px;">인용 링크 <span style="color:var(--cream-faint);">(본문에 자연스럽게 녹여 넣을 실제 출처 — 지어낸 링크는 절대 넣지 않습니다)</span></div>
         <div id="citationAutoList" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;"></div>
@@ -671,25 +712,39 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div id="produceResultTitle" style="font-family:var(--font-hud); font-size:14px; color:var(--cream); font-weight:600;"></div>
           <div style="display:flex; gap:8px;">
-            <button class="btn btn-ghost btn-sm" id="copyGeoContentBtn">복사</button>
+            <button class="btn btn-primary btn-sm" id="copyGeoHtmlBtn" title="표가 HTML <table>로 들어가서 블로그 에디터에 붙여넣으면 바로 표로 보입니다 (제목 제외, 본문만)">블로그용 복사</button>
+            <button class="btn btn-ghost btn-sm" id="copyGeoContentBtn">텍스트 복사</button>
+            <button class="btn btn-ghost btn-sm" id="downloadGeoHtmlBtn">.html 다운로드</button>
             <button class="btn btn-ghost btn-sm" id="downloadGeoContentBtn">.md 다운로드</button>
           </div>
         </div>
         <div id="produceMetaInfo" style="font-size:11.5px; color:var(--cream-faint); margin-bottom:12px; display:flex; flex-direction:column; gap:3px;"></div>
-        <div id="produceQualityWarning" style="display:none; font-size:12px; color:#B23C0F; background:#FF571F14; border:1px solid #FF571F40; border-radius:var(--radius); padding:10px 12px; margin-bottom:12px;"></div>
-        <div id="produceResultContent" style="white-space:pre-wrap; font-size:13.5px; line-height:1.7; color:var(--cream-dim); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:16px; max-height:520px; overflow-y:auto;"></div>
+        <div id="produceQualityWarning" style="display:none; font-size:12px; color:#B84018; background:var(--bg-o-200); border:1px solid var(--bg-o-300); border-radius:var(--radius); padding:10px 12px; margin-bottom:12px;"></div>
+        <div id="produceGateWrap" style="display:none; border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:12px;"></div>
+        <div id="produceResultContent" style="font-size:13.5px; line-height:1.7; color:var(--cream-dim); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:16px; max-height:520px; overflow-y:auto;"></div>
         <div id="produceStrategyNotes" style="margin-top:12px; font-size:12.5px; color:var(--cream-faint); border-left:2px solid var(--orange); padding-left:12px; line-height:1.6;"></div>
 
         <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
             <div style="font-family:var(--font-hud); font-size:12px; color:var(--cream-dim); letter-spacing:0.06em;">썸네일</div>
             <div style="display:flex; gap:8px;">
+              <select id="thumbObjectSelect" title="썸네일 오브제" style="background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:12.5px; padding:6px 10px; border-radius:var(--radius);">
+                <option value="auto">오브제: 자동</option>
+                <option value="phone">스마트폰</option>
+                <option value="coins">동전(금리)</option>
+                <option value="piggy">저금통</option>
+                <option value="document">서류</option>
+                <option value="shield">방패(보호)</option>
+                <option value="calendar">달력</option>
+                <option value="chart">막대그래프</option>
+                <option value="card">카드</option>
+              </select>
               <button class="btn btn-ghost btn-sm" id="generateThumbnailBtn">✦ 썸네일 생성</button>
               <button class="btn btn-ghost btn-sm" id="downloadThumbnailPngBtn" style="display:none;">PNG 다운로드</button>
               <button class="btn btn-ghost btn-sm" id="downloadThumbnailSvgBtn" style="display:none;">SVG 다운로드</button>
             </div>
           </div>
-          <div id="thumbnailPreview" style="width:100%; max-width:480px; aspect-ratio:1200/630; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:11.5px; color:var(--cream-faint);">콘텐츠 생성 후 썸네일을 만들 수 있습니다</div>
+          <div id="thumbnailPreview" style="width:100%; max-width:360px; aspect-ratio:1/1; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:11.5px; color:var(--cream-faint);">콘텐츠 생성 후 썸네일을 만들 수 있습니다</div>
         </div>
       </div>
     </section>
@@ -716,7 +771,8 @@
     <h3>연동 설정</h3>
     <div class="field">
       <label for="endpointInput">워커 엔드포인트 URL</label>
-      <input type="url" id="endpointInput" placeholder="https://your-worker.workers.dev/geo-check">
+      <input type="url" id="endpointInput" placeholder="https://geo-monitor-proxy.okgroup0425.workers.dev/geo-check">
+      <div class="hint" style="margin-bottom:6px;">기본값으로 고정돼 있어 따로 입력하지 않아도 됩니다. 비워두고 저장하면 기본 주소로 돌아갑니다.</div>
       <div class="hint">대시보드는 { engine, prompt, brands: [...] } 를 이 엔드포인트로 POST합니다. brands는 "필수 포함 브랜드"(항상 결과에 표시할 브랜드) 용도이고, 워커는 서버 사이드에서 GPT/Gemini/Claude를 호출한 뒤 응답에 실제 등장한 모든 브랜드명을 자동으로 추출해 언급 여부·위치·감성과 인용 출처(sources: [{site,url,title}])를 분석해 반환해야 합니다. API 키는 브라우저에 두지 않습니다.</div>
     </div>
     <div class="toggle-row">
@@ -755,7 +811,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var CATEGORIES = ['OK 브랜드', '수신상품', '여신상품'];
   var ENGINES = ['gpt', 'gemini', 'claude'];
   var ENGINE_LABEL = { gpt: 'GPT', gemini: 'GEMINI', claude: 'CLAUDE' };
-  var ENGINE_COLOR = { gpt: '#5A5A62', gemini: '#ADADB4', claude: '#FF571F' };
+  var ENGINE_COLOR = { gpt: '#4D5764', gemini: '#B2B7C0', claude: '#FF571F' };
   // ★ 변경: 경쟁 브랜드를 미리 등록할 필요 없음 — 랭킹/점유율은 AI 응답에
   //   실제 등장한 브랜드를 자동으로 전부 집계함. 여기 목록은 "언급 0번이어도
   //   항상 랭킹에 표시하고 싶은 필수 포함 브랜드"만 남기면 됨.
@@ -774,6 +830,16 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var LS_BRANDS = 'geo_monitor_brands_v2';
   var LS_RESULTS = 'geo_monitor_results_v2';
   var LS_SETTINGS = 'geo_monitor_settings_v2';
+
+  // ★ 워커 엔드포인트 고정: 어느 PC에서 열어도 설정 없이 바로 이 워커로 연결됨.
+  //   예전에 PC마다 저장해둔 다른 주소/데모 모드는 무시하고 이 값으로 덮어씀.
+  //   (설정 모달에서 일부러 다른 주소를 저장한 경우에만 그 주소를 사용 — customEndpoint)
+  var DEFAULT_ENDPOINT = 'https://geo-monitor-proxy.okgroup0425.workers.dev/geo-check';
+  function normalizeSettings(saved) {
+    saved = saved || {};
+    if (saved.customEndpoint && saved.endpoint) return { endpoint: saved.endpoint, demoMode: !!saved.demoMode, customEndpoint: true };
+    return { endpoint: DEFAULT_ENDPOINT, demoMode: saved.demoModeChosen ? !!saved.demoMode : false, demoModeChosen: !!saved.demoModeChosen };
+  }
   var LS_ACTIVE_ENGINES = 'geo_monitor_active_engines_v3';
   var LS_GENQUEUE = 'geo_monitor_genqueue_v3';
   var LS_KB = 'geo_monitor_kb_v1';
@@ -796,7 +862,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     prompts: load(LS_PROMPTS, null) || seedPrompts(),
     brands: load(LS_BRANDS, DEFAULT_BRANDS.slice()),
     results: load(LS_RESULTS, []),
-    settings: load(LS_SETTINGS, { endpoint: '', demoMode: true }),
+    settings: normalizeSettings(load(LS_SETTINGS, null)),
     activeEngines: load(LS_ACTIVE_ENGINES, { gpt: true, gemini: true, claude: true }),
     genQueue: load(LS_GENQUEUE, null),
     kb: load(LS_KB, { 'OK 브랜드': '## 기본 정보\n- 법인명: 주식회사 OK저축은행\n- 브랜드명: OK금융그룹 (OK Financial Group)\n- 대표이사: 정길호\n- 업종/카테고리: 금융 서비스, 저축은행 / 소비자금융, 예금, 대출, 저축은행\n- 본사 위치: 서울특별시 중구 세종대로 39, 10층(서울상공회의소)\n- 고객센터: 1899-7979\n- 채널: 공식 홈페이지 및 모바일 앱 운영\n- 웹사이트: www.oksavingsbank.com\n- 블로그: blog.oksavingsbank.com\n- 브랜드 설명: 대한민국 저축은행 업계를 선도해 온 OK금융그룹 산하 대표 저축은행. 2014년 출범, 예금·적금·입출금통장·대출 서비스를 제공하는 한국 대표 저축은행\n- 주요 키워드: OK저축은행, 소비자금융, 신용대출, 중금리대출, 파킹통장, 고금리, 예금, 적금, 주택담보대출, 자동차담보대출, 주부대출, 외국인근로자대출\n\n## 주요 기능 및 서비스\n- 수신 서비스: 입출금통장(파킹통장), 예금, 적금 등 개인·기업 대상 예금 상품 운영\n- 개인신용대출: 개인 고객 대상 신용대출 서비스\n- 주택담보대출: 주택을 담보로 한 담보대출 서비스\n- 자동차담보대출: 차량을 담보로 한 담보대출 서비스\n- 기업금융: 개인사업자 및 기업 대상 금융 서비스\n- 디지털 금융 서비스: 모바일·온라인 기반 금융서비스 및 비대면 상품 운영\n- 신용평가 및 리스크 관리: 신용평가 모델 활용 및 여신 심사 운영\n- 고객 서비스 및 금융 지원: 고객 맞춤형 금융 상담 및 실생활 금융 지원\n\n## 서비스 구조 (Plan Structure)\n- 수신 상품: 입출금통장(파킹통장) / 예금 / 적금\n- 여신 상품: 개인신용대출 / 주택담보대출 / 자동차담보대출 / 외국인근로자대출 / 성실상환 / 주부대출\n- 기업금융: 개인사업자 및 기업 대상 금융서비스\n- 디지털 채널: 모바일 앱 / 온라인 비대면 금융서비스\n- 심사·운영: 신용평가 / 여신 심사 / 리스크 관리\n- 고객지원: 금융 상담 / 고객센터 / 상품 안내 서비스\n\n## 차별화 포인트\n- 2014년 출범 이후 축적해 온 저축은행 운영 경험과 금융서비스 노하우\n- 입출금통장·예금·적금부터 신용대출·주택담보대출·자동차담보대출까지 아우르는 폭넓은 상품 라인업\n- 모바일 앱과 비대면 채널을 통한 편리한 계좌 개설 및 대출 신청 프로세스\n- 고객의 다양한 자금 목적에 대응하는 수신·여신 통합 금융서비스 제공\n- 신용평가 및 여신 심사 운영 역량을 바탕으로 한 체계적인 금융서비스 제공\n- 실생활 금융 수요에 맞춘 생활밀착형 상품 운영\n- 금융취약계층 추가안내 등 금융소비자 보호 관점을 반영한 고객지원 체계\n\n## 수치 및 근거\n- 2014년 출범, 10년 이상 저축은행 본업 운영\n- 입출금통장·예금·적금·대출 통합 운영\n- 3분 안에 간편 계좌개설 가능\n- 신용대출 최대 1억원\n- 디지털뱅킹 고객센터 24시간 365일 운영\n- 예금자보호 1인당 1억원까지 적용\n\n## 타겟 고객\n- 입출금통장·예금·적금 이용자\n- 개인 신용대출 이용자\n- 중금리 대출 필요 고객\n- 소상공인\n- 주택담보대출·자동차담보대출 필요 고객\n\n## 법적 준수 및 리스크 관리\n- 금융소비자보호법 준수 필요 (대출 광고 시 금리·상환 조건 명시 의무)\n- 저축은행법, 대부업법, 여신전문금융업법 등 계열사별 개별 금융규제 적용\n- 개인정보보호법 및 신용정보법에 따른 고객 정보 취급 의무\n- 금융위원회·금융감독원 감독 하에 있는 규제 산업\n- 해외 사업 운영 시 현지 금융 규제 및 라이선스 준수 필요\n- 과장·허위 광고 금지 (금융상품 광고 심의 기준 적용)\n\n## ⚠ 콘텐츠 작성 시 절대 사용 금지 표현 (아래는 사실이 아니라 "쓰면 안 되는 표현" 목록입니다)\n- 최저금리 보장, 무조건 대출 가능, 신용등급 무관 대출\n- 즉시 승인, 당일 입금 보장\n- 타 금융사 대비 무조건 저렴한 금리\n- 정부 보증 또는 공공기관 연계 표현 (실제 해당 없을 시)\n- 원금 손실 없음, 확정 수익률 보장 (저축 상품 관련)' }),
@@ -852,7 +918,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       if (!isOpen) root.classList.add('open');
     });
   }
-  function categoryDotColor(cat) { return cat === 'OK 브랜드' ? '#FF571F' : (cat === '수신상품' ? '#ADADB4' : (cat === '여신상품' ? '#6FA8DC' : '#5A5A5D')); }
+  function categoryDotColor(cat) { return cat === 'OK 브랜드' ? '#FF571F' : (cat === '수신상품' ? '#B2B7C0' : (cat === '여신상품' ? '#6BA6FF' : '#4D5764')); }
   function initListDropdown(key, items, initialValue, onChange, dotFn) {
     var root = document.querySelector('[data-dd="' + key + '"]');
     if (!root) return;
@@ -980,8 +1046,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width:100%;height:auto;display:block;" id="' + wrapId + 'Svg">';
     (opts.gridlines || []).forEach(function (g) {
       var gy = y(g.value);
-      svg += '<line x1="' + pad + '" y1="' + gy + '" x2="' + (width - pad) + '" y2="' + gy + '" stroke="#1A1A1A14" stroke-width="1"/>';
-      svg += '<text x="' + (pad - 8) + '" y="' + (gy + 3) + '" font-size="9" fill="#1A1A1A66" text-anchor="end">' + escapeHtml(g.label) + '</text>';
+      svg += '<line x1="' + pad + '" y1="' + gy + '" x2="' + (width - pad) + '" y2="' + gy + '" stroke="#161C2614" stroke-width="1"/>';
+      svg += '<text x="' + (pad - 8) + '" y="' + (gy + 3) + '" font-size="9" fill="#161C2666" text-anchor="end">' + escapeHtml(g.label) + '</text>';
     });
     nonEmpty.forEach(function (s) {
       if (s.points.length < 2) {
@@ -1227,10 +1293,12 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   $('syncNowBtn').addEventListener('click', function () {
     if (!syncEnabled()) { $('syncStatusLine').innerHTML = '<span class="marker">●</span> 데모 모드에서는 동기화할 서버가 없습니다. ⚙ 설정에서 엔드포인트를 넣고 데모 모드를 꺼주세요.'; return; }
     $('syncStatusLine').innerHTML = '<span class="marker">●</span> <span class="bounce-dots"><span></span><span></span><span></span></span> 동기화 중';
+    lastSyncPartialError = null;
     pullServerState().then(function (added) {
-      $('syncStatusLine').innerHTML = '<span class="marker">●</span> 동기화 완료 (신규 결과 ' + (added || 0) + '건) · ' + escapeHtml(syncStatusText());
+      if (lastSyncPartialError) { showErrorIn('syncStatusLine', '동기화 일부', lastSyncPartialError); return; }
+      showStatusIn('syncStatusLine', 'ok', '동기화 완료 (신규 결과 ' + (added || 0) + '건) · ' + syncStatusText());
     }).catch(function (err) {
-      $('syncStatusLine').innerHTML = '<span class="marker">●</span> 동기화 실패 - ' + escapeHtml(err.message);
+      showErrorIn('syncStatusLine', '동기화', err);
     });
   });
 
@@ -1555,11 +1623,191 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   /* ---------------- status line ---------------- */
   function showStatusIn(elId, kind, message) {
     var el = $(elId); if (!el) return;
+    el.classList.remove('has-error');
     if (kind === 'loading') {
       el.innerHTML = '<span class="marker">●</span> <span class="bounce-dots"><span></span><span></span><span></span></span> ' + escapeHtml(message || '');
     } else {
       el.innerHTML = '<span class="marker">●</span> ' + escapeHtml(message || '');
     }
+  }
+
+
+  /* ================= 오류 진단 (콘솔 대신 status-line에 원인·해결 방법 표시) =================
+     fetchWorker()로 보낸 요청이 실패하면 에러 객체에 진단 정보(err.diag)가 붙고,
+     showErrorIn()이 그걸 읽어 "무엇이 / 왜 / 어떻게 하면 되는지 + 기술 정보"를 보여줌. */
+  var WORKER_ALLOWED_ORIGIN = 'https://okgroup-uxui.github.io';
+
+  function fetchWorker(url, opts, timeoutMs) {
+    opts = opts || {};
+    var started = Date.now();
+    var diag = { url: url, method: opts.method || 'GET', startedAt: started };
+    var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = null;
+    if (ctrl && timeoutMs) { opts.signal = ctrl.signal; timer = setTimeout(function () { diag.timedOut = true; ctrl.abort(); }, timeoutMs); }
+    function fail(kind, extra) {
+      diag.kind = kind; diag.elapsedMs = Date.now() - started;
+      for (var k in extra) diag[k] = extra[k];
+      var e = new Error(kind); e.diag = diag; return e;
+    }
+    return fetch(url, opts).then(function (res) {
+      if (timer) clearTimeout(timer);
+      diag.status = res.status; diag.elapsedMs = Date.now() - started;
+      return res.text().then(function (text) {
+        var data = null; try { data = text ? JSON.parse(text) : null; } catch (e) {}
+        if (!res.ok) throw fail('http', { body: text, data: data });
+        if (data === null) throw fail('parse', { body: text });
+        return data;
+      });
+    }, function (netErr) {
+      if (timer) clearTimeout(timer);
+      throw fail(diag.timedOut ? 'timeout' : 'network', { netMessage: netErr && netErr.message });
+    });
+  }
+
+  var CF_ERROR_CODES = {
+    '1015': ['Cloudflare 요청 횟수 제한(1015)', '짧은 시간에 요청이 너무 많아 Cloudflare가 잠시 막았습니다.', '1~2분 뒤 다시 시도하세요.'],
+    '1020': ['Cloudflare 방화벽 차단(1020)', '이 PC/네트워크의 요청이 Cloudflare 방화벽 규칙에 걸렸습니다.', 'Cloudflare 대시보드 → Security → Events에서 차단 기록을 확인하고 규칙을 조정하세요.'],
+    '1101': ['워커 실행 중 예외(1101)', '워커 코드가 처리 중 오류로 중단됐습니다.', 'Cloudflare 대시보드 → 워커 → Logs(실시간 로그)에서 오류 줄을 확인하세요.'],
+    '1102': ['워커 자원 한도 초과(1102)', '워커가 CPU/메모리 한도를 넘었습니다.', '잠시 후 다시 시도하고, 반복되면 요청 크기(지식베이스·링크 수)를 줄이세요.']
+  };
+
+  function diagnoseError(err) {
+    var d = err && err.diag;
+    var origin = location.origin === 'null' ? 'file:// (로컬 파일로 열림)' : location.origin;
+    var out = { title: '', cause: '', fix: '', tech: [] };
+    if (!d) {
+      out.title = '알 수 없는 오류';
+      out.cause = (err && err.message) || String(err);
+      out.fix = '아래 "오류 정보 복사"로 내용을 전달해주세요.';
+      return out;
+    }
+    var msg = d.data ? (d.data.error && d.data.error.message ? d.data.error.message : (d.data.error || d.data.message || '')) : '';
+    msg = String(msg || '');
+    var raw = String(d.body || '');
+
+    if (d.kind === 'timeout') {
+      out.title = '응답 시간 초과';
+      out.cause = Math.round(d.elapsedMs / 1000) + '초 동안 워커 응답이 없었습니다. 콘텐츠 생성은 보통 30~90초 걸리는데, 네트워크가 느리거나 사내 프록시가 오래 걸리는 요청을 끊는 경우 이렇게 됩니다.';
+      out.fix = '다시 시도하고, 같은 PC에서만 반복되면 다른 네트워크(예: 핫스팟)에서 비교해보세요.';
+    } else if (d.kind === 'network') {
+      out.title = '워커에 연결하지 못함';
+      if (origin.indexOf('file://') === 0) {
+        out.cause = 'HTML을 파일로 직접 열어서 접속 주소가 file://입니다. 워커는 ' + WORKER_ALLOWED_ORIGIN + ' 에서 온 요청만 허용(CORS)하기 때문에 브라우저가 응답을 차단합니다.';
+        out.fix = 'GitHub Pages 주소(' + WORKER_ALLOWED_ORIGIN + '/…)로 열어서 사용하세요.';
+      } else if (location.origin !== WORKER_ALLOWED_ORIGIN) {
+        out.cause = '접속 주소(' + origin + ')가 워커 허용 주소(' + WORKER_ALLOWED_ORIGIN + ')와 달라 브라우저가 응답을 차단(CORS)했습니다.';
+        out.fix = 'GitHub Pages 주소로 열거나, 워커의 ALLOWED_ORIGIN에 이 주소를 추가하세요.';
+      } else if (navigator.onLine === false) {
+        out.cause = '이 PC가 오프라인 상태입니다.';
+        out.fix = '네트워크 연결을 확인하세요.';
+      } else {
+        out.cause = '요청이 워커에 도착하지 못했거나 응답이 차단됐습니다. 엔드포인트 URL 오타, 사내 보안 프로그램/프록시의 workers.dev 차단, 또는 워커가 오류 응답에 CORS 헤더 없이 응답한 경우입니다.';
+        out.fix = '① ⚙ 설정의 엔드포인트 URL 확인 → ② "연동 테스트" 눌러보기 → ③ 다른 PC에서는 되고 이 PC만 안 되면 사내 보안 프로그램/프록시 예외 등록을 요청하세요.';
+      }
+    } else if (d.kind === 'parse') {
+      out.title = '응답을 해석하지 못함';
+      out.cause = '워커가 200 OK를 줬지만 JSON이 아닙니다. 중간에서 다른 페이지(로그인·차단 안내 등)가 응답했을 수 있습니다.';
+      out.fix = '아래 응답 원문을 확인하세요.';
+    } else {
+      var st = d.status;
+      var cf = raw.match(/error code:\s*(1\d{3})/i);
+      if (d.data && (d.data.upstreamStatus === 403 || /Anthropic이 요청을 거부|Claude 403|생성 실패 403/.test(msg))) {
+        out.title = 'Anthropic(Claude)이 요청을 거부함 (403)';
+        out.cause = '워커까지는 정상 도착했고, 워커가 Claude API를 호출하는 단계에서 거부됐습니다. 보통 요청 본문(지식베이스·지침)에 보장/확정 수익 같은 광고 문구 예시가 들어 있으면 이렇게 됩니다.';
+        out.fix = '지식베이스에서 금지 문구 예시를 "## 금지 표현" 헤더 아래로 옮기고, 워커가 v8인지 확인하세요. 다른 PC에서는 Ctrl+Shift+R로 새로고침해 예전 HTML 캐시를 지우세요.';
+      } else if (/401|invalid x-api-key|authentication_error/i.test(msg)) {
+        out.title = 'API 키 인증 실패';
+        out.cause = '워커에 등록된 API 키가 잘못됐거나 만료됐습니다.';
+        out.fix = 'Cloudflare 워커 → Settings → Variables and Secrets에서 ANTHROPIC_API_KEY(또는 해당 엔진 키)를 다시 등록하세요.';
+      } else if (/credit|billing|balance/i.test(msg)) {
+        out.title = 'API 크레딧 부족';
+        out.cause = 'Anthropic 계정의 크레딧이 소진됐습니다.';
+        out.fix = 'Anthropic Console → Billing에서 크레딧을 충전하세요.';
+      } else if (/429|rate_limit/i.test(msg) || st === 429) {
+        out.title = '사용량 한도 초과 (429)';
+        out.cause = '짧은 시간에 요청이 몰려 API 사용 한도에 걸렸습니다.';
+        out.fix = '1~2분 뒤 다시 시도하세요.';
+      } else if (/529|overloaded/i.test(msg)) {
+        out.title = 'Claude 서버 과부하 (529)';
+        out.cause = 'Anthropic 쪽 서버가 일시적으로 바쁩니다. 이쪽 설정 문제는 아닙니다.';
+        out.fix = '잠시 후 다시 시도하세요.';
+      } else if (/환경변수/.test(msg)) {
+        out.title = '워커 환경변수 미설정';
+        out.cause = msg;
+        out.fix = 'Cloudflare 워커 → Settings → Variables and Secrets에서 값을 등록하세요.';
+      } else if (/끊겼|max_tokens/.test(msg)) {
+        out.title = '생성 결과가 길어서 잘림';
+        out.cause = msg;
+        out.fix = '다시 시도하거나, 하위 질문 개수를 줄여보세요.';
+      } else if (/파싱/.test(msg)) {
+        out.title = 'Claude 응답 형식 오류';
+        out.cause = msg;
+        out.fix = '다시 시도하세요. 반복되면 오류 정보를 복사해 전달해주세요.';
+      } else if (st === 403 && /unauthorized/i.test(msg)) {
+        out.title = '관리자 토큰 필요 (403)';
+        out.cause = '워커에 ADMIN_TOKEN이 설정돼 있어 이 작업은 토큰이 있어야 합니다.';
+        out.fix = '토큰을 붙여 호출하거나 워커의 ADMIN_TOKEN 설정을 확인하세요.';
+      } else if (cf && CF_ERROR_CODES[cf[1]]) {
+        out.title = CF_ERROR_CODES[cf[1]][0]; out.cause = CF_ERROR_CODES[cf[1]][1]; out.fix = CF_ERROR_CODES[cf[1]][2];
+      } else if (/Just a moment|Attention Required|challenge-platform|cf-chl|cf-error-details/i.test(raw)) {
+        out.title = 'Cloudflare 보안 검사에 막힘 (HTTP ' + st + ')';
+        out.cause = 'Cloudflare가 이 PC/네트워크를 의심해 확인 페이지(챌린지)를 띄웠습니다. 대시보드의 자동 요청은 챌린지를 통과하지 못합니다. 오래된 브라우저나 특정 네트워크에서 잘 걸립니다.';
+        out.fix = 'Cloudflare → Security에서 Bot Fight Mode/챌린지 규칙을 워커 경로에 대해 끄거나 예외 처리하세요. 브라우저를 최신 버전으로 업데이트하는 것도 도움이 됩니다.';
+      } else if (!d.data && /<html|<!doctype/i.test(raw)) {
+        out.title = '중간 장비가 차단 페이지를 반환함 (HTTP ' + st + ')';
+        out.cause = '응답이 워커가 아닌 HTML 페이지입니다. 사내 프록시·보안 장비가 요청을 가로챘을 가능성이 큽니다.';
+        out.fix = '아래 응답 원문의 차단 안내 문구를 확인하고, 보안 담당자에게 workers.dev 도메인 예외를 요청하세요.';
+      } else if (st === 404 || st === 405 || /method not allowed/i.test(msg)) {
+        out.title = '워커에 이 기능이 없음 (HTTP ' + st + ')';
+        out.cause = '배포된 워커가 예전 버전이거나 엔드포인트 경로가 다릅니다.';
+        out.fix = 'geo-monitor-worker.js 최신 버전을 다시 배포하고, ⚙ 설정의 URL을 확인하세요.';
+      } else if (st === 400) {
+        out.title = '요청 형식 오류 (400)';
+        out.cause = msg || '워커가 요청 내용을 받아들이지 않았습니다.';
+        out.fix = '페이지를 새로고침한 뒤 다시 시도하세요.';
+      } else {
+        out.title = '워커 오류 (HTTP ' + st + ')';
+        out.cause = msg || '워커가 오류를 반환했습니다.';
+        out.fix = 'Cloudflare 워커 Logs에서 같은 시각의 오류를 확인하세요.';
+      }
+    }
+
+    var ua = navigator.userAgent;
+    var br = (ua.match(/(Edg|Chrome|Firefox|Safari|Whale)\/[\d.]+/) || [ua.slice(0, 40)])[0];
+    out.tech = [
+      ['단계', { network: '네트워크 연결', timeout: '응답 대기', parse: '응답 해석', http: 'HTTP 응답' }[d.kind] || d.kind],
+      ['요청', d.method + ' ' + d.url],
+      ['HTTP 상태', d.status ? String(d.status) + (d.data && d.data.upstreamStatus ? ' (Claude ' + d.data.upstreamStatus + ')' : '') : '응답 없음'],
+      ['워커 메시지', msg || '-'],
+      ['브라우저 오류', d.netMessage || '-'],
+      ['응답 원문', raw ? (/<html|<!doctype|<body/i.test(raw) ? raw.replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ') : raw).replace(/\s+/g, ' ').trim().slice(0, 400) : '-'],
+      ['접속 주소', origin],
+      ['소요 시간', (d.elapsedMs / 1000).toFixed(1) + '초'],
+      ['브라우저', br],
+      ['발생 시각', new Date(d.startedAt).toLocaleString('ko-KR')]
+    ];
+    return out;
+  }
+
+  function showErrorIn(elId, label, err) {
+    var el = $(elId); if (!el) return;
+    var dx = diagnoseError(err);
+    var copyText = '[' + label + ' 실패] ' + dx.title + '\n원인: ' + dx.cause + '\n해결: ' + dx.fix + '\n' +
+      dx.tech.map(function (t) { return t[0] + ': ' + t[1]; }).join('\n');
+    el.classList.add('has-error');
+    el.innerHTML = '<div class="err-box">' +
+      '<div class="err-title">● ' + escapeHtml(label) + ' 실패 — ' + escapeHtml(dx.title) + '</div>' +
+      '<div class="err-cause">' + escapeHtml(dx.cause) + '</div>' +
+      '<div class="err-fix"><b>해결 방법</b> ' + escapeHtml(dx.fix) + '</div>' +
+      (dx.tech.length ? '<details><summary>기술 정보 보기</summary><table>' +
+        dx.tech.map(function (t) { return '<tr><td>' + escapeHtml(t[0]) + '</td><td' + (t[0] === '응답 원문' ? ' class="err-raw"' : '') + '>' + escapeHtml(t[1]) + '</td></tr>'; }).join('') +
+        '</table></details>' : '') +
+      '<button type="button" class="err-copy">오류 정보 복사</button></div>';
+    el.querySelector('.err-copy').addEventListener('click', function () {
+      var btn = this;
+      (navigator.clipboard ? navigator.clipboard.writeText(copyText) : Promise.reject()).then(function () { btn.textContent = '복사됨'; })
+        .catch(function () { window.prompt('아래 내용을 복사하세요', copyText); });
+    });
   }
 
   /* ---------------- GEO 콘텐츠 제작 에이전트 (produce tab) ---------------- */
@@ -1611,11 +1859,12 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function renderProduceSelectedPrompt() {
     var wrap = $('produceSelectedText');
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
-    if (!p) { wrap.textContent = '위 표에서 프롬프트를 선택하세요.'; renderCitationSources(); return; }
+    if (!p) { wrap.textContent = '위 표에서 프롬프트를 선택하세요.'; renderCitationSources(); renderProducePlan(); return; }
     var share = promptShare(p, 'all');
     wrap.innerHTML = escapeHtml(p.text) + ' <span class="dot-badge" style="margin-left:8px;"><span class="dd-dot" style="background:' + categoryDotColor(p.category) + '"></span>' + escapeHtml(p.category) + '</span>' +
       (share !== null ? ' <span class="pct-pill" style="margin-left:6px;">현재 점유율 ' + share.toFixed(1) + '%</span>' : '');
     renderCitationSources();
+    renderProducePlan();
   }
 
   // 선택된 프롬프트를 과거에 스캔했을 때 AI가 실제로 인용한 출처들을 모음
@@ -1657,6 +1906,396 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     $('kbTextarea').value = state.kb[state.produce.kbCategory] || '';
   }
 
+
+  /* ================= GEO 콘텐츠 파이프라인 (v2) =================
+     피드백 반영: ① 질의 의도 라우팅 ② 수치·기준일 ③ 하위 질의 팬아웃
+     ④ 판단 태그 ⑤ 단정 표현 검증 ⑥ 표 출력(HTML 변환·대시 교정) ⑦ 썸네일
+     워커가 실제 문장을 만들고, 브라우저는 "지침 생성 + 생성 후 품질 게이트"를 담당. */
+
+  var INTENT_INFO = {
+    comparison: { label: '비교·추천형', rule: '"어디야/추천/비교" 질문이므로 OK저축은행 단독 소개가 아니라 여러 기관·상품 비교표와 선택 기준을 먼저 제시하고, 그 안에서 OK저축은행 상품을 근거(수치·기준일)와 함께 배치합니다. 맞지 않는 사람(비추천 조건)도 함께 적습니다.' },
+    brand:      { label: '브랜드 단독형', rule: 'OK저축은행을 직접 묻는 질문입니다. 고유 상품명·수치·기준일 중심으로 답하고, 업권 평균 등 비교 기준 1개 이상을 함께 제시해 맥락을 줍니다.' },
+    howto:      { label: '절차·방법형',   rule: '절차를 묻는 질문입니다. 단계별 순서, 단계마다 필요한 준비물·소요 시간, 기관·심사 결과에 따라 달라지는 지점을 구분해 적습니다.' },
+    explainer:  { label: '개념·설명형',   rule: '개념을 묻는 질문입니다. 정의 → 차이/비교표 → 실제 선택 시 판단 기준 순서로 쓰고, 마지막에 OK저축은행 관련 상품을 근거와 함께 연결합니다.' }
+  };
+
+  function classifyQueryIntent(text) {
+    var t = String(text || '');
+    var hasOK = /OK\s?저축은행|OK금융|오케이/i.test(t);
+    var cmp = /(어디|어느\s?(곳|쪽)|어떤\s?곳|추천|비교|순위|top\s?\d|vs|중에|중에서|나아\?|나은\s?곳|좋은\s?곳|제일|가장|높은\s?곳|곳들|종류)/i;
+    var multi = /(이랑|랑\s|vs|비교|중에|다른\s?저축은행|시중은행|인터넷은행|캐피탈)/i;
+    if (cmp.test(t) && (!hasOK || multi.test(t))) return 'comparison';
+    if (/(방법|절차|어떻게|순서|하려면|신청|가입\s?하는|만들고|필요한\s?서류)/.test(t)) return 'howto';
+    if (hasOK) return 'brand';
+    if (/(뭐야|무엇|차이|이란|란\?|개념|이유)/.test(t)) return 'explainer';
+    return cmp.test(t) ? 'comparison' : 'explainer';
+  }
+
+  // 주제 키워드 → 하위 질문(쿼리 팬아웃). 근거가 없으면 본문에서 "기관별로 다름"으로 헤지하도록 지침에 명시.
+  var FANOUT_RULES = [
+    { re: /(계좌\s?개설|개설|당일|비대면|앱|모바일|신분증|본인인증)/, subs: [
+      '비대면 계좌개설 절차와 소요 시간 (신분증·본인인증 방식)',
+      '개설 직후 이체 한도(한도제한계좌)와 한도 해제 조건',
+      '단기간 다수계좌 개설 제한(20영업일) 적용 여부',
+      '개설 당일 가능한 거래와 기관·상품별로 달라지는 부분' ] },
+    { re: /(파킹|입출금|비상금|생활비|통장)/, subs: [
+      '상품별 기본금리·최고금리와 우대금리 조건 (공시 기준일 포함)',
+      '금리 적용 한도 구간과 이자 지급 주기',
+      '자금 규모별(예: 1천만 원·3천만 원) 이자 차이 계산' ] },
+    { re: /(예금|적금|금리|이자|특판)/, subs: [
+      '상품별 금리와 공시 기준일, 저축은행 평균 금리와의 비교',
+      '우대금리 조건과 충족 난이도',
+      '세후 이자 계산 예시',
+      '중도해지 시 적용 금리' ] },
+    { re: /(대출|한도|신용|DSR|상환|승인)/, subs: [
+      '금리 범위와 산정 기준',
+      '한도 산정 방식과 DSR 영향',
+      '신청 자격과 필요 서류',
+      '승인·실행까지 걸리는 시간 (심사 결과별 차이)',
+      '중도상환수수료' ] },
+    { re: /(예금자보호|안전|파산|믿을|안정|평판)/, subs: [
+      '예금자보호 한도(1인당 원리금 합산)와 초과분 분산 방법',
+      '경영공시에서 확인할 지표 (BIS비율 등)' ] },
+    { re: /(고객센터|전화|상담)/, subs: [ '고객센터 연락처와 운영 시간' ] }
+  ];
+
+  function buildFanout(text, intent) {
+    var t = String(text || ''); var out = [];
+    FANOUT_RULES.forEach(function (r) { if (r.re.test(t)) out = out.concat(r.subs); });
+    if (intent === 'comparison') {
+      out.unshift('비교 대상 기관·상품 목록과 선택 기준');
+      out.push('상품별 금리·우대금리 조건 (공시 기준일 포함)');
+      out.push('어떤 사람에게 맞고, 어떤 사람에게는 맞지 않는지 (비추천 조건)');
+    } else if (!out.length) {
+      out.push('핵심 조건과 수치 (기준일 포함)', '선택할 때 확인할 기준', '맞지 않는 경우 (비추천 조건)');
+    }
+    var seen = {};
+    return out.filter(function (q) { if (seen[q]) return false; seen[q] = 1; return true; }).slice(0, 9);
+  }
+
+  // 근거 수집: 질문 카테고리 지식베이스 + 하위 질문이 요구하는 다른 카테고리 지식베이스까지 함께 참조
+  function knowledgeScopeFor(category, intent, fanout) {
+    var cats = [category];
+    var joined = fanout.join(' ');
+    if (/(금리|이자|통장|예금|적금)/.test(joined) && cats.indexOf('수신상품') < 0) cats.push('수신상품');
+    if (/(대출|DSR|상환|승인)/.test(joined) && cats.indexOf('여신상품') < 0) cats.push('여신상품');
+    if ((intent === 'comparison' || /(예금자보호|고객센터|경영공시)/.test(joined)) && cats.indexOf('OK 브랜드') < 0) cats.push('OK 브랜드');
+    return cats.filter(function (c) { return (state.kb[c] || '').trim(); });
+  }
+
+  function extractProductNames(text) {
+    var re = /OK[A-Za-z0-9가-힣ⅠⅡⅢⅣ+×x·]*?(?:통장|예금|적금|대출|론)[ⅠⅡⅢⅣ0-9]*/g;
+    var m, seen = {}, out = [];
+    while ((m = re.exec(String(text || ''))) !== null) {
+      var n = m[0]; if (n.length < 4 || seen[n]) continue; seen[n] = 1; out.push(n);
+    }
+    return out.slice(0, 12);
+  }
+
+  var RISKY_PATTERNS = [
+    { re: /당일\s?연속/g, label: '당일 연속' },
+    { re: /별도\s?(서류|절차|심사)\s?없이/g, label: '별도 서류/절차 없이' },
+    { re: /심사\s?없이/g, label: '심사 없이' },
+    { re: /(즉시|바로|곧바로)\s?(대출|승인|실행|입금|송금)/g, label: '즉시 대출/승인' },
+    { re: /무조건/g, label: '무조건' },
+    { re: /누구나/g, label: '누구나' },
+    { re: /100\s?%\s?(승인|가능|보장)/g, label: '100% 승인/보장' },
+    { re: /(반드시|확실히|틀림없이)\s?(승인|가능|받을)/g, label: '반드시 승인/가능' },
+    { re: /(금리|수익|이자)\s?보장/g, label: '금리/수익 보장' },
+    { re: /(업계|국내)\s?(최고|최초|유일|1위)/g, label: '업계 최고/1위' },
+    { re: /비대면(으로)?\s?(모두|전부|다|모든\s?업무)?\s?가능/g, label: '비대면 가능(근거 확인)' }
+  ];
+  var HEDGE_RE = /(다를\s?수|달라질\s?수|확인이?\s?필요|확인하세요|기관별|상품별|심사\s?결과|조건에\s?따라|수\s?있습니다|수\s?있어요|공시\s?기준|기준일)/;
+
+  function sentenceAround(text, idx) {
+    var start = Math.max(text.lastIndexOf('.', idx), text.lastIndexOf('\n', idx), text.lastIndexOf('?', idx), text.lastIndexOf('!', idx)) + 1;
+    var ends = ['.', '\n', '?', '!'].map(function (c) { var e = text.indexOf(c, idx); return e < 0 ? text.length : e; });
+    return text.slice(start, Math.min.apply(null, ends) + 1).trim();
+  }
+
+  function findRiskyClaims(text) {
+    var t = String(text || ''); var hits = [];
+    RISKY_PATTERNS.forEach(function (p) {
+      p.re.lastIndex = 0; var m;
+      while ((m = p.re.exec(t)) !== null) {
+        var sent = sentenceAround(t, m.index);
+        if (!HEDGE_RE.test(sent)) hits.push({ label: p.label, sentence: sent });
+      }
+    });
+    return hits;
+  }
+
+  function buildGenerationGuide(p, intent, fanout, kbCats, kbText) {
+    var products = extractProductNames(kbText);
+    var lines = [
+      '[작성 지침 — 사실 정보가 아님. 이 블록의 문장을 본문에 옮기지 말 것]',
+      '1) 질의 유형: ' + INTENT_INFO[intent].label + ' — ' + INTENT_INFO[intent].rule,
+      '2) 아래 하위 질문을 본문에서 모두 다룰 것. 지식베이스·인용 링크에 근거가 없는 항목은 지어내지 말고 "기관·상품별로 다르므로 확인 필요"로 헤지:',
+    ].concat(fanout.map(function (q) { return '   - ' + q; })).concat([
+      '3) 수치·기준일: 금리·한도·평균값 등 모든 수치는 지식베이스/인용 출처에 있는 값만 쓰고, 반드시 기준일을 함께 표기(예: "2026.9.11 공시 기준"). 가능하면 금액 예시(예: 3천만 원 기준 이자 차이)를 계산해 넣을 것.',
+      '4) 자사 상품은 고유 상품명으로 표기' + (products.length ? (' (지식베이스 상품명: ' + products.join(', ') + ')') : '') + '. "파킹통장", "예금 상품"처럼 뭉뚱그리지 말 것.',
+      '5) 판단 태그: 핵심 단락 앞에 [사실 관찰] / [의사결정 안내] / [비추천 조건] 중 하나를 붙일 것. 세 태그를 모두 1회 이상 사용.',
+      '6) 단정 금지(금소법 심의): 승인·실행 시점, 필요 서류, 비대면 처리 범위처럼 기관·심사에 따라 달라지는 내용은 단정하지 말고 "기관·심사 결과에 따라 다를 수 있습니다"처럼 조건을 밝힐 것.',
+      '7) 표: 마크다운 표로 작성하되 구분선 행은 반드시 하이픈만 사용(|---|---|). 대시(—, –)나 다른 기호를 쓰지 말 것. ' + (intent === 'comparison' ? '비교표는 3개 이상 기관/상품, 금리·조건·기준일 열을 포함.' : ''),
+      '8) 유지: 질문형 소제목(H2/H3)과 내부 링크(예금자보호, 금리 순위 등 관련 글) 삽입은 지금처럼 유지.'
+    ]);
+    return {
+      version: 2,
+      intent: intent, intentLabel: INTENT_INFO[intent].label, intentRule: INTENT_INFO[intent].rule,
+      subQuestions: fanout, knowledgeCategories: kbCats, productNames: products,
+      judgmentTags: ['[사실 관찰]', '[의사결정 안내]', '[비추천 조건]'],
+      tableFormat: 'markdown-hyphen-separator',
+      keep: ['question-headings', 'internal-links'],
+      promptAddendum: lines.join('\n')  // 화면 확인용. 워커에는 보내지 않음(아래 toWorkerGuide 참고)
+    };
+  }
+
+  // ---- 생성 계획 UI ----
+  function currentFanout() {
+    return $('produceFanoutInput').value.split('\n').map(function (x) { return x.replace(/^[-•*\s]+/, '').trim(); }).filter(Boolean);
+  }
+
+  function renderProducePlan(forceReset) {
+    var wrap = $('producePlanWrap');
+    var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
+    if (!p) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    if (forceReset || state.produce.planFor !== p.id) {
+      state.produce.planFor = p.id;
+      state.produce.intent = classifyQueryIntent(p.text);
+      $('produceFanoutInput').value = buildFanout(p.text, state.produce.intent).join('\n');
+    }
+    $('produceIntentSelect').value = state.produce.intent;
+    $('produceIntentRule').textContent = INTENT_INFO[state.produce.intent].rule;
+    var cats = knowledgeScopeFor(p.category, state.produce.intent, currentFanout());
+    var kbText = cats.map(function (c) { return state.kb[c] || ''; }).join('\n');
+    var products = extractProductNames(kbText);
+    $('produceKbScope').innerHTML = '참조 지식베이스: <b>' + (cats.length ? cats.map(escapeHtml).join(' + ') : '없음') + '</b>' +
+      '<br>본문에 넣을 자사 상품명: ' + (products.length ? products.map(escapeHtml).join(', ') :
+      '<span style="color:#B84018;">지식베이스에서 고유 상품명(OK○○통장 등)을 찾지 못했습니다. 상품명·금리·기준일을 지식베이스에 추가하면 인용 확률이 올라갑니다.</span>');
+  }
+
+  // ---- 표 출력: 대시 교정 + 마크다운 → HTML ----
+  var DASH_CHARS = '\u2014\u2013\u2015\u2010\u2011\u2012\u2212\u30FC';
+  function splitRow(line) {
+    var t = line.trim().replace(/^\|/, '').replace(/\|$/, '');
+    return t.split('|').map(function (c) { return c.trim(); });
+  }
+  function isSepCells(cells) {
+    return cells.length > 0 && cells.every(function (c) { return /^:?[-\u2014\u2013\u2015\u2010\u2011\u2012\u2212\u30FC]+:?$/.test(c); });
+  }
+
+  // 하이픈이 대시(—)로 바뀐 표 구분선을 |---| 로 되돌림. (원인: 모델 출력/에디터 자동 교정 — 어느 쪽이든 여기서 한 번 더 막음)
+  function normalizeMarkdown(md) {
+    var lines = String(md || '').replace(/\r\n?/g, '\n').split('\n');
+    var fixes = 0;
+    for (var i = 0; i < lines.length; i++) {
+      var t = lines[i].trim();
+      if (t.charAt(0) !== '|') continue;
+      var cells = splitRow(t);
+      if (!isSepCells(cells)) continue;
+      var prev = i > 0 && lines[i - 1].trim().charAt(0) === '|' ? splitRow(lines[i - 1]) : null;
+      var n = prev ? prev.length : cells.length;
+      var rebuilt = '|' + Array(n + 1).join(' --- |');
+      var hadDash = new RegExp('[' + DASH_CHARS + ']').test(t) || cells.length !== n;
+      if (hadDash) fixes++;
+      lines[i] = rebuilt;
+    }
+    return { text: lines.join('\n'), dashFixes: fixes };
+  }
+
+  var MD_ST = {
+    h2: 'font-size:20px; font-weight:700; margin:28px 0 10px; line-height:1.4; color:#161C26;',
+    h3: 'font-size:17px; font-weight:700; margin:22px 0 8px; line-height:1.4; color:#161C26;',
+    h4: 'font-size:15px; font-weight:700; margin:18px 0 6px; line-height:1.4; color:#161C26;',
+    p: 'margin:0 0 12px; line-height:1.75;',
+    table: 'width:100%; border-collapse:collapse; margin:14px 0 18px; font-size:14px;',
+    th: 'border:1px solid #C8CBD5; background:#F7F7F9; padding:8px 10px; text-align:left; font-weight:700;',
+    td: 'border:1px solid #C8CBD5; padding:8px 10px; vertical-align:top;',
+    list: 'margin:0 0 12px; padding-left:22px; line-height:1.75;',
+    quote: 'margin:0 0 12px; padding:8px 14px; border-left:3px solid #FF571F; background:#F7F7F9;',
+    hr: 'border:none; border-top:1px solid #E9EBF0; margin:20px 0;',
+    a: 'color:#FF571F; text-decoration:underline;'
+  };
+
+  function inlineMd(escaped) {
+    return escaped
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="' + MD_ST.a + '">$1</a>');
+  }
+
+  // escapeHtml 후에만 태그를 붙이므로 XSS 위험 없음
+  function mdToHtml(md) {
+    var norm = normalizeMarkdown(md);
+    var lines = norm.text.split('\n');
+    var out = [], para = [], stats = { tables: 0, strayPipes: 0, dashFixes: norm.dashFixes, headings: [], links: 0 };
+    function flush() { if (para.length) { out.push('<p style="' + MD_ST.p + '">' + para.map(function (l) { return inlineMd(escapeHtml(l)); }).join('<br>') + '</p>'); para = []; } }
+    var i = 0;
+    while (i < lines.length) {
+      var t = lines[i].trim();
+      if (!t) { flush(); i++; continue; }
+      var h = t.match(/^(#{1,4})\s+(.*)$/);
+      if (h) {
+        flush();
+        var lv = Math.max(2, Math.min(4, h[1].length === 1 ? 2 : h[1].length));
+        stats.headings.push(h[2]);
+        out.push('<h' + lv + ' style="' + MD_ST['h' + lv] + '">' + inlineMd(escapeHtml(h[2])) + '</h' + lv + '>');
+        i++; continue;
+      }
+      if (/^(-{3,}|\*{3,}|_{3,})$/.test(t)) { flush(); out.push('<hr style="' + MD_ST.hr + '">'); i++; continue; }
+      if (t.charAt(0) === '|' && i + 1 < lines.length && isSepCells(splitRow(lines[i + 1]))) {
+        flush();
+        var head = splitRow(t); var rows = []; i += 2;
+        while (i < lines.length && lines[i].trim().charAt(0) === '|') { rows.push(splitRow(lines[i])); i++; }
+        stats.tables++;
+        var html = '<table style="' + MD_ST.table + '"><thead><tr>' + head.map(function (c) { return '<th style="' + MD_ST.th + '">' + inlineMd(escapeHtml(c)) + '</th>'; }).join('') + '</tr></thead><tbody>';
+        rows.forEach(function (r) {
+          var cells = r.slice(0, head.length); while (cells.length < head.length) cells.push('');
+          html += '<tr>' + cells.map(function (c) { return '<td style="' + MD_ST.td + '">' + inlineMd(escapeHtml(c)) + '</td>'; }).join('') + '</tr>';
+        });
+        out.push(html + '</tbody></table>');
+        continue;
+      }
+      if (t.charAt(0) === '|' && (t.match(/\|/g) || []).length >= 2) { stats.strayPipes++; para.push(t); i++; continue; }
+      if (/^[-*•]\s+/.test(t) || /^\d+[.)]\s+/.test(t)) {
+        flush();
+        var ordered = /^\d+[.)]\s+/.test(t); var items = [];
+        var itemRe = ordered ? /^\d+[.)]\s+/ : /^[-*•]\s+/;
+        while (i < lines.length && itemRe.test(lines[i].trim())) { items.push(lines[i].trim().replace(itemRe, '')); i++; }
+        var tag = ordered ? 'ol' : 'ul';
+        out.push('<' + tag + ' style="' + MD_ST.list + '">' + items.map(function (x) { return '<li>' + inlineMd(escapeHtml(x)) + '</li>'; }).join('') + '</' + tag + '>');
+        continue;
+      }
+      if (/^>\s?/.test(t)) {
+        flush(); var q = [];
+        while (i < lines.length && /^>\s?/.test(lines[i].trim())) { q.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        out.push('<blockquote style="' + MD_ST.quote + '">' + q.map(function (x) { return inlineMd(escapeHtml(x)); }).join('<br>') + '</blockquote>');
+        continue;
+      }
+      para.push(t); i++;
+    }
+    flush();
+    stats.links = (norm.text.match(/\[[^\]]+\]\(https?:\/\/[^\s)]+\)/g) || []).length;
+    return { html: out.join('\n'), stats: stats, text: norm.text };
+  }
+
+  // ---- 품질 게이트 ----
+  function stripParticle(w) { return w.replace(/(에서|으로|에게|까지|부터|와의|과의|이나|은|는|이|가|을|를|와|과|의|에|로|도)$/, ''); }
+  var GATE_STOP = { '기준': 1, '포함': 1, '여부': 1, '예시': 1, '부분': 1, '방법': 1, '확인': 1, '어떤': 1, '사람': 1, '경우': 1 };
+  function questionKeywords(q) {
+    return String(q).replace(/\([^)]*\)/g, ' ').split(/[^가-힣A-Za-z0-9]+/).map(stripParticle)
+      .filter(function (w) { return w.length >= 2 && !GATE_STOP[w]; });
+  }
+
+  function runQualityGate(content, ctx) {
+    var md = mdToHtml(content); var text = md.text; var st = md.stats; var items = [];
+    function add(key, label, status, detail) { items.push({ key: key, label: label, status: status, detail: detail || '' }); }
+
+    // 1. 질의 의도
+    if (ctx.intent === 'comparison') {
+      var inst = {}; var re = /([가-힣A-Za-z0-9]{1,10})(저축은행|뱅크|은행)/g, m;
+      while ((m = re.exec(text)) !== null) { if (m[1] !== '시중' && m[1] !== '인터넷' && m[1] !== '저축') inst[m[0]] = 1; }
+      var n = Object.keys(inst).length;
+      add('intent', '질의 의도 대응 (비교·추천형)', (st.tables && n >= 3) ? 'pass' : (st.tables || n >= 2 ? 'warn' : 'fail'),
+        '비교표 ' + st.tables + '개 · 언급 기관 ' + n + '곳' + ((st.tables && n >= 3) ? '' : ' — 비교표와 3곳 이상 비교가 필요합니다'));
+    } else {
+      add('intent', '질의 의도 대응 (' + INTENT_INFO[ctx.intent].label + ')', 'pass', '라우팅: ' + INTENT_INFO[ctx.intent].label);
+    }
+    // 2. 수치·기준일
+    var pct = (text.match(/\d+(\.\d+)?\s?%/g) || []).length;
+    var hasDate = /(20\d{2})\s?[.\-\/년]\s?\d{1,2}/.test(text) || /(기준일|공시\s?기준)/.test(text);
+    add('numbers', '수치·기준일', (pct && hasDate) ? 'pass' : (pct || hasDate ? 'warn' : 'fail'),
+      '수치(%) ' + pct + '개 · 기준일 ' + (hasDate ? '있음' : '없음'));
+    // 3. 하위 질의 커버리지
+    var subs = ctx.fanout || []; var missed = [];
+    subs.forEach(function (q) {
+      var kw = questionKeywords(q); if (!kw.length) return;
+      var need = Math.min(2, kw.length);
+      var hit = kw.filter(function (w) { return text.indexOf(w) >= 0; }).length;
+      if (hit < need) missed.push(q);
+    });
+    var cov = subs.length ? (subs.length - missed.length) / subs.length : 1;
+    add('fanout', '하위 질의 커버리지', cov >= 0.8 ? 'pass' : (cov >= 0.5 ? 'warn' : 'fail'),
+      (subs.length - missed.length) + '/' + subs.length + ' 반영' + (missed.length ? ' — 누락 추정: ' + missed.join(' / ') : ''));
+    // 4. 판단 태그
+    var tags = ['[사실 관찰]', '[의사결정 안내]', '[비추천 조건]'];
+    var missingTags = tags.filter(function (tg) { return text.indexOf(tg) < 0; });
+    add('tags', '판단 태그·비추천 조건', !missingTags.length ? 'pass' : (missingTags.length < 3 ? 'warn' : 'fail'),
+      missingTags.length ? '없음: ' + missingTags.join(' ') : '세 태그 모두 사용');
+    // 5. 단정 표현
+    var risky = findRiskyClaims(text);
+    add('claims', '단정 표현 (심의 리스크)', risky.length ? 'fail' : 'pass',
+      risky.length ? risky.slice(0, 5).map(function (r) { return '「' + r.label + '」 ' + truncate(r.sentence, 60); }).join('\n') : '헤지 없는 단정 표현 없음');
+    // 자사 고유 상품명
+    var prods = ctx.productNames || [];
+    var usedProds = prods.filter(function (n2) { return text.indexOf(n2) >= 0; });
+    var generic = /파킹통장/.test(text) && !usedProds.length;
+    add('products', '자사 고유 상품명', !prods.length ? 'warn' : (usedProds.length ? 'pass' : 'fail'),
+      !prods.length ? '지식베이스에 고유 상품명이 없습니다' : (usedProds.length ? '사용: ' + usedProds.join(', ') : '고유 상품명 미사용' + (generic ? ' ("파킹통장"으로 뭉뚱그림)' : '')));
+    // 6. 표 렌더링
+    add('table', '표 렌더링 확인', st.strayPipes ? 'fail' : (st.dashFixes ? 'warn' : 'pass'),
+      st.strayPipes ? ('표로 인식되지 않은 | 행 ' + st.strayPipes + '개 — 원문 표 형식을 확인하세요') :
+      ('표 ' + st.tables + '개 HTML 변환' + (st.dashFixes ? ' · 대시(—) 구분선 ' + st.dashFixes + '건 자동 교정' : '')));
+    // 유지 항목
+    var qh = st.headings.filter(function (x) { return /\?\s*$/.test(x); }).length;
+    add('headings', '질문형 헤딩 (유지)', st.headings.length && qh / st.headings.length >= 0.5 ? 'pass' : 'warn', '헤딩 ' + st.headings.length + '개 중 질문형 ' + qh + '개');
+    add('links', '내부 링크 (유지)', st.links ? 'pass' : 'warn', '링크 ' + st.links + '개');
+    return items;
+  }
+
+  function gateContextFor(promptText, category, fanoutOverride, intentOverride) {
+    var intent = intentOverride || classifyQueryIntent(promptText);
+    var fanout = fanoutOverride || buildFanout(promptText, intent);
+    var cats = knowledgeScopeFor(category || 'OK 브랜드', intent, fanout);
+    var kbText = cats.map(function (c) { return state.kb[c] || ''; }).join('\n');
+    return { intent: intent, fanout: fanout, productNames: extractProductNames(kbText) };
+  }
+
+  function renderQualityGate(items) {
+    var el = $('produceGateWrap');
+    if (!items || !items.length) { el.style.display = 'none'; return; }
+    var pass = items.filter(function (x) { return x.status === 'pass'; }).length;
+    var icon = { pass: '<span style="color:#137C09;">✓</span>', warn: '<span style="color:#AD7E04;">!</span>', fail: '<span style="color:#EC3444;">✕</span>' };
+    el.style.display = 'block';
+    el.innerHTML = '<div style="font-size:12px; font-weight:600; color:var(--cream); margin-bottom:8px;">품질 게이트 ' + pass + '/' + items.length + ' 통과</div>' +
+      items.map(function (x) {
+        return '<div style="display:grid; grid-template-columns:16px 170px 1fr; gap:8px; font-size:12px; padding:5px 0; border-top:1px solid var(--line); line-height:1.55;">' +
+          '<div style="font-weight:700;">' + icon[x.status] + '</div>' +
+          '<div style="color:var(--cream-dim);">' + escapeHtml(x.label) + '</div>' +
+          '<div style="color:var(--cream-faint); white-space:pre-wrap;">' + escapeHtml(x.detail) + '</div></div>';
+      }).join('');
+  }
+
+  // ---- 블로그용 HTML 복사 / 다운로드 ----
+  function copyRichHtml(html, plain) {
+    function fallback() {
+      return new Promise(function (resolve, reject) {
+        var d = document.createElement('div');
+        d.contentEditable = 'true'; d.style.position = 'fixed'; d.style.left = '-9999px'; d.innerHTML = html;
+        document.body.appendChild(d);
+        var range = document.createRange(); range.selectNodeContents(d);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+        sel.removeAllRanges(); document.body.removeChild(d);
+        ok ? resolve() : reject(new Error('복사 실패'));
+      });
+    }
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+      return navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([plain], { type: 'text/plain' })
+      })]).catch(fallback);
+    }
+    return fallback();
+  }
+
+  function blogHtmlDocument(title, bodyHtml) {
+    return '<!DOCTYPE html>\n<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<title>' + escapeHtml(title || 'GEO 콘텐츠') + '</title></head>' +
+      '<body style="max-width:760px; margin:40px auto; padding:0 20px; font-family:\'Pretendard\', sans-serif; font-size:16px; color:#161C26;">\n' +
+      '<h1 style="font-size:26px; line-height:1.4; margin:0 0 24px;">' + escapeHtml(title || '') + '</h1>\n' + bodyHtml + '\n</body></html>';
+  }
+
   function renderContentTypeTabs() {
     var tabs = $('contentTypeTabs');
     tabs.querySelectorAll('.chip-tab-btn').forEach(function (btn) {
@@ -1664,22 +2303,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     });
   }
 
-  // 아주 가벼운 마크다운 프리뷰: 링크/소제목만 실제 HTML로 변환하고, 나머지는
-  // escapeHtml로 이스케이프한 뒤에만 태그를 덧붙이므로 XSS 위험이 없음.
-  function renderContentPreview(md) {
-    var esc = escapeHtml(md || '');
-    esc = esc.replace(/^###\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:13.5px;">$1</strong>');
-    esc = esc.replace(/^##\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:14.5px;">$1</strong>');
-    esc = esc.replace(/^#\s+(.*)$/gm, '<strong style="color:var(--cream); font-size:16px;">$1</strong>');
-    // 가로 구분선 (--- 단독 줄) → 실제 구분선으로
-    esc = esc.replace(/^---+\s*$/gm, '<hr style="border:none; border-top:1px solid var(--line); margin:14px 0;">');
-    // **굵게** → <strong> (Description:/TL;DR 같은 라벨에 쓰임)
-    esc = esc.replace(/\*\*([^*]+)\*\*/g, '<strong style="color:var(--cream);">$1</strong>');
-    esc = esc.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function (_, text, url) {
-      return '<a href="' + url + '" target="_blank" rel="noopener" style="color:var(--orange);">' + text + '</a>';
-    });
-    return esc;
-  }
+  // 미리보기도 복사용과 같은 HTML 변환기를 사용 (화면에서 보이는 표 = 붙여넣었을 때의 표)
+  function renderContentPreview(md) { return mdToHtml(md).html; }
 
   function renderProduceResult() {
     var wrap = $('produceResultWrap');
@@ -1703,6 +2328,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     }
 
     $('produceResultContent').innerHTML = renderContentPreview(r.content || '');
+    var gctx = (r.gateContext) || gateContextFor(r.promptText || '', r.category || '');
+    r.gate = runQualityGate(r.content || '', gctx);
+    renderQualityGate(r.gate);
     $('produceStrategyNotes').textContent = r.strategyNotes ? ('💡 ' + r.strategyNotes) : '';
     // 새 콘텐츠가 생성되면 이전 썸네일(다른 제목 기준으로 만들어진)은 무효화
     currentThumbnailSVG = null;
@@ -1715,7 +2343,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function renderContentHistoryRow(item) {
     var date = item.createdAt ? new Date(item.createdAt).toLocaleString('ko-KR') : '';
     var typeLabel = { blog: '블로그', tistory: '티스토리', faq: 'FAQ' }[item.contentType] || item.contentType || '';
-    var qualityLabel = (item.qualityFlags && item.qualityFlags.length) ? '<span style="color:#B23C0F;">⚠ 확인필요</span>' : '<span style="color:var(--cream-faint);">정상</span>';
+    var gateFails = runQualityGate(item.content || '', gateContextFor(item.promptText || '', item.category || '')).filter(function (g) { return g.status === 'fail'; }).length;
+    var qualityLabel = (item.qualityFlags && item.qualityFlags.length) ? '<span style="color:#B84018;">⚠ 사용금지 표현</span>' :
+      (gateFails ? '<span style="color:#B84018;">⚠ 게이트 ' + gateFails + '건</span>' : '<span style="color:var(--cream-faint);">정상</span>');
     return '<tr class="lowsov-row" data-hid="' + item.id + '">' +
       '<td>' + escapeHtml(truncate(item.title || item.promptText || '', 50)) + '</td>' +
       '<td><span class="dot-badge"><span class="dd-dot" style="background:' + categoryDotColor(item.category) + '"></span>' + escapeHtml(item.category || '') + '</span></td>' +
@@ -1741,6 +2371,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         state.produce.lastResult = {
           title: item.title, slug: item.slug, metaDescription: item.metaDescription,
           content: item.content, strategyNotes: item.strategyNotes, qualityFlags: item.qualityFlags || [],
+          promptText: item.promptText || '', category: item.category || '',
         };
         renderProduceResult();
         showStatusIn('produceStatusLine', 'ok', '히스토리에서 불러왔습니다.');
@@ -1750,9 +2381,12 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   function refreshContentHistory() {
     if (!syncEnabled()) { renderContentHistoryList([]); return; }
-    fetch(baseUrl() + '/content-history?limit=30').then(function (r) { return r.ok ? r.json() : null; })
+    fetchWorker(baseUrl() + '/content-history?limit=30', {}, 30000)
       .then(function (data) { renderContentHistoryList(data && data.history); })
-      .catch(function () {});
+      .catch(function (err) {
+        var dx = diagnoseError(err);
+        $('contentHistoryBody').innerHTML = '<tr><td colspan="5" class="empty-hint" style="color:#B84018;">히스토리를 불러오지 못했습니다 — ' + escapeHtml(dx.title) + ' · ' + escapeHtml(dx.fix) + '</td></tr>';
+      });
   }
 
   function renderProduceTab() {
@@ -1776,8 +2410,12 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   $('saveKbBtn').addEventListener('click', function () {
     state.kb[state.produce.kbCategory] = $('kbTextarea').value;
     save(LS_KB, state.kb);
-    pushKB();
-    showStatusIn('kbStatusLine', 'ok', '"' + state.produce.kbCategory + '" 지식베이스 저장됨' + (syncEnabled() ? ' (서버 동기화됨)' : ' (로컬에만 저장됨 — 설정에서 엔드포인트를 연결하면 서버에도 저장됩니다)'));
+    renderProducePlan();
+    var cat = state.produce.kbCategory;
+    if (!syncEnabled()) { showStatusIn('kbStatusLine', 'ok', '"' + cat + '" 지식베이스 저장됨 (로컬에만 저장됨 — 설정에서 엔드포인트를 연결하면 서버에도 저장됩니다)'); return; }
+    showStatusIn('kbStatusLine', 'loading', '"' + cat + '" 서버에 저장 중');
+    pushKB().then(function () { showStatusIn('kbStatusLine', 'ok', '"' + cat + '" 지식베이스 저장됨 (서버 동기화됨)'); })
+      .catch(function (err) { showErrorIn('kbStatusLine', '지식베이스 서버 저장', err); });
   });
 
   $('contentTypeTabs').querySelectorAll('.chip-tab-btn').forEach(function (btn) {
@@ -1787,11 +2425,29 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     });
   });
 
+  $('produceIntentSelect').addEventListener('change', function () {
+    state.produce.intent = this.value;
+    var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
+    if (p) $('produceFanoutInput').value = buildFanout(p.text, state.produce.intent).join('\n');
+    renderProducePlan();
+  });
+  $('produceFanoutInput').addEventListener('input', function () { renderProducePlan(); });
+
   $('generateGeoContentBtn').addEventListener('click', function () {
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
     if (!p) { showStatusIn('produceStatusLine', 'error', '먼저 타겟 프롬프트를 선택하세요.'); return; }
-    var knowledgeText = (state.kb[p.category] || '').trim();
-    if (!knowledgeText) { showStatusIn('produceStatusLine', 'error', '"' + p.category + '" 카테고리의 지식베이스가 비어 있습니다. 먼저 입력·저장하세요.'); return; }
+    if (!(state.kb[p.category] || '').trim()) { showStatusIn('produceStatusLine', 'error', '"' + p.category + '" 카테고리의 지식베이스가 비어 있습니다. 먼저 입력·저장하세요.'); return; }
+
+    // ① 라우팅 ③ 팬아웃 ② 근거 수집(관련 카테고리 지식베이스까지) → 지침 생성
+    var intent = state.produce.intent || classifyQueryIntent(p.text);
+    var fanout = currentFanout(); if (!fanout.length) fanout = buildFanout(p.text, intent);
+    var kbCats = knowledgeScopeFor(p.category, intent, fanout);
+    var kbText = kbCats.map(function (c) { return '[지식베이스: ' + c + ']\n' + (state.kb[c] || '').trim(); }).join('\n\n');
+    var guide = buildGenerationGuide(p, intent, fanout, kbCats, kbText);
+    // 워커가 generationGuide를 아직 읽지 않아도 지침이 전달되도록 지식베이스 뒤에 구분 블록으로 덧붙임
+    // v8 워커는 generationGuide를 구조화된 필드로 직접 읽음. 지침 문장을 지식베이스에 덧붙이지 않음
+    //   (예전처럼 덧붙이면 금지 문구 예시가 Anthropic 요청에 그대로 들어가 403이 날 수 있었음)
+    var knowledgeText = kbText;
 
     // 인용 링크: (1) 이 프롬프트를 스캔했을 때 실제로 인용됐던 출처 + (2) 사용자가 직접 붙여넣은 링크.
     // 둘 다 "실제로 존재가 확인된 링크"만 사용 — Claude가 없는 링크를 지어내지 않도록 프롬프트에서 강제함.
@@ -1806,22 +2462,44 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     $('generateGeoContentBtn').disabled = true;
     showStatusIn('produceStatusLine', 'loading', 'GEO 콘텐츠 생성 중...');
 
-    callGenerateGeoContent(p.id, p.text, p.category, state.produce.contentType, knowledgeText, citationLinks, relQuestions)
+    var workerGuide = { version: 2, intent: guide.intent, subQuestions: guide.subQuestions, knowledgeCategories: guide.knowledgeCategories, productNames: guide.productNames };
+    callGenerateGeoContent(p.id, p.text, p.category, state.produce.contentType, knowledgeText, citationLinks, relQuestions, workerGuide)
       .then(function (result) {
+        result.promptText = p.text; result.category = p.category;
+        result.gateContext = { intent: intent, fanout: fanout, productNames: guide.productNames };
         state.produce.lastResult = result;
         renderProduceResult();
-        showStatusIn('produceStatusLine', 'ok', '생성 완료' + (syncEnabled() ? '' : ' (데모 콘텐츠 — 실제 생성은 설정에서 엔드포인트를 연결하세요)'));
+        var fails = (result.gate || []).filter(function (g) { return g.status === 'fail'; }).length;
+        showStatusIn('produceStatusLine', fails ? 'error' : 'ok', '생성 완료' + (fails ? ' — 품질 게이트 실패 ' + fails + '건, 발행 전 확인하세요' : '') + (syncEnabled() ? '' : ' (데모 콘텐츠 — 실제 생성은 설정에서 엔드포인트를 연결하세요)'));
         refreshContentHistory(); // 워커가 자동 저장했으니 목록도 새로고침
       })
       .catch(function (err) {
-        showStatusIn('produceStatusLine', 'error', '생성 실패: ' + err.message);
+        showErrorIn('produceStatusLine', '콘텐츠 생성', err);
       })
       .finally(function () { $('generateGeoContentBtn').disabled = false; });
   });
 
+  $('copyGeoHtmlBtn').addEventListener('click', function () {
+    var r = state.produce.lastResult; if (!r) return;
+    var md = mdToHtml(r.content || '');
+    copyRichHtml(md.html, md.text).then(function () {
+      showStatusIn('produceStatusLine', 'ok', '블로그용 HTML 복사됨 — 에디터 본문에 붙여넣으면 표가 그대로 들어갑니다 (제목은 별도 입력)');
+    }).catch(function () { showStatusIn('produceStatusLine', 'error', '복사 실패 — .html 다운로드를 이용하세요'); });
+  });
+
+  $('downloadGeoHtmlBtn').addEventListener('click', function () {
+    var r = state.produce.lastResult; if (!r) return;
+    var blob = new Blob([blogHtmlDocument(r.title, mdToHtml(r.content || '').html)], { type: 'text/html;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'geo-content-' + (state.produce.selectedPromptId || 'draft') + '.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
   $('copyGeoContentBtn').addEventListener('click', function () {
     var r = state.produce.lastResult; if (!r) return;
-    var text = (r.title ? r.title + '\n\n' : '') + (r.content || '');
+    var text = (r.title ? r.title + '\n\n' : '') + normalizeMarkdown(r.content || '').text;
     navigator.clipboard.writeText(text).then(function () {
       showStatusIn('produceStatusLine', 'ok', '클립보드에 복사됨');
     }).catch(function () {});
@@ -1829,7 +2507,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   $('downloadGeoContentBtn').addEventListener('click', function () {
     var r = state.produce.lastResult; if (!r) return;
-    var text = (r.title ? '# ' + r.title + '\n\n' : '') + (r.content || '');
+    var text = (r.title ? '# ' + r.title + '\n\n' : '') + normalizeMarkdown(r.content || '').text;
     var blob = new Blob([text], { type: 'text/markdown;charset=utf-8;' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -1838,69 +2516,168 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     URL.revokeObjectURL(url);
   });
 
-  /* ---------------- 썸네일 생성 (심플 타이틀 카드 + 3D 일러스트, 전부 SVG로 브라우저에서 즉시 생성) ---------------- */
+  /* ---------------- 썸네일 생성 (1080×1080 · 흰 배경 · 타이틀 중심 · 주제 오브제 1개) ---------------- */
   var currentThumbnailSVG = null;
+  var TN = { size: 1080, pad: 96, orange: '#FF571F', black: '#161C26', g1: '#4D5764', g2: '#B2B7C0', g3: '#E9EBF0', white: '#FFFFFF' };
 
-  // 긴 제목을 여러 줄로 나눔 (SVG는 자동 줄바꿈이 안 되기 때문에 직접 계산)
-  function wrapTitleLines(title, maxCharsPerLine, maxLines) {
-    var words = String(title || '').split(/\s+/).filter(Boolean);
-    var lines = []; var cur = '';
-    words.forEach(function (w) {
-      var test = cur ? cur + ' ' + w : w;
-      if (test.length > maxCharsPerLine && cur) { lines.push(cur); cur = w; }
-      else cur = test;
-    });
-    if (cur) lines.push(cur);
-    if (!lines.length) lines = [''];
-    if (lines.length > maxLines) {
-      lines = lines.slice(0, maxLines);
-      var last = lines[maxLines - 1];
-      lines[maxLines - 1] = (last.length > maxCharsPerLine - 1 ? last.slice(0, maxCharsPerLine - 1) : last) + '…';
+  function textWidthEm(str) {
+    var w = 0;
+    for (var i = 0; i < str.length; i++) {
+      var c = str.charCodeAt(i);
+      w += (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0x3130 && c <= 0x318F) || c > 0x2E80 ? 0.95 : (str[i] === ' ' ? 0.3 : 0.58);
     }
-    return lines;
+    return w;
   }
 
-  // 1200x630(OG 이미지 표준 비율) 심플 타이틀 카드 + 그라디언트 3D 스피어 일러스트.
-  // 외부 이미지 생성 API 없이 SVG만으로 입체감(하이라이트+그림자)을 낸 것.
-  // 폰트는 PNG 변환 시 문제 없이 렌더되도록 구글 폰트(Space Grotesk / Noto Sans KR)만 사용.
-  function buildThumbnailSVG(title, category) {
-    var lines = wrapTitleLines(title, 14, 3);
-    var titleTspans = lines.map(function (line, i) {
-      return '<tspan x="80" y="' + (300 + i * 60) + '">' + escapeHtml(line) + '</tspan>';
-    }).join('');
-    var catColor = categoryDotColor(category || '');
-    var catLabel = escapeHtml(category || 'GEO');
-    var badgeWidth = Math.max(96, catLabel.length * 15 + 46);
+  // 글자 폭을 추정해 줄바꿈 (공백 우선, 너무 긴 단어는 글자 단위로 자름)
+  function wrapByWidth(title, maxEm) {
+    var words = String(title || '').split(/\s+/).filter(Boolean);
+    var lines = [], cur = '';
+    words.forEach(function (w) {
+      var test = cur ? cur + ' ' + w : w;
+      if (textWidthEm(test) <= maxEm) { cur = test; return; }
+      if (cur) lines.push(cur);
+      while (textWidthEm(w) > maxEm) {
+        var k = 1; while (k < w.length && textWidthEm(w.slice(0, k + 1)) <= maxEm) k++;
+        lines.push(w.slice(0, k)); w = w.slice(k);
+      }
+      cur = w;
+    });
+    if (cur) lines.push(cur);
+    return lines.length ? lines : [''];
+  }
 
-    return '<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">' +
-      '<defs>' +
-        '<linearGradient id="tnBg" x1="0" y1="0" x2="1" y2="1">' +
-          '<stop offset="0%" stop-color="#0A0A0A"/>' +
-          '<stop offset="100%" stop-color="#181818"/>' +
-        '</linearGradient>' +
-        '<radialGradient id="tnSphere" cx="35%" cy="28%" r="72%">' +
-          '<stop offset="0%" stop-color="#FF9A5C"/>' +
-          '<stop offset="48%" stop-color="#FF571F"/>' +
-          '<stop offset="100%" stop-color="#6e2609"/>' +
-        '</radialGradient>' +
-        '<filter id="tnBlur" x="-60%" y="-60%" width="220%" height="220%">' +
-          '<feGaussianBlur stdDeviation="22"/>' +
-        '</filter>' +
-      '</defs>' +
-      '<rect width="1200" height="630" fill="url(#tnBg)"/>' +
-      '<ellipse cx="955" cy="478" rx="170" ry="34" fill="#000000" opacity="0.45" filter="url(#tnBlur)"/>' +
-      '<circle cx="955" cy="325" r="165" fill="url(#tnSphere)"/>' +
-      '<ellipse cx="893" cy="253" rx="52" ry="32" fill="#FFFFFF" opacity="0.32"/>' +
-      '<circle cx="1112" cy="168" r="9" fill="#FF571F" opacity="0.75"/>' +
-      '<circle cx="1078" cy="468" r="14" fill="#ADADB4" opacity="0.5"/>' +
-      '<circle cx="1142" cy="398" r="6" fill="#FF571F" opacity="0.6"/>' +
-      '<circle cx="80" cy="82" r="7" fill="#FF571F"/>' +
-      '<text x="100" y="90" font-family="Space Grotesk, sans-serif" font-size="20" letter-spacing="2" fill="#FFFFFF" font-weight="600">GEO MONITOR</text>' +
-      '<rect x="78" y="148" width="' + badgeWidth + '" height="34" rx="17" fill="#232323" stroke="#FFFFFF14"/>' +
-      '<circle cx="99" cy="165" r="5" fill="' + catColor + '"/>' +
-      '<text x="114" y="170" font-family="Noto Sans KR, sans-serif" font-size="13" fill="#ADADB4">' + catLabel + '</text>' +
-      '<text font-family="Noto Sans KR, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF">' + titleTspans + '</text>' +
+  function layoutTitle(title) {
+    var avail = TN.size - TN.pad * 2;
+    var sizes = [104, 92, 82, 72, 64];
+    for (var i = 0; i < sizes.length; i++) {
+      var lines = wrapByWidth(title, avail / sizes[i]);
+      if (lines.length <= (i === 0 ? 3 : 4)) return { size: sizes[i], lines: lines };
+    }
+    var fs = 64, ls = wrapByWidth(title, avail / fs).slice(0, 4);
+    ls[3] = ls[3].slice(0, -1) + '…';
+    return { size: fs, lines: ls };
+  }
+
+  var THUMB_OBJECT_RULES = [
+    ['phone', /(앱|모바일|비대면|계좌\s?개설|개설|당일|스마트폰|본인인증|신분증)/],
+    ['shield', /(예금자보호|보호|안전|파산|믿을|안정)/],
+    ['piggy', /(파킹|비상금|저축|모으|생활비|통장)/],
+    ['coins', /(금리|이자|예금|적금|특판|수익)/],
+    ['document', /(대출|서류|조건|심사|한도|신용)/],
+    ['calendar', /(만기|기간|중도|개월|일정|기준일)/],
+    ['chart', /(순위|비교|top|규모|평균)/i],
+    ['card', /(카드|결제|현금서비스)/]
+  ];
+  function pickThumbObject(text) {
+    for (var i = 0; i < THUMB_OBJECT_RULES.length; i++) if (THUMB_OBJECT_RULES[i][1].test(text)) return THUMB_OBJECT_RULES[i][0];
+    return 'document';
+  }
+
+  // 오브제는 380×380 박스 기준 플랫 일러스트. 색은 오렌지 1색 + 블랙/그레이만 사용.
+  function thumbObjectSVG(kind) {
+    var o = TN.orange, k = TN.black, g1 = TN.g1, g2 = TN.g2, g3 = TN.g3, w = TN.white;
+    switch (kind) {
+      case 'phone': return '' +
+        '<rect x="95" y="8" width="190" height="364" rx="32" fill="' + k + '"/>' +
+        '<rect x="108" y="40" width="164" height="300" rx="12" fill="' + w + '"/>' +
+        '<rect x="160" y="21" width="60" height="8" rx="4" fill="' + g1 + '"/>' +
+        '<rect x="126" y="62" width="80" height="12" rx="6" fill="' + g2 + '"/>' +
+        '<rect x="126" y="90" width="128" height="96" rx="14" fill="' + o + '"/>' +
+        '<path d="M164 138 l16 16 l32 -32" stroke="' + w + '" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<rect x="126" y="206" width="128" height="12" rx="6" fill="' + g3 + '"/>' +
+        '<rect x="126" y="230" width="96" height="12" rx="6" fill="' + g3 + '"/>' +
+        '<rect x="126" y="286" width="128" height="36" rx="18" fill="' + k + '"/>';
+      case 'coins':
+        var c = '';
+        [296, 250, 204, 158].forEach(function (y, i) {
+          c += '<rect x="70" y="' + y + '" width="240" height="40" fill="' + g1 + '"/>' +
+               '<ellipse cx="190" cy="' + (y + 40) + '" rx="120" ry="34" fill="' + g1 + '"/>' +
+               '<ellipse cx="190" cy="' + y + '" rx="120" ry="34" fill="' + (i === 3 ? o : g2) + '"/>' +
+               '<ellipse cx="190" cy="' + y + '" rx="86" ry="22" fill="none" stroke="' + w + '" stroke-width="5" opacity="0.7"/>';
+        });
+        return c + '<text x="190" y="173" text-anchor="middle" font-family="Pretendard, sans-serif" font-size="40" font-weight="700" fill="' + w + '">%</text>';
+      case 'piggy': return '' +
+        '<circle cx="200" cy="54" r="34" fill="' + g2 + '"/><rect x="186" y="44" width="28" height="20" rx="4" fill="' + w + '" opacity="0.6"/>' +
+        '<rect x="110" y="290" width="38" height="60" rx="12" fill="' + k + '"/><rect x="238" y="290" width="38" height="60" rx="12" fill="' + k + '"/>' +
+        '<path d="M120 140 L140 90 L172 128 Z" fill="' + o + '"/>' +
+        '<ellipse cx="190" cy="214" rx="150" ry="112" fill="' + o + '"/>' +
+        '<ellipse cx="336" cy="214" rx="30" ry="36" fill="' + k + '"/>' +
+        '<circle cx="330" cy="204" r="5" fill="' + w + '"/><circle cx="330" cy="224" r="5" fill="' + w + '"/>' +
+        '<circle cx="272" cy="178" r="9" fill="' + k + '"/>' +
+        '<rect x="160" y="118" width="70" height="12" rx="6" fill="' + k + '"/>';
+      case 'document': return '' +
+        '<rect x="70" y="16" width="232" height="316" rx="18" fill="' + w + '" stroke="' + k + '" stroke-width="10"/>' +
+        '<rect x="104" y="62" width="120" height="16" rx="8" fill="' + k + '"/>' +
+        '<rect x="104" y="108" width="164" height="12" rx="6" fill="' + g2 + '"/>' +
+        '<rect x="104" y="140" width="164" height="12" rx="6" fill="' + g2 + '"/>' +
+        '<rect x="104" y="172" width="120" height="12" rx="6" fill="' + g2 + '"/>' +
+        '<rect x="104" y="204" width="140" height="12" rx="6" fill="' + g3 + '"/>' +
+        '<circle cx="296" cy="300" r="66" fill="' + o + '"/>' +
+        '<path d="M266 300 l20 20 l38 -40" stroke="' + w + '" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+      case 'shield': return '' +
+        '<path d="M190 14 L326 64 V176 C326 268 266 334 190 366 C114 334 54 268 54 176 V64 Z" fill="' + o + '"/>' +
+        '<path d="M190 50 L296 88 V178 C296 250 250 302 190 328 Z" fill="' + w + '" opacity="0.18"/>' +
+        '<path d="M134 192 l38 38 l78 -80" stroke="' + w + '" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+      case 'calendar':
+        var cells = '';
+        for (var r = 0; r < 3; r++) for (var cc = 0; cc < 4; cc++) {
+          var hl = (r === 1 && cc === 2);
+          cells += '<rect x="' + (88 + cc * 56) + '" y="' + (166 + r * 50) + '" width="40" height="34" rx="8" fill="' + (hl ? o : g3) + '"/>';
+        }
+        return '<rect x="56" y="58" width="268" height="290" rx="26" fill="' + w + '" stroke="' + k + '" stroke-width="10"/>' +
+          '<path d="M56 138 V84 a26 26 0 0 1 26 -26 H298 a26 26 0 0 1 26 26 V138 Z" fill="' + k + '"/>' +
+          '<rect x="120" y="30" width="18" height="56" rx="9" fill="' + g1 + '"/><rect x="242" y="30" width="18" height="56" rx="9" fill="' + g1 + '"/>' + cells;
+      case 'chart': return '' +
+        '<rect x="70" y="232" width="56" height="112" rx="8" fill="' + g2 + '"/>' +
+        '<rect x="152" y="176" width="56" height="168" rx="8" fill="' + g1 + '"/>' +
+        '<rect x="234" y="84" width="56" height="260" rx="8" fill="' + o + '"/>' +
+        '<rect x="46" y="344" width="290" height="10" rx="5" fill="' + k + '"/>';
+      case 'card': return '' +
+        '<rect x="40" y="70" width="270" height="170" rx="22" fill="' + g2 + '" transform="rotate(-10 175 155)"/>' +
+        '<rect x="70" y="150" width="270" height="170" rx="22" fill="' + o + '"/>' +
+        '<rect x="102" y="194" width="52" height="40" rx="8" fill="' + w + '" opacity="0.85"/>' +
+        '<rect x="102" y="270" width="150" height="14" rx="7" fill="' + w + '" opacity="0.7"/>' +
+        '<circle cx="292" cy="196" r="18" fill="' + k + '"/>';
+    }
+    return '';
+  }
+
+  function buildThumbnailSVG(title, objectKind) {
+    var S = TN.size, pad = TN.pad;
+    var cleanTitle = String(title || '').replace(/^\(데모\)\s*/, '');
+    var lay = layoutTitle(cleanTitle);
+    var lh = Math.round(lay.size * 1.28);
+    var y0 = pad + Math.round(lay.size * 0.92);
+    var tspans = lay.lines.map(function (line, i) {
+      return '<tspan x="' + pad + '" y="' + (y0 + i * lh) + '">' + escapeHtml(line) + '</tspan>';
+    }).join('');
+    var titleBottom = y0 + (lay.lines.length - 1) * lh + Math.round(lay.size * 0.3);
+    // 오브제는 타이틀보다 작게, 우하단 여백 안쪽에 — 타이틀 영역과 겹치면 더 줄임
+    var objBox = Math.min(400, S - pad - titleBottom - 40);
+    objBox = Math.max(260, objBox);
+    var scale = objBox / 380;
+    var ox = S - pad - objBox, oy = S - pad - objBox;
+    return '<svg viewBox="0 0 ' + S + ' ' + S + '" width="' + S + '" height="' + S + '" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect width="' + S + '" height="' + S + '" fill="#FFFFFF"/>' +
+      '<text font-family="Pretendard, sans-serif" font-size="' + lay.size + '" font-weight="800" letter-spacing="-1.5" fill="' + TN.black + '">' + tspans + '</text>' +
+      '<g transform="translate(' + ox + ' ' + oy + ') scale(' + scale.toFixed(3) + ')">' + thumbObjectSVG(objectKind) + '</g>' +
     '</svg>';
+  }
+
+  var THUMB_FONT_URL = 'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2/Pretendard-ExtraBold.woff2';
+  var thumbFontStylePromise = null;
+  function thumbFontStyle() {
+    if (!thumbFontStylePromise) {
+      thumbFontStylePromise = fetch(THUMB_FONT_URL).then(function (r) { if (!r.ok) throw new Error('font ' + r.status); return r.blob(); })
+        .then(function (blob) { return new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(blob); }); })
+        .then(function (dataUrl) { return '<style>@font-face{font-family:"Pretendard";font-weight:700 900;src:url(' + dataUrl + ') format("woff2");}</style>'; })
+        .catch(function () { thumbFontStylePromise = null; return ''; });
+    }
+    return thumbFontStylePromise;
+  }
+  function withEmbeddedFont(svg) {
+    return thumbFontStyle().then(function (style) { return style ? svg.replace(/(<svg[^>]*>)/, '$1' + style) : svg; });
   }
 
   function svgStringToPngBlob(svgString, width, height) {
@@ -1927,7 +2704,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var r = state.produce.lastResult;
     if (!r) { showStatusIn('produceStatusLine', 'error', '먼저 콘텐츠를 생성하세요.'); return; }
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
-    currentThumbnailSVG = buildThumbnailSVG(r.title || '', p ? p.category : '');
+    var objSel = $('thumbObjectSelect').value;
+    var objKind = objSel === 'auto' ? pickThumbObject((r.title || '') + ' ' + (r.promptText || (p ? p.text : ''))) : objSel;
+    currentThumbnailSVG = buildThumbnailSVG(r.title || '', objKind);
     $('thumbnailPreview').innerHTML = currentThumbnailSVG;
     $('downloadThumbnailPngBtn').style.display = '';
     $('downloadThumbnailSvgBtn').style.display = '';
@@ -1935,7 +2714,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   $('downloadThumbnailPngBtn').addEventListener('click', function () {
     if (!currentThumbnailSVG) return;
-    svgStringToPngBlob(currentThumbnailSVG, 1200, 630).then(function (blob) {
+    withEmbeddedFont(currentThumbnailSVG).then(function (svg) { return svgStringToPngBlob(svg, 1080, 1080); }).then(function (blob) {
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url; a.download = 'geo-thumbnail-' + (state.produce.selectedPromptId || 'draft') + '.png';
@@ -1948,34 +2727,34 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   $('downloadThumbnailSvgBtn').addEventListener('click', function () {
     if (!currentThumbnailSVG) return;
-    var blob = new Blob([currentThumbnailSVG], { type: 'image/svg+xml;charset=utf-8' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = 'geo-thumbnail-' + (state.produce.selectedPromptId || 'draft') + '.svg';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    withEmbeddedFont(currentThumbnailSVG).then(function (svg) {
+      var blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'geo-thumbnail-' + (state.produce.selectedPromptId || 'draft') + '.svg';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
   });
 
-  function callGenerateGeoContent(promptId, promptText, category, contentType, knowledgeText, citationLinks, relatedQuestions) {
+  function callGenerateGeoContent(promptId, promptText, category, contentType, knowledgeText, citationLinks, relatedQuestions, generationGuide) {
     if (state.settings.demoMode || !state.settings.endpoint) {
       return mockGenerateGeoContent(promptText, category, contentType, knowledgeText, citationLinks, relatedQuestions);
     }
     // ★ 주의: /geo-check가 아니라 워커 루트(baseUrl())로 보내야 함.
     //   /geo-check는 별도의 (지금은 죽은) 라우트라서 body.action을 안 보고
     //   바로 처리해버림. action 기반 라우팅은 다른 경로와 안 겹치는 루트로 와야 함.
-    return fetch(baseUrl(), {
+    return fetchWorker(baseUrl(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'generate-geo-content', promptId: promptId, promptText: promptText, category: category,
         contentType: contentType, knowledgeText: knowledgeText, citationLinks: citationLinks || [],
         relatedQuestions: relatedQuestions || [],
+        generationGuide: generationGuide || null,
       })
-    }).then(function (res) {
-      if (!res.ok) return res.json().then(function (e) { throw new Error(e.error || ('HTTP ' + res.status)); });
-      return res.json();
-    }).then(function (data) {
-      if (!data.result) throw new Error('결과가 비어 있습니다');
+    }, 180000).then(function (data) {
+      if (!data.result) { var e = new Error('결과가 비어 있습니다'); e.diag = { kind: 'parse', url: baseUrl(), method: 'POST', status: 200, body: JSON.stringify(data).slice(0, 300), startedAt: Date.now(), elapsedMs: 0 }; throw e; }
       return data.result;
     });
   }
@@ -1994,7 +2773,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
           title: '(데모) ' + promptText,
           slug: 'demo-slug-example',
           metaDescription: '(데모 모드에서는 실제 메타 설명이 생성되지 않습니다)',
-          content: '(데모 모드입니다 — 설정에서 실제 워커 엔드포인트를 연결하면 Claude가 아래 지식베이스를 바탕으로 실제 ' + typeLabel + ' 콘텐츠를 생성합니다.)\n\n---\n\n참고한 지식베이스(' + category + '):\n' + knowledgeText.slice(0, 300) + (knowledgeText.length > 300 ? '...' : '') + linksNote + relNote,
+          content: '(데모 모드입니다 — 설정에서 실제 워커 엔드포인트를 연결하면 Claude가 아래 지식베이스를 바탕으로 실제 ' + typeLabel + ' 콘텐츠를 생성합니다.)\n\n---\n\n참고한 지식베이스(' + category + '):\n' + knowledgeText.slice(0, 300) + (knowledgeText.length > 300 ? '...' : '') + linksNote + relNote +
+            '\n\n## 표 변환 예시는 어떻게 보이나요?\n\n| 구분 | 예시 값 |\n|\u2014|\u2014|\n| 표 구분선 | 대시(\u2014)로 바뀐 구분선도 자동 교정 |\n| 블로그용 복사 | HTML 표로 붙여넣기 |',
           strategyNotes: '데모 콘텐츠에는 전략 메모가 포함되지 않습니다.',
           qualityFlags: [],
         });
@@ -2040,7 +2820,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       domainSelectionInit = true;
     }
     var selected = domains.filter(function (d) { return state.selectedDomains[d.site]; });
-    var colorPalette = ['#FF571F', '#ADADB4', '#6FA8DC', '#B48EAD', '#5A5A62', '#7FBF7F', '#D4A24C', '#5FA8A0'];
+    var colorPalette = ['#FF571F', '#B2B7C0', '#6BA6FF', '#916BAD', '#4D5764', '#53B368', '#FFB431', '#009795'];
     var colorOf = {}; domains.forEach(function (d, i) { colorOf[d.site] = colorPalette[i % colorPalette.length]; });
 
     var sorted = results.slice().sort(function (a, b) { return a.ts - b.ts; });
@@ -2245,24 +3025,22 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   $('startOpsBtn').addEventListener('click', function () {
     if (!confirm('지금부터 자동 모니터링을 시작할까요?\n이후 크론이 실제로 GPT/Gemini/Claude를 호출하며 API 비용이 발생합니다.')) return;
-    fetch(baseUrl() + '/start-operations', { method: 'POST' })
-      .then(function (r) { return r.json(); })
+    fetchWorker(baseUrl() + '/start-operations', { method: 'POST' }, 30000)
       .then(function () { showStatusIn('settingsStatusLine', 'ok', '운영이 시작됐습니다.'); refreshOpsStatus(); })
-      .catch(function () { showStatusIn('settingsStatusLine', 'error', '운영 시작 요청에 실패했습니다.'); });
+      .catch(function (err) { showErrorIn('settingsStatusLine', '운영 시작', err); });
   });
 
   $('stopOpsBtn').addEventListener('click', function () {
     if (!confirm('모니터링을 중지할까요?\n진행 중인 큐와 이미 쌓인 데이터는 그대로 보존되고, 나중에 다시 시작하면 멈췄던 지점부터 이어서 진행됩니다.')) return;
-    fetch(baseUrl() + '/stop-operations', { method: 'POST' })
-      .then(function (r) { return r.json(); })
+    fetchWorker(baseUrl() + '/stop-operations', { method: 'POST' }, 30000)
       .then(function () { showStatusIn('settingsStatusLine', 'ok', '운영이 중지됐습니다.'); refreshOpsStatus(); })
-      .catch(function () { showStatusIn('settingsStatusLine', 'error', '운영 중지 요청에 실패했습니다.'); });
+      .catch(function (err) { showErrorIn('settingsStatusLine', '운영 중지', err); });
   });
 
   function pushPrompts() { if (!syncEnabled()) return; fetch(baseUrl() + '/prompts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.prompts) }).catch(function () {}); }
   function pushBrands() { if (!syncEnabled()) return; fetch(baseUrl() + '/brands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.brands) }).catch(function () {}); }
   function pushActiveEngines() { if (!syncEnabled()) return; fetch(baseUrl() + '/engines-active', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.activeEngines) }).catch(function () {}); }
-  function pushKB() { if (!syncEnabled()) return; fetch(baseUrl() + '/knowledge-base', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.kb) }).catch(function () {}); }
+  function pushKB() { if (!syncEnabled()) return Promise.resolve(null); return fetchWorker(baseUrl() + '/knowledge-base', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.kb) }, 30000); }
   function pushResult(resultRecord) { if (!syncEnabled()) return; fetch(baseUrl() + '/results', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(resultRecord) }).catch(function () {}); }
 
   function resultKey(r) {
@@ -2283,13 +3061,14 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     if (!syncEnabled()) return Promise.resolve();
     var base = baseUrl();
     var since = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+    // 하나라도 실패하면 첫 번째 실패를 기록해 두었다가 "동기화" 버튼에서 원인을 보여줌
+    var firstErr = null;
+    function get(path) { return fetchWorker(base + path, {}, 30000).catch(function (e) { if (!firstErr) firstErr = e; return null; }); }
     return Promise.all([
-      fetch(base + '/prompts').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-      fetch(base + '/brands').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-      fetch(base + '/engines-active').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-      fetch(base + '/results?since=' + since).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-      fetch(base + '/knowledge-base').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+      get('/prompts'), get('/brands'), get('/engines-active'), get('/results?since=' + since), get('/knowledge-base')
     ]).then(function (res) {
+      if (firstErr && res.every(function (x) { return x === null; })) throw firstErr; // 전부 실패 = 연결 자체 문제
+      if (firstErr) lastSyncPartialError = firstErr;
       var serverPrompts = res[0] && res[0].prompts;
       var serverBrands = res[1] && res[1].brands;
       var serverEngines = res[2] && res[2].activeEngines;
@@ -2306,7 +3085,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       else { pushActiveEngines(); }
 
       if (serverKB && Object.keys(serverKB).length) { state.kb = serverKB; save(LS_KB, state.kb); }
-      else if (state.kb && Object.keys(state.kb).length) { pushKB(); }
+      else if (state.kb && Object.keys(state.kb).length) { pushKB().catch(function () {}); }
 
       var added = 0;
       if (serverResults) added = mergeResults(serverResults);
@@ -2316,6 +3095,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       return added;
     });
   }
+  var lastSyncPartialError = null;
   function syncStatusText() {
     if (!syncEnabled()) return '데모 모드 — 서버 동기화 꺼짐';
     if (!lastSyncAt) return '아직 동기화하지 않음';
@@ -2334,12 +3114,16 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   $('demoSwitch').addEventListener('click', function () {
     this.classList.toggle('on');
     state.settings.demoMode = this.classList.contains('on');
+    state.settings.demoModeChosen = true;
     save(LS_SETTINGS, state.settings);
     refreshConnStatus();
     showStatusIn('settingsStatusLine', 'ok', state.settings.demoMode ? '데모 모드 켜짐 (바로 적용됨)' : '데모 모드 꺼짐 (바로 적용됨)');
   });
   $('saveSettingsBtn').addEventListener('click', function () {
-    state.settings.endpoint = $('endpointInput').value.trim();
+    var ep = $('endpointInput').value.trim();
+    // 비우거나 기본 주소면 고정 엔드포인트로, 다른 주소를 넣으면 그 PC에서만 사용자 지정 주소로 저장
+    state.settings.endpoint = ep || DEFAULT_ENDPOINT;
+    state.settings.customEndpoint = !!ep && ep !== DEFAULT_ENDPOINT;
     state.settings.demoMode = $('demoSwitch').classList.contains('on');
     save(LS_SETTINGS, state.settings);
     refreshConnStatus();
@@ -2350,9 +3134,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var ep = $('endpointInput').value.trim();
     if (!ep) { showStatusIn('settingsStatusLine', 'error', '엔드포인트 URL을 먼저 입력하세요.'); return; }
     showStatusIn('settingsStatusLine', 'loading', '연동 테스트 중');
-    fetch(ep, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ engine: 'ping', prompt: 'ping', brands: [] }) })
-      .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); showStatusIn('settingsStatusLine', 'ok', '연동 성공'); })
-      .catch(function (err) { showStatusIn('settingsStatusLine', 'error', '연동 실패 - ' + err.message); });
+    fetchWorker(ep, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ engine: 'ping', prompt: 'ping', brands: [] }) }, 20000)
+      .then(function () { showStatusIn('settingsStatusLine', 'ok', '연동 성공 (접속 주소: ' + location.origin + ')'); })
+      .catch(function (err) { showErrorIn('settingsStatusLine', '연동 테스트', err); });
   });
 
   /* ---------------- init ---------------- */
@@ -2437,8 +3221,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     this.disabled = true;
     this.textContent = '🌐 수집 중...';
     showStatusIn('refreshStatusLine', 'loading', '구글 트렌드 + 네이버 데이터랩 수집 중 (30초~1분 소요)');
-    fetch(baseUrl() + '/trend-refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    fetchWorker(baseUrl() + '/trend-refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }, 180000)
       .then(function (data) {
         $('collectTrendsBtn').disabled = false;
         $('collectTrendsBtn').textContent = '🌐 트렌드 지금 수집';
@@ -2452,7 +3235,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       .catch(function (err) {
         $('collectTrendsBtn').disabled = false;
         $('collectTrendsBtn').textContent = '🌐 트렌드 지금 수집';
-        showStatusIn('refreshStatusLine', 'error', '수집 실패: ' + err.message);
+        showErrorIn('refreshStatusLine', '트렌드 수집', err);
       });
   });
 
@@ -2488,7 +3271,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       })
       .catch(function (err) {
         $('runRefreshBtn').disabled = false;
-        showStatusIn('refreshStatusLine', 'error', '생성 실패: ' + err.message);
+        showErrorIn('refreshStatusLine', '교체 후보 생성', err);
       });
   });
 
@@ -2499,12 +3282,11 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     if (state.settings.demoMode || !state.settings.endpoint) {
       return mockRefreshGenerate(keywords, memo, targets);
     }
-    return fetch(state.settings.endpoint.replace(/\/geo-check\/?$/, '') + '/refresh-prompts', {
+    return fetchWorker(baseUrl() + '/refresh-prompts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ keywords: keywords, memo: memo, targets: targets })
-    }).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-      .then(function (data) { return data.candidates || []; });
+    }, 120000).then(function (data) { return data.candidates || []; });
   }
 
   function samplePromptsForRefresh(count) {
@@ -2561,7 +3343,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     list.innerHTML = '';
     $('refreshCandidateCount').textContent = candidates.length;
     candidates.forEach(function (c, i) {
-      var catColor = c.newCategory === 'OK 브랜드' ? '#FF571F' : (c.newCategory === '수신상품' ? '#ADADB4' : '#6FA8DC');
+      var catColor = c.newCategory === 'OK 브랜드' ? '#FF571F' : (c.newCategory === '수신상품' ? '#B2B7C0' : '#6BA6FF');
       var card = document.createElement('div');
       card.className = 'refresh-cand';
       card.innerHTML =
@@ -2688,7 +3470,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     brandRanking.forEach(function(b) {
       var row = document.createElement('tr');
       row.style.borderBottom = '1px solid var(--line)';
-      var sentimentColor = b.sentiment >= 60 ? '#6FA8DC' : (b.sentiment >= 40 ? '#ADADB4' : '#FF571F');
+      var sentimentColor = b.sentiment >= 60 ? '#6BA6FF' : (b.sentiment >= 40 ? '#B2B7C0' : '#FF571F');
       row.innerHTML = '<td style="padding: 8px;">' + b.rank + '</td><td style="padding: 8px;">' + escapeHtml(b.brand) + '</td><td style="padding: 8px; text-align: right;">' + (b.hits / totalCount * 100).toFixed(1) + '%</td><td style="padding: 8px; text-align: right; color: ' + sentimentColor + ';">' + b.sentiment + '%</td><td style="padding: 8px; text-align: right;">' + b.hits + '회</td>';
       brandBody.appendChild(row);
     });
@@ -2733,7 +3515,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       var lower = site.toLowerCase();
       var cat = lower.includes('youtube') || lower.includes('instagram') || lower.includes('facebook') ? '소셜' : 
                 (lower.includes('okbank') || lower.includes('ok금융') ? '브랜드' : '매체');
-      var catColor = cat === '브랜드' ? '#FF571F' : (cat === '소셜' ? '#B48EAD' : '#6FA8DC');
+      var catColor = cat === '브랜드' ? '#FF571F' : (cat === '소셜' ? '#916BAD' : '#6BA6FF');
       row.innerHTML = '<td style="padding: 8px;">' + escapeHtml(site) + '</td><td style="padding: 8px; text-align: right;">' + count + '회</td><td style="padding: 8px;"><span style="color: ' + catColor + '; font-size: 11px;">' + cat + '</span></td>';
       // ★ 신규: 인용 출처 행 클릭 시 해당 출처의 상세 페이지(전체 데이터 기준)를 보여줌
       row.style.cursor = 'pointer';
@@ -2752,8 +3534,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       var row = document.createElement('tr');
       row.style.borderBottom = '1px solid var(--line)';
       var mentionedText = mentioned && mentioned.mentioned ? '✓ 언급' : '✗ 없음';
-      var mentionedColor = mentioned && mentioned.mentioned ? '#6FA8DC' : '#ADADB4';
-      var sentimentColor = sentiment === 'positive' ? '#6FA8DC' : (sentiment === 'negative' ? '#FF571F' : '#ADADB4');
+      var mentionedColor = mentioned && mentioned.mentioned ? '#6BA6FF' : '#B2B7C0';
+      var sentimentColor = sentiment === 'positive' ? '#6BA6FF' : (sentiment === 'negative' ? '#FF571F' : '#B2B7C0');
       var ts = new Date(r.ts || Date.now());
       var dateStr = ts.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
       row.innerHTML = '<td style="padding: 8px;">' + dateStr + '</td><td style="padding: 8px;">' + (ENGINE_LABEL_MAP[r.engine] || r.engine) + '</td><td style="padding: 8px; color: ' + mentionedColor + ';">' + mentionedText + '</td><td style="padding: 8px; color: ' + sentimentColor + ';">' + (sentiment || '-') + '</td><td style="padding: 8px; font-size: 11px;">' + escapeHtml(source) + '</td>';
@@ -2831,7 +3613,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
   window.openAnswerDetailFor = function (r) {
     $('adPromptText').textContent = r.promptText || '';
-    var dotColor = ENGINE_COLOR[r.engine] || '#ADADB4';
+    var dotColor = ENGINE_COLOR[r.engine] || '#B2B7C0';
     $('adModel').innerHTML = '<span style="width:8px; height:8px; border-radius:50%; background:' + dotColor + '; display:inline-block;"></span><span>' + (ENGINE_LABEL[r.engine] || r.engine) + '</span>';
 
     var chipsWrap = $('adBrandChips');
