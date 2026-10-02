@@ -886,6 +886,17 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function escapeHtml(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function truncate(s, n) { return (s && s.length > n) ? s.slice(0, n) + '…' : (s || ''); }
   function domainFrom(url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return url || '알수없음'; } }
+  // Gemini 검색 그라운딩은 실제 출처 대신 vertexaisearch.cloud.google.com/grounding-api-redirect/... 형태의
+  // "구글 리다이렉트 주소"를 주고, 진짜 사이트 도메인은 title(예: "naver.com")에 넣어줌.
+  // → 사이트 집계는 title의 도메인으로, 인용 링크 후보에서는 이 주소를 제외(시간이 지나면 만료됨).
+  function isGeminiRedirect(s) { return !!s && (/vertexaisearch\.cloud\.google\.com/.test(s.url || '') || /vertexaisearch\.cloud\.google\.com/.test(s.site || '')); }
+  function sourceSite(s) {
+    if (isGeminiRedirect(s)) {
+      var t = String(s.title || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
+      return /^[a-z0-9.-]+\.[a-z]{2,}$/.test(t) ? t : '출처 미확인(Gemini)';
+    }
+    return s.site || domainFrom(s.url) || '알수없음';
+  }
   function sourceCategory(domain) {
     if (OWN_DOMAINS.indexOf(domain) > -1) return 'owned';
     if (SOCIAL_DOMAINS.indexOf(domain) > -1) return 'social';
@@ -1874,9 +1885,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     state.results.forEach(function (r) {
       if (r.promptId !== promptId) return;
       (r.sources || []).forEach(function (s) {
-        if (!s || !s.url) return;
+        if (!s || !s.url || isGeminiRedirect(s)) return; // 만료되는 구글 리다이렉트 주소는 본문 인용에 쓰지 않음
         var key = s.url;
-        if (!freq[key]) freq[key] = { url: s.url, title: s.title || '', site: s.site || domainFrom(s.url), count: 0 };
+        if (!freq[key]) freq[key] = { url: s.url, title: s.title || '', site: sourceSite(s), count: 0 };
         freq[key].count++;
       });
     });
@@ -2789,7 +2800,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var total = 0;
     results.forEach(function (r) {
       (r.sources || []).forEach(function (s) {
-        var site = s.site || domainFrom(s.url) || '알수없음';
+        var site = sourceSite(s);
         if (!map[site]) map[site] = { site: site, count: 0, category: sourceCategory(site), pages: [] };
         map[site].count++;
         total++;
@@ -2804,7 +2815,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var f = state.filters.sources;
     var rs = resultsByFilter(f);
     if (f.sourceCategory && f.sourceCategory !== 'all') {
-      rs = rs.map(function (r) { return Object.assign({}, r, { sources: (r.sources || []).filter(function (s) { return sourceCategory(s.site || domainFrom(s.url)) === f.sourceCategory; }) }); });
+      rs = rs.map(function (r) { return Object.assign({}, r, { sources: (r.sources || []).filter(function (s) { return sourceCategorysourceSite(s) === f.sourceCategory; }) }); });
     }
     if (f.search) {
       var q = f.search.toLowerCase();
@@ -2829,7 +2840,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var pointsBySite = {}; selected.forEach(function (d) { pointsBySite[d.site] = []; });
     sorted.forEach(function (r) {
       (r.sources || []).forEach(function (s) {
-        var site = s.site || domainFrom(s.url);
+        var site = sourceSite(s);
         runningTotal++;
         if (running.hasOwnProperty(site)) running[site]++;
       });
@@ -2919,7 +2930,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var totalCitations = 0;
     results.forEach(function (r) {
       (r.sources || []).forEach(function (s) {
-        var site = s.site || domainFrom(s.url);
+        var site = sourceSite(s);
         var key = s.url || (site + '::' + (s.title || ''));
         if (!pageMap[key]) pageMap[key] = { site: site, url: s.url, title: s.title, count: 0, promptIds: {}, engines: {} };
         pageMap[key].count++;
@@ -3645,7 +3656,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
         row.style.cssText = 'padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;';
         var linkLabel = escapeHtml(s.title || s.site || s.url || '');
         var link = s.url ? '<a href="' + escapeHtml(s.url) + '" target="_blank" rel="noopener">' + linkLabel + '</a>' : linkLabel;
-        row.innerHTML = '<span style="color:var(--cream);">' + escapeHtml(s.site || '') + '</span><span style="color:var(--cream-faint);"> · </span>' + link;
+        row.innerHTML = '<span style="color:var(--cream);">' + escapeHtml(sourceSite(s)) + '</span><span style="color:var(--cream-faint);"> · </span>' + link;
         srcWrap.appendChild(row);
       });
     }
@@ -3662,7 +3673,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var matches = [];
     state.results.forEach(function (r) {
       (r.sources || []).forEach(function (s) {
-        var d = s.site || domainFrom(s.url);
+        var d = sourceSite(s);
         if (d === site) matches.push({ result: r, source: s });
       });
     });
@@ -3707,7 +3718,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var uniqueByPrompt = {};
     state.results.forEach(function (r) {
       (r.sources || []).forEach(function (s) {
-        var isMatch = opts.url ? (s.url === opts.url) : ((s.site || domainFrom(s.url)) === opts.site);
+        var isMatch = opts.url ? (s.url === opts.url) : (sourceSite(s) === opts.site);
         if (isMatch && !uniqueByPrompt[r.promptId]) uniqueByPrompt[r.promptId] = r;
       });
     });
