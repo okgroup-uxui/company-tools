@@ -245,6 +245,66 @@
   .pd-kw { display: flex; justify-content: space-between; gap: 12px; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--cream); }
   .pd-kw b { font-family: var(--font-hud); font-size: 11.5px; color: var(--cream-dim); flex-shrink: 0; }
 
+  /* ---------- 콘텐츠 에이전트 (Onthe식) ---------- */
+  .agent-layout { display: grid; grid-template-columns: 340px 1fr; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; min-height: 560px; }
+  @media (max-width: 960px) { .agent-layout { grid-template-columns: 1fr; } }
+  .agent-left { padding: 18px; border-right: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; }
+  .agent-right { padding: 22px 26px; background: var(--surface-2); min-width: 0; }
+  .seg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 18px; }
+  .seg2 button { border: none; background: transparent; padding: 8px; border-radius: 6px; font-size: 12.5px; color: var(--cream-faint); cursor: pointer; }
+  .seg2 button.active { background: var(--surface); color: var(--cream); box-shadow: 0 1px 3px #161C2622; font-weight: 600; }
+  .fld-label { font-size: 13px; font-weight: 600; color: var(--cream); margin-top: 14px; }
+  .fld-sub { font-size: 11.5px; color: var(--cream-faint); margin: 3px 0 8px; }
+  .fld-select { width: 100%; padding: 9px 10px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--cream); }
+  .picker-field { width: 100%; display: flex; align-items: center; gap: 8px; text-align: left; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--cream-dim); font-size: 13px; cursor: pointer; line-height: 1.45; }
+  .picker-field:hover { border-color: var(--ink-300); }
+  .picker-field.has-value { color: var(--cream); }
+  .picker-field .pf-ico { flex-shrink: 0; opacity: .6; }
+  .adv-box { margin-top: 16px; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
+  .adv-box summary { cursor: pointer; font-size: 12px; color: var(--cream-dim); }
+  .adv-box[open] summary { margin-bottom: 8px; }
+  .btn-block { width: 100%; margin-top: 18px; padding: 11px; font-size: 13.5px; }
+  #produceManual, #produceAuto { display: flex; flex-direction: column; flex: 1; }
+  #produceManual .btn-block { margin-top: auto; }
+  #produceManual .adv-box + .btn-block { margin-top: 18px; }
+  .how-box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: var(--surface-2); }
+  .how-title { font-size: 12.5px; font-weight: 600; color: var(--cream); margin-bottom: 10px; }
+  .how-step { display: flex; gap: 10px; font-size: 12px; color: var(--cream-dim); line-height: 1.55; margin-bottom: 8px; }
+  .how-step b { flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--surface-3); display: inline-flex; align-items: center; justify-content: center; font-size: 10.5px; }
+  .how-step strong { color: var(--cream); }
+  .day-chips { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; }
+  .day-chips button { border: 1px solid var(--line); background: var(--surface); padding: 7px 0; border-radius: 6px; font-size: 12px; color: var(--cream-faint); cursor: pointer; }
+  .day-chips button.on { background: var(--bg-o-200); border-color: var(--orange); color: var(--point-strong); font-weight: 700; }
+  .auto-state { margin-top: 14px; font-size: 12px; color: var(--cream-dim); line-height: 1.6; border-radius: 6px; }
+  .auto-state.on { background: #E9F8E2; color: #137C09; padding: 10px 12px; }
+  .auto-state.off { background: var(--surface-2); padding: 10px 12px; }
+  #produceAuto .btn-block { margin-top: auto; }
+  .flow-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 500px; text-align: center; }
+  .flow-title { font-size: 17px; font-weight: 700; color: var(--cream); }
+  .flow-desc { font-size: 12.5px; color: var(--cream-faint); margin: 4px 0 26px; }
+  .flow-box { width: min(340px, 100%); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; background: var(--surface); }
+  .flow-box.final { border-color: var(--orange); }
+  .flow-box h4 { margin: 0 0 6px; font-size: 13px; color: var(--cream); }
+  .flow-box p { margin: 6px 0 0; font-size: 11.5px; color: var(--cream-faint); line-height: 1.5; }
+  .flow-line { width: 1px; height: 22px; background: var(--line-amber); }
+  .flow-bar { display: flex; align-items: center; gap: 8px; justify-content: center; font-family: var(--font-hud); font-size: 11px; color: var(--cream-dim); }
+  .flow-bar i { display: block; width: 120px; height: 5px; border-radius: 3px; background: var(--surface-3); position: relative; overflow: hidden; }
+  .flow-bar i span { position: absolute; left: 0; top: 0; bottom: 0; background: var(--orange); border-radius: 3px; }
+  .result-label { font-size: 12.5px; font-weight: 600; color: var(--cream-dim); }
+  .result-title { font-size: 24px; line-height: 1.4; margin: 6px 0 10px; color: var(--cream); }
+  .pp-backdrop { position: fixed; inset: 0; background: #00000080; display: none; align-items: center; justify-content: center; z-index: 60; padding: 20px; }
+  .pp-backdrop.open { display: flex; }
+  .pp-modal { background: var(--surface); border-radius: 10px; width: min(820px, 100%); max-height: 90vh; display: flex; flex-direction: column; padding: 20px 22px; box-shadow: 0 20px 60px #00000055; }
+  .pp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .pp-head h3 { margin: 0; font-size: 16px; color: var(--cream); }
+  .pp-tip { font-size: 12px; color: var(--cream-dim); background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 9px 12px; margin-bottom: 10px; }
+  .pp-table-wrap { overflow-y: auto; margin-top: 10px; border: 1px solid var(--line); border-radius: 6px; flex: 1; min-height: 200px; }
+  .pp-table-wrap tbody tr { cursor: pointer; }
+  .pp-table-wrap tbody tr:hover td { background: var(--surface-2); }
+  .pp-table-wrap tbody tr.selected td { background: var(--bg-o-200); }
+  .recent-badge { font-size: 10.5px; padding: 1px 7px; border-radius: 8px; background: #ECF3FF; color: #0E56C4; margin-left: 6px; white-space: nowrap; }
+  .sov-low { color: #B20000 !important; background: #FFE8E8 !important; }
+
   /* ---------- rank list (brand ranking with pagination) ---------- */
   .rank-list { display: flex; flex-direction: column; gap: 4px; }
   .rank-row { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-radius: var(--radius); }
@@ -728,50 +788,37 @@
 
     <section class="panel">
       <div class="panel-head">
-        <div><h2>낮은 노출 점유율 프롬프트</h2><p class="desc">점유율이 낮은 질문부터 골라서 GEO 콘텐츠로 보완하세요. (스캔 데이터가 있는 프롬프트만 표시)</p></div>
+        <div><h2>GEO 콘텐츠 작성</h2><p class="desc">SoV가 낮은 프롬프트의 AI 검색 노출을 높이는 콘텐츠를 만듭니다. AI가 생성한 콘텐츠는 참고용 초안이므로 발행 전 검토해 주세요.</p></div>
       </div>
-      <div class="data-table-wrap">
-        <table class="data-table" id="lowSovTable">
-          <thead>
-            <tr><th></th><th>프롬프트</th><th>그룹</th><th>노출 점유율</th></tr>
-          </thead>
-          <tbody id="lowSovTableBody"></tbody>
-        </table>
-      </div>
-    </section>
+      <div class="agent-layout">
+        <div class="agent-left">
+          <div class="seg2" id="produceModeTabs" style="display:none;"><!-- 빠른 시작(자동 생성)은 숨김 — 직접 선택해서 생성하는 방식만 사용 --><button type="button" data-mode="manual" class="active">직접 입력</button><button type="button" data-mode="auto">⚡ 빠른 시작</button></div>
 
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>지식베이스</h2><p class="desc">카테고리별로 에이전트가 참고할 사실 정보(상품 조건·혜택·수치)를 입력하세요. 여기 없는 내용은 콘텐츠에 포함되지 않습니다.</p></div>
-      </div>
-      <div class="subtabs" id="kbCatTabs">
-        <button class="chip-tab-btn active" data-kbcat="OK 브랜드">OK 브랜드</button>
-        <button class="chip-tab-btn" data-kbcat="수신상품">수신상품</button>
-        <button class="chip-tab-btn" data-kbcat="여신상품">여신상품</button>
-      </div>
-      <textarea id="kbTextarea" rows="10" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:13px; padding:10px 12px; border-radius:var(--radius); resize:vertical;" placeholder="예시:
-- 파킹통장 기본금리 OO%, 최대 OO%
-- 가입조건: ...
-- 이벤트/혜택: ..."></textarea>
-      <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-        <button class="btn btn-ghost btn-sm" id="resetKbBtn" style="margin-right:8px;" title="OK 브랜드 지식베이스를 기본 내용으로 되돌립니다">기본값으로 되돌리기</button>
-        <button class="btn btn-primary btn-sm" id="saveKbBtn">저장</button>
-      </div>
-      <div class="status-line" id="kbStatusLine" style="margin-top:8px;"></div>
-    </section>
+          <div id="produceManual">
+            <div class="fld-label">프롬프트 선택</div>
+            <div class="fld-sub">SoV가 낮은 프롬프트 1개를 선택하세요</div>
+            <button type="button" class="picker-field" id="openPromptPickerBtn"><span class="pf-ico">🔍</span><span id="produceSelectedText">프롬프트 선택하기</span></button>
 
-    <section class="panel">
-      <div class="panel-head">
-        <div><h2>GEO 콘텐츠 생성</h2><p class="desc">선택한 질문 + 지식베이스를 바탕으로 AI 검색엔진에 인용되기 쉬운 콘텐츠를 만듭니다.</p></div>
+            <div class="fld-label">지식 베이스</div>
+            <select id="produceKbSelect" class="fld-select">
+              <option value="OK 브랜드">OK브랜드 (기본)</option>
+              <option value="여신상품">여신상품</option>
+              <option value="수신상품">수신상품</option>
+            </select>
+            <div class="fld-sub" id="produceKbHint">에이전트가 참고할 지식 베이스를 선택하세요</div>
+
+            <div class="fld-label">콘텐츠 형태</div>
+      <div class="subtabs" id="contentTypeTabs">
+        <button class="chip-tab-btn active" data-contenttype="blog">블로그</button>
+        <button class="chip-tab-btn" data-contenttype="tistory">티스토리</button>
+        <button class="chip-tab-btn" data-contenttype="faq">FAQ</button>
       </div>
 
-      <div id="produceSelectedWrap" style="border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:16px;">
-        <div style="font-size:11.5px; color:var(--cream-faint); margin-bottom:6px;">선택된 타겟 질문</div>
-        <div id="produceSelectedText" style="font-size:13.5px; color:var(--cream-dim);">위 표에서 프롬프트를 선택하세요.</div>
-      </div>
 
+            <details class="adv-box">
+              <summary>고급 설정 · 생성 계획과 인용 링크</summary>
       <!-- 생성 계획: 질의 해석(라우팅) → 하위 질문 팬아웃 → 근거(지식베이스) 수집 -->
-      <div id="producePlanWrap" style="display:none; border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; margin-bottom:16px;">
+      <div id="producePlanWrap" style="display:none; padding:4px 0 8px;">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
           <div style="font-size:11.5px; color:var(--cream-faint);">생성 계획 <span>(질의 해석 → 하위 질문 → 근거 수집 → 품질 게이트)</span></div>
           <label style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--cream-dim);">질의 유형
@@ -795,19 +842,40 @@
         <textarea id="extraLinksInput" rows="2" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-hud); font-size:12px; padding:8px 10px; border-radius:var(--radius); resize:vertical;" placeholder="추가로 인용하고 싶은 링크가 있으면 한 줄에 하나씩 붙여넣으세요 (예: 공식 상품페이지 URL). 비워두면 위 자동 감지 출처만 사용합니다."></textarea>
       </div>
 
-      <div style="font-size:11.5px; color:var(--cream-dim); margin-bottom:8px;">콘텐츠 형태</div>
-      <div class="subtabs" id="contentTypeTabs">
-        <button class="chip-tab-btn active" data-contenttype="blog">블로그</button>
-        <button class="chip-tab-btn" data-contenttype="tistory">티스토리</button>
-        <button class="chip-tab-btn" data-contenttype="faq">FAQ</button>
-      </div>
+            </details>
 
-      <button class="btn btn-primary" id="generateGeoContentBtn">✦ 콘텐츠 생성</button>
-      <div class="status-line" id="produceStatusLine" style="margin-top:12px;"></div>
+            <button class="btn btn-primary btn-block" id="generateGeoContentBtn">▷ 콘텐츠 생성 시작</button>
+            <div class="status-line" id="produceStatusLine" style="margin-top:10px;"></div>
+          </div>
 
-      <div id="produceResultWrap" style="display:none; margin-top:20px;">
+          <div id="produceAuto" style="display:none;">
+            <div class="how-box">
+              <div class="how-title">어떻게 동작하나요?</div>
+              <div class="how-step"><b>1</b><span>등록된 프롬프트 중 <strong>SoV가 낮고, 최근 60일간 콘텐츠를 만들지 않은 프롬프트</strong>를 자동으로 고릅니다</span></div>
+              <div class="how-step"><b>2</b><span>선택된 프롬프트에 맞춰 지식 베이스·인용 출처를 모아 <strong>콘텐츠를 자동 생성</strong>합니다</span></div>
+              <div class="how-step"><b>3</b><span>처리한 프롬프트는 건너뛰고, <strong>매주 정한 요일에 새 프롬프트를 자동 처리</strong>합니다</span></div>
+            </div>
+            <div class="fld-label">📅 자동 반복 스케줄 <span style="color:var(--cream-faint); font-weight:400;">주 2회 추천</span></div>
+            <div class="day-chips" id="autoDayChips"></div>
+            <input type="time" id="autoTimeInput" class="fld-select" value="08:30" style="margin-top:8px;">
+            <div class="fld-label">지식 베이스</div>
+            <select id="autoKbSelect" class="fld-select"><option value="OK 브랜드">OK브랜드 (기본)</option><option value="여신상품">여신상품</option><option value="수신상품">수신상품</option></select>
+            <div class="auto-state" id="autoStateBox"></div>
+            <button class="btn btn-primary btn-block" id="autoStartBtn">⚡ 자동 콘텐츠 생성 시작</button>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <button class="btn btn-ghost btn-sm" id="autoRunNowBtn" style="flex:1;">지금 1회 실행</button>
+              <button class="btn btn-ghost btn-sm" id="autoStopBtn" style="flex:1;">자동 실행 중지</button>
+            </div>
+            <div class="fld-sub" style="text-align:center; margin-top:8px;">첫 실행 후 매주 자동으로 반복됩니다 (대시보드를 닫아도 워커가 실행)</div>
+            <div class="status-line" id="autoStatusLine" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <div class="agent-right">
+          <div id="produceFlow" class="flow-wrap"></div>
+      <div id="produceResultWrap" style="display:none;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-          <div id="produceResultTitle" style="font-family:var(--font-hud); font-size:14px; color:var(--cream); font-weight:600;"></div>
+          <div class="result-label">Result</div>
           <div style="display:flex; gap:8px;">
             <button class="btn btn-primary btn-sm" id="copyGeoHtmlBtn" title="제목과 본문이 함께 복사되고, 표는 HTML <table>로 들어가서 블로그 에디터에 붙여넣으면 바로 표로 보입니다">블로그용 복사</button>
             <button class="btn btn-ghost btn-sm" id="copyGeoContentBtn">텍스트 복사</button>
@@ -815,10 +883,11 @@
             <button class="btn btn-ghost btn-sm" id="downloadGeoContentBtn">.md 다운로드</button>
           </div>
         </div>
+        <h1 id="produceResultTitle" class="result-title"></h1>
         <div id="produceMetaInfo" style="font-size:11.5px; color:var(--cream-faint); margin-bottom:12px; display:flex; flex-direction:column; gap:3px;"></div>
         <div id="produceQualityWarning" style="display:none; font-size:12px; color:#B84018; background:var(--bg-o-200); border:1px solid var(--bg-o-300); border-radius:var(--radius); padding:10px 12px; margin-bottom:12px;"></div>
         <div id="produceGateWrap" style="display:none; border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:12px;"></div>
-        <div id="produceResultContent" style="font-size:13.5px; line-height:1.7; color:var(--cream-dim); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:16px; max-height:520px; overflow-y:auto;"></div>
+        <div id="produceResultContent" style="font-size:13.5px; line-height:1.7; color:var(--cream-dim); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:16px; max-height:640px; overflow-y:auto; background:var(--surface);"></div>
         <div id="produceStrategyNotes" style="margin-top:12px; font-size:12.5px; color:var(--cream-faint); border-left:2px solid var(--orange); padding-left:12px; line-height:1.6;"></div>
 
         <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
@@ -844,11 +913,13 @@
           <div id="thumbnailPreview" style="width:100%; max-width:360px; aspect-ratio:1/1; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:11.5px; color:var(--cream-faint);">콘텐츠 생성 후 썸네일을 만들 수 있습니다</div>
         </div>
       </div>
+        </div>
+      </div>
     </section>
 
     <section class="panel">
       <div class="panel-head">
-        <div><h2>생성 히스토리</h2><p class="desc">지금까지 만든 콘텐츠 목록입니다. 클릭하면 위 결과창에 다시 불러옵니다.</p></div>
+        <div><h2>실행 기록</h2><p class="desc">지금까지 만든 콘텐츠입니다. 클릭하면 위 결과창에 다시 불러옵니다. (자동 실행 포함)</p></div>
       </div>
       <div class="data-table-wrap">
         <table class="data-table" id="contentHistoryTable">
@@ -857,10 +928,45 @@
         </table>
       </div>
     </section>
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>지식 베이스 관리</h2><p class="desc">카테고리별로 에이전트가 참고할 사실 정보(상품 조건·혜택·수치)를 입력하세요. 여기 없는 내용은 콘텐츠에 포함되지 않습니다.</p></div>
+      </div>
+      <div class="subtabs" id="kbCatTabs">
+        <button class="chip-tab-btn active" data-kbcat="OK 브랜드">OK 브랜드</button>
+        <button class="chip-tab-btn" data-kbcat="수신상품">수신상품</button>
+        <button class="chip-tab-btn" data-kbcat="여신상품">여신상품</button>
+      </div>
+      <textarea id="kbTextarea" rows="10" style="width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-family:var(--font-kr); font-size:13px; padding:10px 12px; border-radius:var(--radius); resize:vertical;" placeholder="예시:
+- 파킹통장 기본금리 OO%, 최대 OO%
+- 가입조건: ...
+- 이벤트/혜택: ..."></textarea>
+      <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+        <button class="btn btn-ghost btn-sm" id="resetKbBtn" style="margin-right:8px;" title="OK 브랜드 지식베이스를 기본 내용으로 되돌립니다">기본값으로 되돌리기</button>
+        <button class="btn btn-primary btn-sm" id="saveKbBtn">저장</button>
+      </div>
+      <div class="status-line" id="kbStatusLine" style="margin-top:8px;"></div>
+    </section>
+
+
+    <!-- 프롬프트 선택 팝업 -->
+    <div class="pp-backdrop" id="promptPickerModal">
+      <div class="pp-modal">
+        <div class="pp-head"><h3>프롬프트 선택</h3><button type="button" class="icon-btn" id="closePromptPickerBtn">✕</button></div>
+        <div class="pp-tip">ⓘ 스캔이 2번 이상 쌓인 프롬프트로 실행하면 콘텐츠 품질이 더 좋아요. (충분한 인용·비교 데이터 기준)</div>
+        <select id="pickerGroupSelect" class="fld-select"></select>
+        <input type="text" id="pickerSearch" class="fld-select" placeholder="🔍 프롬프트 검색..." style="margin-top:8px;">
+        <div class="pp-table-wrap">
+          <table class="data-table" id="lowSovTable">
+            <thead><tr><th>프롬프트</th><th style="width:110px;">등록일</th><th style="width:90px; text-align:right;">30일 SoV</th></tr></thead>
+            <tbody id="lowSovTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pager" id="pickerPager"></div>
+      </div>
+    </div>
 
   </div>
-
-</div>
 
 <!-- ================= settings modal ================= -->
 <div class="modal-backdrop" id="modalBackdrop">
@@ -1009,7 +1115,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     selectedPrompts: {},
     selectedDomains: {},
     activeSubtab: 'site',
-    produce: { selectedPromptId: null, kbCategory: 'OK 브랜드', contentType: 'blog', lastResult: null, historyCache: {} }
+    produce: { selectedPromptId: null, kbCategory: 'OK 브랜드', kbSelected: 'OK 브랜드', contentType: 'blog', lastResult: null, historyCache: {}, mode: 'manual', pickerGroup: 'all', pickerSearch: '', pickerPage: 1, schedule: null }
   };
   if (!state.prompts.length) state.prompts = seedPrompts();
   function ensureDefaultKb(pushIfFilled) {
@@ -2320,27 +2426,54 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       .map(function (p) { return p.text; });
   }
 
+  // 최근 30일 기준 프롬프트 SoV(OK저축은행 언급률). 스캔 없으면 null
+  function promptSov30(p) {
+    var from = Date.now() - 30 * DAY_MS;
+    var rs = state.results.filter(function (r) { return r.promptId === p.id && isFinite(r.ts) && r.ts >= from; });
+    return rs.length ? rs.filter(ownMentioned).length / rs.length * 100 : null;
+  }
+  // 최근 60일 안에 콘텐츠를 만든 프롬프트 (실행 기록 기준)
+  function recentlyUsedPromptIds() {
+    var m = {}, from = Date.now() - 60 * DAY_MS;
+    Object.keys(state.produce.historyCache || {}).forEach(function (k) { var it = state.produce.historyCache[k]; if (it && it.promptId && (it.createdAt || 0) >= from) m[it.promptId] = 1; });
+    return m;
+  }
+  function openPromptPicker() {
+    var sel = $('pickerGroupSelect');
+    sel.innerHTML = '<option value="all">활성화된 프롬프트 (전체)</option>' + CATEGORIES.map(function (c) { return '<option value="' + escapeHtml(c) + '"' + (state.produce.pickerGroup === c ? ' selected' : '') + '>' + escapeHtml(c) + '</option>'; }).join('');
+    $('pickerSearch').value = state.produce.pickerSearch || '';
+    renderLowSovTable();
+    $('promptPickerModal').classList.add('open');
+    setTimeout(function () { $('pickerSearch').focus(); }, 0);
+  }
+  function closePromptPicker() { $('promptPickerModal').classList.remove('open'); }
+
   function renderLowSovTable() {
     var body = $('lowSovTableBody');
-    var list = lowSovPrompts(15);
-    if (!list.length) {
-      body.innerHTML = '<tr><td colspan="4" class="empty-hint">아직 스캔 데이터가 있는 프롬프트가 없습니다.</td></tr>';
-      return;
-    }
-    body.innerHTML = list.map(function (x) {
-      var p = x.p;
-      var isSelected = state.produce.selectedPromptId === p.id;
-      return '<tr class="lowsov-row' + (isSelected ? ' selected' : '') + '" data-pid="' + p.id + '">' +
-        '<td><input type="radio" name="lowSovPick" data-pid="' + p.id + '" ' + (isSelected ? 'checked' : '') + '></td>' +
-        '<td>' + escapeHtml(truncate(p.text, 60)) + '</td>' +
-        '<td><span class="dot-badge"><span class="dd-dot" style="background:' + categoryDotColor(p.category) + '"></span>' + escapeHtml(p.category) + '</span></td>' +
-        '<td class="cell-mono">' + x.share.toFixed(1) + '%</td>' +
-        '</tr>';
+    var used = recentlyUsedPromptIds();
+    var q = (state.produce.pickerSearch || '').trim().toLowerCase();
+    var list = state.prompts.filter(function (p) {
+      if (state.produce.pickerGroup !== 'all' && p.category !== state.produce.pickerGroup) return false;
+      return !q || p.text.toLowerCase().indexOf(q) > -1;
+    }).map(function (p) { return { p: p, sov: promptSov30(p) }; })
+      .sort(function (a, b) { if (a.sov === null) return 1; if (b.sov === null) return -1; return a.sov - b.sov; }); // SoV 낮은 순, 스캔 없는 건 맨 아래
+    var PS = 8;
+    state.produce.pickerPage = renderPager('pickerPager', state.produce.pickerPage, PS, list.length, function (pg) { state.produce.pickerPage = pg; renderLowSovTable(); },
+      { noSize: true, totalLabel: function (t) { return '총 ' + t + '개'; } });
+    var start = (state.produce.pickerPage - 1) * PS;
+    if (!list.length) { body.innerHTML = '<tr><td colspan="3" class="empty-hint">조건에 맞는 프롬프트가 없습니다.</td></tr>'; return; }
+    body.innerHTML = list.slice(start, start + PS).map(function (x) {
+      var p = x.p, isSel = state.produce.selectedPromptId === p.id;
+      var sovHtml = x.sov === null ? '<span class="pct-pill">—</span>' : '<span class="pct-pill' + (x.sov < 5 ? ' sov-low' : '') + '">' + x.sov.toFixed(1) + '%</span>';
+      return '<tr class="lowsov-row' + (isSel ? ' selected' : '') + '" data-pid="' + escapeHtml(p.id) + '">' +
+        '<td style="font-weight:600; color:var(--cream);">' + escapeHtml(truncate(p.text, 70)) + (used[p.id] ? '<span class="recent-badge">최근 사용</span>' : '') + '</td>' +
+        '<td class="cell-mono">' + (p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10).replace(/-/g, '.') : '-') + '</td>' +
+        '<td style="text-align:right;">' + sovHtml + '</td></tr>';
     }).join('');
     body.querySelectorAll('tr.lowsov-row').forEach(function (row) {
       row.addEventListener('click', function () {
         state.produce.selectedPromptId = row.dataset.pid;
-        renderLowSovTable();
+        closePromptPicker();
         renderProduceSelectedPrompt();
       });
     });
@@ -2349,13 +2482,27 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function renderProduceSelectedPrompt() {
     var wrap = $('produceSelectedText');
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
-    if (!p) { wrap.textContent = '위 표에서 프롬프트를 선택하세요.'; renderCitationSources(); renderProducePlan(); return; }
-    var share = promptShare(p, 'all');
-    wrap.innerHTML = escapeHtml(p.text) + ' <span class="dot-badge" style="margin-left:8px;"><span class="dd-dot" style="background:' + categoryDotColor(p.category) + '"></span>' + escapeHtml(p.category) + '</span>' +
-      (share !== null ? ' <span class="pct-pill" style="margin-left:6px;">현재 점유율 ' + share.toFixed(1) + '%</span>' : '');
+    $('openPromptPickerBtn').classList.toggle('has-value', !!p);
+    if (!p) { wrap.textContent = '프롬프트 선택하기'; renderCitationSources(); renderProducePlan(); renderProduceFlow(); return; }
+    wrap.textContent = p.text;
     renderCitationSources();
     renderProducePlan();
+    renderProduceFlow();
   }
+
+  // 오른쪽 안내 흐름 (결과가 없을 때 표시)
+  function renderProduceFlow() {
+    var el = $('produceFlow'); if (!el) return;
+    var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
+    var sov = p ? promptSov30(p) : null;
+    var bar = function (v) { return '<div class="flow-bar"><i><span style="width:' + Math.max(2, Math.min(100, v || 0)) + '%"></span></i>' + (v === null ? 'SoV —' : 'SoV ' + v.toFixed(1) + '%') + '</div>'; };
+    el.innerHTML = '<div class="flow-title">SoV를 높이는 콘텐츠 생성</div><div class="flow-desc">프롬프트의 AI 검색 노출을 높이는 콘텐츠를 생성합니다</div>' +
+      '<div class="flow-box"><h4>프롬프트 선택</h4>' + bar(sov) + '<p>' + (p ? escapeHtml(truncate(p.text, 48)) : 'SoV를 높이고 싶은 프롬프트') + '</p></div><div class="flow-line"></div>' +
+      '<div class="flow-box"><h4>GEO 최적화 콘텐츠 생성</h4><p>지식 베이스(' + escapeHtml(kbLabel(state.produce.kbSelected)) + ') · 인용 출처 · 하위 질문을 반영해 작성</p></div><div class="flow-line"></div>' +
+      '<div class="flow-box final"><h4>프롬프트 SoV 향상</h4><p>발행 후 다음 스캔에서 ' + ENGINES.map(function (e) { return ENGINE_LABEL[e]; }).join(' · ') + ' 노출 변화를 확인하세요</p></div>';
+  }
+  function kbLabel(c) { return c === 'OK 브랜드' ? 'OK브랜드 (기본)' : c; }
+
 
   // 선택된 프롬프트를 과거에 스캔했을 때 AI가 실제로 인용한 출처들을 모음
   // (지어낸 링크가 아니라 실제로 존재가 확인된 URL만 후보로 사용)
@@ -2474,6 +2621,14 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     return cats.filter(function (c) { return (state.kb[c] || '').trim(); });
   }
 
+  // 콘텐츠 생성에 쓸 지식 베이스 = 선택한 것 + (OK브랜드가 아니면) OK브랜드 기본 정보
+  function selectedKbCats() {
+    var sel = state.produce.kbSelected || 'OK 브랜드';
+    var cats = [sel];
+    if (sel !== 'OK 브랜드') cats.push('OK 브랜드');
+    return cats.filter(function (c) { return (state.kb[c] || '').trim(); });
+  }
+
   function extractProductNames(text) {
     var re = /OK[A-Za-z0-9가-힣ⅠⅡⅢⅣ+×x·]*?(?:통장|예금|적금|대출|론)[ⅠⅡⅢⅣ0-9]*/g;
     var m, seen = {}, out = [];
@@ -2558,7 +2713,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     }
     $('produceIntentSelect').value = state.produce.intent;
     $('produceIntentRule').textContent = INTENT_INFO[state.produce.intent].rule;
-    var cats = knowledgeScopeFor(p.category, state.produce.intent, currentFanout());
+    var cats = selectedKbCats();
     var kbText = cats.map(function (c) { return state.kb[c] || ''; }).join('\n');
     var products = extractProductNames(kbText);
     $('produceKbScope').innerHTML = '참조 지식베이스: <b>' + (cats.length ? cats.map(escapeHtml).join(' + ') : '없음') + '</b>' +
@@ -2678,9 +2833,29 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       .filter(function (w) { return w.length >= 2 && !GATE_STOP[w]; });
   }
 
+  // 제목이 타겟 질문을 거의 그대로 쓴 경우 (워커와 같은 기준: 글자 2-gram 80% 이상 겹침)
+  function titleTooSimilar(title, prompt) {
+    var norm = function (t) { return String(t || '').replace(/^\(데모\)\s*/, '').replace(/[\s?!.,·'"“”‘’]/g, ''); };
+    var a = norm(title), b = norm(prompt);
+    if (!a || !b) return false;
+    if (a.indexOf(b) > -1 || b.indexOf(a) > -1) return true;
+    var grams = function (t) { var g = {}, n = 0; for (var i = 0; i < t.length - 1; i++) { var k = t.slice(i, i + 2); if (!g[k]) { g[k] = 1; n++; } } return { g: g, n: n }; };
+    var ga = grams(a), gb = grams(b), inter = 0;
+    Object.keys(ga.g).forEach(function (k) { if (gb.g[k]) inter++; });
+    return inter / Math.max(1, Math.min(ga.n, gb.n)) >= 0.8;
+  }
+
   function runQualityGate(content, ctx) {
     var md = mdToHtml(content); var text = md.text; var st = md.stats; var items = [];
     function add(key, label, status, detail) { items.push({ key: key, label: label, status: status, detail: detail || '' }); }
+    // 0. 제목: 질문 복붙이 아닌 키워드형 설명 제목인지
+    if (ctx.title) {
+      var same = titleTooSimilar(ctx.title, ctx.promptText);
+      var hasYear = /20\d{2}년?/.test(ctx.title);
+      add('title', '제목 차별화', same ? 'fail' : (hasYear ? 'pass' : 'warn'),
+        same ? '제목이 타겟 질문과 거의 같습니다 — 키워드형 설명 제목으로 바꾸세요 (예: "2026년 ○○을 위한 A vs B 비교 및 선택 기준")'
+          : (hasYear ? '질문과 다른 설명형 제목 · 연도 포함' : '질문과 다른 제목이지만 연도(기준 시점)가 없습니다'));
+    }
 
     // 1. 질의 의도
     if (ctx.intent === 'comparison') {
@@ -2800,8 +2975,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function renderProduceResult() {
     var wrap = $('produceResultWrap');
     var r = state.produce.lastResult;
-    if (!r) { wrap.style.display = 'none'; return; }
+    if (!r) { wrap.style.display = 'none'; if ($('produceFlow')) $('produceFlow').style.display = ''; return; }
     wrap.style.display = 'block';
+    if ($('produceFlow')) $('produceFlow').style.display = 'none';
     $('produceResultTitle').textContent = r.title || '';
 
     var metaBits = [];
@@ -2819,7 +2995,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     }
 
     $('produceResultContent').innerHTML = renderContentPreview(r.content || '');
-    var gctx = (r.gateContext) || gateContextFor(r.promptText || '', r.category || '');
+    var gctx = Object.assign({}, (r.gateContext) || gateContextFor(r.promptText || '', r.category || ''), { title: r.title || '', promptText: r.promptText || '' });
     r.gate = runQualityGate(r.content || '', gctx);
     renderQualityGate(r.gate);
     $('produceStrategyNotes').textContent = r.strategyNotes ? ('💡 ' + r.strategyNotes) : '';
@@ -2833,8 +3009,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   // ---- 생성 히스토리 ----
   function renderContentHistoryRow(item) {
     var date = item.createdAt ? new Date(item.createdAt).toLocaleString('ko-KR') : '';
-    var typeLabel = { blog: '블로그', tistory: '티스토리', faq: 'FAQ' }[item.contentType] || item.contentType || '';
-    var gateFails = runQualityGate(item.content || '', gateContextFor(item.promptText || '', item.category || '')).filter(function (g) { return g.status === 'fail'; }).length;
+    var typeLabel = ({ blog: '블로그', tistory: '티스토리', faq: 'FAQ' }[item.contentType] || item.contentType || '') + (item.auto ? ' · 자동' : '');
+    var gateFails = runQualityGate(item.content || '', Object.assign(gateContextFor(item.promptText || '', item.category || ''), { title: item.title || '', promptText: item.promptText || '' })).filter(function (g) { return g.status === 'fail'; }).length;
     var qualityLabel = (item.qualityFlags && item.qualityFlags.length) ? '<span style="color:#B84018;">⚠ 사용금지 표현</span>' :
       (gateFails ? '<span style="color:#B84018;">⚠ 게이트 ' + gateFails + '건</span>' : '<span style="color:var(--cream-faint);">정상</span>');
     return '<tr class="lowsov-row" data-hid="' + item.id + '">' +
@@ -2881,7 +3057,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   }
 
   function renderProduceTab() {
-    renderLowSovTable();
+    renderProduceFlow();
     renderProduceSelectedPrompt();
     renderKbCategoryTabs();
     renderContentTypeTabs();
@@ -2924,6 +3100,84 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     });
   });
 
+  $('openPromptPickerBtn').addEventListener('click', openPromptPicker);
+  $('closePromptPickerBtn').addEventListener('click', closePromptPicker);
+  $('promptPickerModal').addEventListener('click', function (e) { if (e.target === this) closePromptPicker(); });
+  $('pickerGroupSelect').addEventListener('change', function () { state.produce.pickerGroup = this.value; state.produce.pickerPage = 1; renderLowSovTable(); });
+  $('pickerSearch').addEventListener('input', function () { state.produce.pickerSearch = this.value; state.produce.pickerPage = 1; renderLowSovTable(); });
+  $('produceKbSelect').addEventListener('change', function () {
+    state.produce.kbSelected = this.value;
+    $('produceKbHint').textContent = this.value === 'OK 브랜드' ? '에이전트가 참고할 지식 베이스를 선택하세요' : this.value + ' + OK브랜드 기본 정보를 함께 참고합니다';
+    renderProducePlan(); renderProduceFlow();
+  });
+  $('produceModeTabs').querySelectorAll('button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.produce.mode = b.dataset.mode;
+      $('produceModeTabs').querySelectorAll('button').forEach(function (x) { x.classList.toggle('active', x === b); });
+      $('produceManual').style.display = state.produce.mode === 'manual' ? '' : 'none';
+      $('produceAuto').style.display = state.produce.mode === 'auto' ? '' : 'none';
+      if (state.produce.mode === 'auto') loadContentSchedule();
+    });
+  });
+
+  /* ---- 빠른 시작: 자동 반복 스케줄 (워커 크론이 실행) ---- */
+  var DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
+  var schedDraft = { days: [2, 3], time: '08:30', kb: 'OK 브랜드' };
+  function renderAutoUi() {
+    var sc = state.produce.schedule;
+    var src = sc && sc.enabled ? sc : schedDraft;
+    $('autoDayChips').innerHTML = [1, 2, 3, 4, 5, 6, 0].map(function (d) { return '<button type="button" data-d="' + d + '" class="' + (src.days.indexOf(d) > -1 ? 'on' : '') + '">' + DAY_NAMES[d] + '</button>'; }).join('');
+    $('autoDayChips').querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var d = Number(b.dataset.d), i = schedDraft.days.indexOf(d);
+        if (i > -1) schedDraft.days.splice(i, 1); else schedDraft.days.push(d);
+        b.classList.toggle('on');
+      });
+    });
+    $('autoTimeInput').value = src.time || '08:30';
+    $('autoKbSelect').value = src.kb || 'OK 브랜드';
+    var box = $('autoStateBox');
+    if (!syncEnabled()) { box.className = 'auto-state off'; box.textContent = '데모 모드에서는 자동 실행을 쓸 수 없습니다. ⚙ 설정에서 워커를 연결하세요.'; return; }
+    if (sc && sc.enabled) {
+      box.className = 'auto-state on';
+      box.innerHTML = '● 자동 실행 중 — 매주 ' + sc.days.slice().sort(function (a, b) { return ((a + 6) % 7) - ((b + 6) % 7); }).map(function (d) { return DAY_NAMES[d]; }).join('·') + ' ' + escapeHtml(sc.time) + ' (한국 시간)' +
+        (sc.lastRunAt ? '<br>마지막 실행: ' + new Date(sc.lastRunAt).toLocaleString('ko-KR') + (sc.lastPromptText ? ' · ' + escapeHtml(truncate(sc.lastPromptText, 40)) : '') + (sc.lastError ? '<br><span style="color:#B20000;">마지막 오류: ' + escapeHtml(sc.lastError) + '</span>' : '') : '<br>아직 실행 전입니다.');
+    } else { box.className = 'auto-state off'; box.textContent = '자동 실행이 꺼져 있습니다. 요일과 시간을 고르고 시작하세요.'; }
+  }
+  function loadContentSchedule() {
+    if (!syncEnabled()) { renderAutoUi(); return; }
+    fetchWorker(baseUrl() + '/content-schedule', {}, 20000).then(function (d) {
+      state.produce.schedule = d && d.schedule;
+      if (state.produce.schedule && state.produce.schedule.days) schedDraft = { days: state.produce.schedule.days.slice(), time: state.produce.schedule.time, kb: state.produce.schedule.kb || 'OK 브랜드' };
+      renderAutoUi();
+    }).catch(function (err) { renderAutoUi(); showErrorIn('autoStatusLine', '자동 실행 상태 조회', err); });
+  }
+  function saveContentSchedule(enabled) {
+    if (!syncEnabled()) { showStatusIn('autoStatusLine', 'error', '데모 모드에서는 자동 실행을 쓸 수 없습니다.'); return; }
+    if (enabled && !schedDraft.days.length) { showStatusIn('autoStatusLine', 'error', '요일을 하나 이상 고르세요.'); return; }
+    schedDraft.time = $('autoTimeInput').value || '08:30';
+    schedDraft.kb = $('autoKbSelect').value;
+    var body = { enabled: enabled, days: schedDraft.days, time: schedDraft.time, kb: schedDraft.kb, contentType: state.produce.contentType };
+    showStatusIn('autoStatusLine', 'loading', enabled ? '자동 실행 저장 중' : '자동 실행 중지 중');
+    fetchWorker(baseUrl() + '/content-schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }, 20000)
+      .then(function (d) { state.produce.schedule = d && d.schedule; renderAutoUi(); showStatusIn('autoStatusLine', 'ok', enabled ? '자동 실행이 켜졌습니다. 정한 요일·시간에 워커가 콘텐츠를 만들어 실행 기록에 저장합니다.' : '자동 실행을 껐습니다.'); })
+      .catch(function (err) { showErrorIn('autoStatusLine', '자동 실행 저장', err); });
+  }
+  $('autoStartBtn').addEventListener('click', function () { saveContentSchedule(true); });
+  $('autoStopBtn').addEventListener('click', function () { saveContentSchedule(false); });
+  $('autoRunNowBtn').addEventListener('click', function () {
+    if (!syncEnabled()) { showStatusIn('autoStatusLine', 'error', '데모 모드에서는 실행할 수 없습니다.'); return; }
+    if (!confirm('SoV가 낮은 프롬프트 1개를 골라 지금 바로 콘텐츠를 만들까요? (Claude 호출 비용이 발생합니다)')) return;
+    showStatusIn('autoStatusLine', 'loading', '프롬프트 선택 후 콘텐츠 생성 중 (1~2분)');
+    fetchWorker(baseUrl() + '/content-auto-run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kb: $('autoKbSelect').value, contentType: state.produce.contentType }) }, 240000)
+      .then(function (d) {
+        if (d && d.result) { state.produce.lastResult = Object.assign({}, d.result, { promptText: d.promptText, category: d.category }); renderProduceResult(); }
+        showStatusIn('autoStatusLine', 'ok', d && d.promptText ? '생성 완료: ' + truncate(d.promptText, 40) : (d && d.note) || '완료');
+        refreshContentHistory(); loadContentSchedule();
+      })
+      .catch(function (err) { showErrorIn('autoStatusLine', '자동 1회 실행', err); });
+  });
+
   $('produceIntentSelect').addEventListener('change', function () {
     state.produce.intent = this.value;
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
@@ -2936,12 +3190,12 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
     if (!p) { showStatusIn('produceStatusLine', 'error', '먼저 타겟 프롬프트를 선택하세요.'); return; }
     ensureDefaultKb(true);
-    var catKbEmpty = !(state.kb[p.category] || '').trim();
+    var catKbEmpty = !(state.kb[state.produce.kbSelected] || '').trim();
 
     // ① 라우팅 ③ 팬아웃 ② 근거 수집(관련 카테고리 지식베이스까지) → 지침 생성
     var intent = state.produce.intent || classifyQueryIntent(p.text);
     var fanout = currentFanout(); if (!fanout.length) fanout = buildFanout(p.text, intent);
-    var kbCats = knowledgeScopeFor(p.category, intent, fanout);
+    var kbCats = selectedKbCats();
     var kbText = kbCats.map(function (c) { return '[지식베이스: ' + c + ']\n' + (state.kb[c] || '').trim(); }).join('\n\n');
     var guide = buildGenerationGuide(p, intent, fanout, kbCats, kbText);
     // 워커가 generationGuide를 아직 읽지 않아도 지침이 전달되도록 지식베이스 뒤에 구분 블록으로 덧붙임
@@ -2960,7 +3214,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var relQuestions = relatedQuestionsFor(p.id, p.category, 3);
 
     $('generateGeoContentBtn').disabled = true;
-    showStatusIn('produceStatusLine', 'loading', 'GEO 콘텐츠 생성 중...' + (catKbEmpty ? ' ("' + p.category + '" 지식베이스가 비어 있어 OK 브랜드 기본 지식베이스로 생성합니다)' : ''));
+    showStatusIn('produceStatusLine', 'loading', 'GEO 콘텐츠 생성 중...' + (catKbEmpty ? ' ("' + state.produce.kbSelected + '" 지식베이스가 비어 있어 OK브랜드 기본 지식베이스로 생성합니다)' : ''));
 
     var workerGuide = { version: 2, intent: guide.intent, subQuestions: guide.subQuestions, knowledgeCategories: guide.knowledgeCategories, productNames: guide.productNames };
     callGenerateGeoContent(p.id, p.text, p.category, state.produce.contentType, knowledgeText, citationLinks, relQuestions, workerGuide)
