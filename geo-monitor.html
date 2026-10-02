@@ -754,6 +754,7 @@
 - 가입조건: ...
 - 이벤트/혜택: ..."></textarea>
       <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+        <button class="btn btn-ghost btn-sm" id="resetKbBtn" style="margin-right:8px;" title="OK 브랜드 지식베이스를 기본 내용으로 되돌립니다">기본값으로 되돌리기</button>
         <button class="btn btn-primary btn-sm" id="saveKbBtn">저장</button>
       </div>
       <div class="status-line" id="kbStatusLine" style="margin-top:8px;"></div>
@@ -808,7 +809,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div id="produceResultTitle" style="font-family:var(--font-hud); font-size:14px; color:var(--cream); font-weight:600;"></div>
           <div style="display:flex; gap:8px;">
-            <button class="btn btn-primary btn-sm" id="copyGeoHtmlBtn" title="표가 HTML <table>로 들어가서 블로그 에디터에 붙여넣으면 바로 표로 보입니다 (제목 제외, 본문만)">블로그용 복사</button>
+            <button class="btn btn-primary btn-sm" id="copyGeoHtmlBtn" title="제목과 본문이 함께 복사되고, 표는 HTML <table>로 들어가서 블로그 에디터에 붙여넣으면 바로 표로 보입니다">블로그용 복사</button>
             <button class="btn btn-ghost btn-sm" id="copyGeoContentBtn">텍스트 복사</button>
             <button class="btn btn-ghost btn-sm" id="downloadGeoHtmlBtn">.html 다운로드</button>
             <button class="btn btn-ghost btn-sm" id="downloadGeoContentBtn">.md 다운로드</button>
@@ -926,6 +927,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var LS_BRANDS = 'geo_monitor_brands_v2';
   var LS_RESULTS = 'geo_monitor_results_v2';
   var LS_SETTINGS = 'geo_monitor_settings_v2';
+  // ★ OK 브랜드 기본 지식베이스: 비어 있으면 항상 이 내용으로 채워서 저장하고, 콘텐츠 생성 때 기본으로 참고함
+  var DEFAULT_OK_KB = '## 기본 정보\n- 법인명: 주식회사 OK저축은행\n- 브랜드명: OK금융그룹 (OK Financial Group)\n- 대표이사: 정길호\n- 업종/카테고리: 금융 서비스, 저축은행 / 소비자금융, 예금, 대출, 저축은행\n- 본사 위치: 서울특별시 중구 세종대로 39, 10층(서울상공회의소)\n- 고객센터: 1899-7979\n- 채널: 공식 홈페이지 및 모바일 앱 운영\n- 웹사이트: www.oksavingsbank.com\n- 블로그: blog.oksavingsbank.com\n- 브랜드 설명: 대한민국 저축은행 업계를 선도해 온 OK금융그룹 산하 대표 저축은행. 2014년 출범, 예금·적금·입출금통장·대출 서비스를 제공하는 한국 대표 저축은행\n- 주요 키워드: OK저축은행, 소비자금융, 신용대출, 중금리대출, 파킹통장, 고금리, 예금, 적금, 주택담보대출, 자동차담보대출, 주부대출, 외국인근로자대출\n\n## 주요 기능 및 서비스\n- 수신 서비스: 입출금통장(파킹통장), 예금, 적금 등 개인·기업 대상 예금 상품 운영\n- 개인신용대출: 개인 고객 대상 신용대출 서비스\n- 주택담보대출: 주택을 담보로 한 담보대출 서비스\n- 자동차담보대출: 차량을 담보로 한 담보대출 서비스\n- 기업금융: 개인사업자 및 기업 대상 금융 서비스\n- 디지털 금융 서비스: 모바일·온라인 기반 금융서비스 및 비대면 상품 운영\n- 신용평가 및 리스크 관리: 신용평가 모델 활용 및 여신 심사 운영\n- 고객 서비스 및 금융 지원: 고객 맞춤형 금융 상담 및 실생활 금융 지원\n\n## 서비스 구조 (Plan Structure)\n- 수신 상품: 입출금통장(파킹통장) / 예금 / 적금\n- 여신 상품: 개인신용대출 / 주택담보대출 / 자동차담보대출 / 외국인근로자대출 / 성실상환 / 주부대출\n- 기업금융: 개인사업자 및 기업 대상 금융서비스\n- 디지털 채널: 모바일 앱 / 온라인 비대면 금융서비스\n- 심사·운영: 신용평가 / 여신 심사 / 리스크 관리\n- 고객지원: 금융 상담 / 고객센터 / 상품 안내 서비스\n\n## 차별화 포인트\n- 2014년 출범 이후 축적해 온 저축은행 운영 경험과 금융서비스 노하우\n- 입출금통장·예금·적금부터 신용대출·주택담보대출·자동차담보대출까지 아우르는 폭넓은 상품 라인업\n- 모바일 앱과 비대면 채널을 통한 편리한 계좌 개설 및 대출 신청 프로세스\n- 고객의 다양한 자금 목적에 대응하는 수신·여신 통합 금융서비스 제공\n- 신용평가 및 여신 심사 운영 역량을 바탕으로 한 체계적인 금융서비스 제공\n- 실생활 금융 수요에 맞춘 생활밀착형 상품 운영\n- 금융취약계층 추가안내 등 금융소비자 보호 관점을 반영한 고객지원 체계\n\n## 수치 및 근거\n- 2014년 출범, 10년 이상 저축은행 본업 운영\n- 입출금통장·예금·적금·대출 통합 운영\n- 3분 안에 간편 계좌개설 가능\n- 신용대출 최대 1억원\n- 디지털뱅킹 고객센터 24시간 365일 운영\n- 예금자보호 1인당 1억원까지 적용\n\n## 타겟 고객\n- 입출금통장·예금·적금 이용자\n- 개인 신용대출 이용자\n- 중금리 대출 필요 고객\n- 소상공인\n- 주택담보대출·자동차담보대출 필요 고객\n\n## 법적 준수 및 리스크 관리\n- 금융소비자보호법 준수 필요 (대출 광고 시 금리·상환 조건 명시 의무)\n- 저축은행법, 대부업법, 여신전문금융업법 등 계열사별 개별 금융규제 적용\n- 개인정보보호법 및 신용정보법에 따른 고객 정보 취급 의무\n- 금융위원회·금융감독원 감독 하에 있는 규제 산업\n- 해외 사업 운영 시 현지 금융 규제 및 라이선스 준수 필요\n- 과장·허위 광고 금지 (금융상품 광고 심의 기준 적용)\n\n## ⚠ 콘텐츠 작성 시 절대 사용 금지 표현 (아래는 사실이 아니라 "쓰면 안 되는 표현" 목록입니다)\n- 최저금리 보장, 무조건 대출 가능, 신용등급 무관 대출\n- 즉시 승인, 당일 입금 보장\n- 타 금융사 대비 무조건 저렴한 금리\n- 정부 보증 또는 공공기관 연계 표현 (실제 해당 없을 시)\n- 원금 손실 없음, 확정 수익률 보장 (저축 상품 관련)';
 
   // 스캔 결과의 시각(ts)이 숫자가 아니면(문자열 날짜, 누락 등) 그래프 좌표가 NaN이 돼서
   // 점이 왼쪽 끝에 몰리고 선이 사라짐 → 불러올 때 숫자 ms로 통일
@@ -993,7 +996,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     settings: normalizeSettings(load(LS_SETTINGS, null)),
     activeEngines: load(LS_ACTIVE_ENGINES, { gpt: true, gemini: true, claude: true }),
     genQueue: load(LS_GENQUEUE, null),
-    kb: load(LS_KB, { 'OK 브랜드': '## 기본 정보\n- 법인명: 주식회사 OK저축은행\n- 브랜드명: OK금융그룹 (OK Financial Group)\n- 대표이사: 정길호\n- 업종/카테고리: 금융 서비스, 저축은행 / 소비자금융, 예금, 대출, 저축은행\n- 본사 위치: 서울특별시 중구 세종대로 39, 10층(서울상공회의소)\n- 고객센터: 1899-7979\n- 채널: 공식 홈페이지 및 모바일 앱 운영\n- 웹사이트: www.oksavingsbank.com\n- 블로그: blog.oksavingsbank.com\n- 브랜드 설명: 대한민국 저축은행 업계를 선도해 온 OK금융그룹 산하 대표 저축은행. 2014년 출범, 예금·적금·입출금통장·대출 서비스를 제공하는 한국 대표 저축은행\n- 주요 키워드: OK저축은행, 소비자금융, 신용대출, 중금리대출, 파킹통장, 고금리, 예금, 적금, 주택담보대출, 자동차담보대출, 주부대출, 외국인근로자대출\n\n## 주요 기능 및 서비스\n- 수신 서비스: 입출금통장(파킹통장), 예금, 적금 등 개인·기업 대상 예금 상품 운영\n- 개인신용대출: 개인 고객 대상 신용대출 서비스\n- 주택담보대출: 주택을 담보로 한 담보대출 서비스\n- 자동차담보대출: 차량을 담보로 한 담보대출 서비스\n- 기업금융: 개인사업자 및 기업 대상 금융 서비스\n- 디지털 금융 서비스: 모바일·온라인 기반 금융서비스 및 비대면 상품 운영\n- 신용평가 및 리스크 관리: 신용평가 모델 활용 및 여신 심사 운영\n- 고객 서비스 및 금융 지원: 고객 맞춤형 금융 상담 및 실생활 금융 지원\n\n## 서비스 구조 (Plan Structure)\n- 수신 상품: 입출금통장(파킹통장) / 예금 / 적금\n- 여신 상품: 개인신용대출 / 주택담보대출 / 자동차담보대출 / 외국인근로자대출 / 성실상환 / 주부대출\n- 기업금융: 개인사업자 및 기업 대상 금융서비스\n- 디지털 채널: 모바일 앱 / 온라인 비대면 금융서비스\n- 심사·운영: 신용평가 / 여신 심사 / 리스크 관리\n- 고객지원: 금융 상담 / 고객센터 / 상품 안내 서비스\n\n## 차별화 포인트\n- 2014년 출범 이후 축적해 온 저축은행 운영 경험과 금융서비스 노하우\n- 입출금통장·예금·적금부터 신용대출·주택담보대출·자동차담보대출까지 아우르는 폭넓은 상품 라인업\n- 모바일 앱과 비대면 채널을 통한 편리한 계좌 개설 및 대출 신청 프로세스\n- 고객의 다양한 자금 목적에 대응하는 수신·여신 통합 금융서비스 제공\n- 신용평가 및 여신 심사 운영 역량을 바탕으로 한 체계적인 금융서비스 제공\n- 실생활 금융 수요에 맞춘 생활밀착형 상품 운영\n- 금융취약계층 추가안내 등 금융소비자 보호 관점을 반영한 고객지원 체계\n\n## 수치 및 근거\n- 2014년 출범, 10년 이상 저축은행 본업 운영\n- 입출금통장·예금·적금·대출 통합 운영\n- 3분 안에 간편 계좌개설 가능\n- 신용대출 최대 1억원\n- 디지털뱅킹 고객센터 24시간 365일 운영\n- 예금자보호 1인당 1억원까지 적용\n\n## 타겟 고객\n- 입출금통장·예금·적금 이용자\n- 개인 신용대출 이용자\n- 중금리 대출 필요 고객\n- 소상공인\n- 주택담보대출·자동차담보대출 필요 고객\n\n## 법적 준수 및 리스크 관리\n- 금융소비자보호법 준수 필요 (대출 광고 시 금리·상환 조건 명시 의무)\n- 저축은행법, 대부업법, 여신전문금융업법 등 계열사별 개별 금융규제 적용\n- 개인정보보호법 및 신용정보법에 따른 고객 정보 취급 의무\n- 금융위원회·금융감독원 감독 하에 있는 규제 산업\n- 해외 사업 운영 시 현지 금융 규제 및 라이선스 준수 필요\n- 과장·허위 광고 금지 (금융상품 광고 심의 기준 적용)\n\n## ⚠ 콘텐츠 작성 시 절대 사용 금지 표현 (아래는 사실이 아니라 "쓰면 안 되는 표현" 목록입니다)\n- 최저금리 보장, 무조건 대출 가능, 신용등급 무관 대출\n- 즉시 승인, 당일 입금 보장\n- 타 금융사 대비 무조건 저렴한 금리\n- 정부 보증 또는 공공기관 연계 표현 (실제 해당 없을 시)\n- 원금 손실 없음, 확정 수익률 보장 (저축 상품 관련)' }),
+    kb: load(LS_KB, { 'OK 브랜드': DEFAULT_OK_KB }),
     filters: {
       share: { category: 'all', promptScope: 'active', datePreset: '10d', dateFrom: '', dateTo: '' },
       prompts: { category: 'all', promptScope: 'active', datePreset: '10d', dateFrom: '', dateTo: '', model: 'all', search: '' },
@@ -1009,6 +1012,15 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     produce: { selectedPromptId: null, kbCategory: 'OK 브랜드', contentType: 'blog', lastResult: null, historyCache: {} }
   };
   if (!state.prompts.length) state.prompts = seedPrompts();
+  function ensureDefaultKb(pushIfFilled) {
+    if (!state.kb || typeof state.kb !== 'object') state.kb = {};
+    if ((state.kb['OK 브랜드'] || '').trim()) return false;
+    state.kb['OK 브랜드'] = DEFAULT_OK_KB;
+    save(LS_KB, state.kb);
+    if (pushIfFilled && typeof pushKB === 'function') { var pr = pushKB(); if (pr && pr.catch) pr.catch(function () {}); }
+    return true;
+  }
+  ensureDefaultKb(false);
   if (!state.brands.length) state.brands = DEFAULT_BRANDS.slice();
 
   var $ = function (id) { return document.getElementById(id); };
@@ -2382,6 +2394,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       btn.classList.toggle('active', btn.dataset.kbcat === state.produce.kbCategory);
     });
     $('kbTextarea').value = state.kb[state.produce.kbCategory] || '';
+    var rb = $('resetKbBtn'); if (rb) rb.style.display = state.produce.kbCategory === 'OK 브랜드' ? '' : 'none';
   }
 
 
@@ -2457,7 +2470,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var joined = fanout.join(' ');
     if (/(금리|이자|통장|예금|적금)/.test(joined) && cats.indexOf('수신상품') < 0) cats.push('수신상품');
     if (/(대출|DSR|상환|승인)/.test(joined) && cats.indexOf('여신상품') < 0) cats.push('여신상품');
-    if ((intent === 'comparison' || /(예금자보호|고객센터|경영공시)/.test(joined)) && cats.indexOf('OK 브랜드') < 0) cats.push('OK 브랜드');
+    if (cats.indexOf('OK 브랜드') < 0) cats.push('OK 브랜드'); // 브랜드 기본 정보는 모든 콘텐츠에 기본 포함
     return cats.filter(function (c) { return (state.kb[c] || '').trim(); });
   }
 
@@ -2885,6 +2898,14 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     });
   });
 
+  $('resetKbBtn').addEventListener('click', function () {
+    if (!confirm('OK 브랜드 지식베이스를 기본 내용으로 되돌릴까요? 지금 입력된 내용은 사라집니다.')) return;
+    state.produce.kbCategory = 'OK 브랜드';
+    state.kb['OK 브랜드'] = DEFAULT_OK_KB;
+    renderKbCategoryTabs();
+    $('saveKbBtn').click();
+  });
+
   $('saveKbBtn').addEventListener('click', function () {
     state.kb[state.produce.kbCategory] = $('kbTextarea').value;
     save(LS_KB, state.kb);
@@ -2914,7 +2935,8 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   $('generateGeoContentBtn').addEventListener('click', function () {
     var p = state.prompts.find(function (x) { return x.id === state.produce.selectedPromptId; });
     if (!p) { showStatusIn('produceStatusLine', 'error', '먼저 타겟 프롬프트를 선택하세요.'); return; }
-    if (!(state.kb[p.category] || '').trim()) { showStatusIn('produceStatusLine', 'error', '"' + p.category + '" 카테고리의 지식베이스가 비어 있습니다. 먼저 입력·저장하세요.'); return; }
+    ensureDefaultKb(true);
+    var catKbEmpty = !(state.kb[p.category] || '').trim();
 
     // ① 라우팅 ③ 팬아웃 ② 근거 수집(관련 카테고리 지식베이스까지) → 지침 생성
     var intent = state.produce.intent || classifyQueryIntent(p.text);
@@ -2938,7 +2960,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var relQuestions = relatedQuestionsFor(p.id, p.category, 3);
 
     $('generateGeoContentBtn').disabled = true;
-    showStatusIn('produceStatusLine', 'loading', 'GEO 콘텐츠 생성 중...');
+    showStatusIn('produceStatusLine', 'loading', 'GEO 콘텐츠 생성 중...' + (catKbEmpty ? ' ("' + p.category + '" 지식베이스가 비어 있어 OK 브랜드 기본 지식베이스로 생성합니다)' : ''));
 
     var workerGuide = { version: 2, intent: guide.intent, subQuestions: guide.subQuestions, knowledgeCategories: guide.knowledgeCategories, productNames: guide.productNames };
     callGenerateGeoContent(p.id, p.text, p.category, state.produce.contentType, knowledgeText, citationLinks, relQuestions, workerGuide)
@@ -2960,8 +2982,9 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   $('copyGeoHtmlBtn').addEventListener('click', function () {
     var r = state.produce.lastResult; if (!r) return;
     var md = mdToHtml(r.content || '');
-    copyRichHtml(md.html, md.text).then(function () {
-      showStatusIn('produceStatusLine', 'ok', '블로그용 HTML 복사됨 — 에디터 본문에 붙여넣으면 표가 그대로 들어갑니다 (제목은 별도 입력)');
+    var titleHtml = r.title ? '<h1 style="font-size:26px; font-weight:700; line-height:1.4; margin:0 0 20px; color:#161C26;">' + escapeHtml(r.title) + '</h1>' : '';
+    copyRichHtml(titleHtml + md.html, (r.title ? r.title + '\n\n' : '') + md.text).then(function () {
+      showStatusIn('produceStatusLine', 'ok', '제목 + 본문 복사됨 — 에디터에 붙여넣으면 표가 그대로 들어갑니다');
     }).catch(function () { showStatusIn('produceStatusLine', 'error', '복사 실패 — .html 다운로드를 이용하세요'); });
   });
 
@@ -3660,6 +3683,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
 
       if (serverKB && Object.keys(serverKB).length) { state.kb = serverKB; save(LS_KB, state.kb); }
       else if (state.kb && Object.keys(state.kb).length) { pushKB().catch(function () {}); }
+      if (ensureDefaultKb(true)) { try { renderKbCategoryTabs(); } catch (e) {} }
 
       var added = 0;
       if (serverResults) added = mergeResults(serverResults);
