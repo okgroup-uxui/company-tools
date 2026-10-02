@@ -831,6 +831,38 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var LS_RESULTS = 'geo_monitor_results_v2';
   var LS_SETTINGS = 'geo_monitor_settings_v2';
 
+  // 스캔 결과의 시각(ts)이 숫자가 아니면(문자열 날짜, 누락 등) 그래프 좌표가 NaN이 돼서
+  // 점이 왼쪽 끝에 몰리고 선이 사라짐 → 불러올 때 숫자 ms로 통일
+  function resultTs(r) {
+    if (!r) return null;
+    var cand = [r.ts, r.timestamp, r.createdAt, r.date];
+    for (var i = 0; i < cand.length; i++) {
+      var v = cand[i];
+      if (v === undefined || v === null || v === '') continue;
+      var n = typeof v === 'number' ? v : (/^\d+$/.test(String(v)) ? Number(v) : Date.parse(v));
+      if (isFinite(n) && n > 946684800000) return n < 1e11 ? n * 1000 : n; // 초 단위면 ms로
+    }
+    // 워커 id는 Date.now().toString(36) + 랜덤 7자 → 앞부분에서 생성 시각 복원
+    if (r.id && String(r.id).length > 8) {
+      var t = parseInt(String(r.id).slice(0, -7), 36);
+      if (isFinite(t) && t > 946684800000 && t < Date.now() + 86400000) return t;
+    }
+    return null;
+  }
+  // 결과 형식 통일: ts(숫자), brandHits/sources(배열), engine(소문자).
+  //   brandHits가 없는 결과가 하나라도 섞이면 노출 점유율 탭 렌더링이 중간에 멈춰서
+  //   그래프·랭킹이 통째로 빈 칸으로 보였음.
+  function normalizeResults(list) {
+    list = Array.isArray(list) ? list.filter(function (r) { return r && typeof r === 'object'; }) : [];
+    list.forEach(function (r) {
+      var t = resultTs(r); if (t !== null) { r.ts = t; delete r.tsInvalid; } else r.tsInvalid = true;
+      if (!Array.isArray(r.brandHits)) r.brandHits = [];
+      if (!Array.isArray(r.sources)) r.sources = [];
+      if (r.engine) r.engine = String(r.engine).toLowerCase();
+    });
+    return list;
+  }
+
   // ★ 워커 엔드포인트 고정: 어느 PC에서 열어도 설정 없이 바로 이 워커로 연결됨.
   //   예전에 PC마다 저장해둔 다른 주소/데모 모드는 무시하고 이 값으로 덮어씀.
   //   (설정 모달에서 일부러 다른 주소를 저장한 경우에만 그 주소를 사용 — customEndpoint)
@@ -861,7 +893,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   var state = {
     prompts: load(LS_PROMPTS, null) || seedPrompts(),
     brands: load(LS_BRANDS, DEFAULT_BRANDS.slice()),
-    results: load(LS_RESULTS, []),
+    results: normalizeResults(load(LS_RESULTS, [])),
     settings: normalizeSettings(load(LS_SETTINGS, null)),
     activeEngines: load(LS_ACTIVE_ENGINES, { gpt: true, gemini: true, claude: true }),
     genQueue: load(LS_GENQUEUE, null),
@@ -1036,23 +1068,29 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   /* ---------------- generic line chart with tooltip ---------------- */
   function renderLineChart(wrapId, series, opts) {
     opts = opts || {};
-    var width = 1000, height = opts.height || 220, pad = 36;
+    var width = 1000, height = opts.height || 220, pad = 36, padBottom = 52;
     var wrap = $(wrapId);
-    var nonEmpty = series.filter(function (s) { return s.points && s.points.length; });
-    if (!nonEmpty.length || nonEmpty.every(function (s) { return s.points.length < 2; })) {
+    // 시각/값이 숫자가 아닌 점은 제외 (NaN 좌표 방지)
+    series = series.map(function (s) {
+      return Object.assign({}, s, { points: (s.points || []).filter(function (p) { return isFinite(p.ts) && isFinite(p.value); }) });
+    });
+    var nonEmpty = series.filter(function (s) { return s.points.length; });
+    if (!nonEmpty.length) {
       wrap.innerHTML = '<div class="empty-hint">' + (opts.emptyText || '아직 그릴 만큼 데이터가 쌓이지 않았습니다.') + '</div>';
       return;
     }
     var allTs = [];
     nonEmpty.forEach(function (s) { s.points.forEach(function (p) { allTs.push(p.ts); }); });
     var minTs = Math.min.apply(null, allTs), maxTs = Math.max.apply(null, allTs);
+    var singleTime = maxTs === minTs;
     var span = Math.max(maxTs - minTs, 1);
-    function x(ts) { return pad + ((ts - minTs) / span) * (width - pad * 2); }
+    function x(ts) { return singleTime ? width / 2 : pad + ((ts - minTs) / span) * (width - pad * 2); }
     var yMin = opts.yDomain[0], yMax = opts.yDomain[1];
     var invert = !!opts.yInvert;
     function y(v) {
       var t = (v - yMin) / (yMax - yMin);
-      return invert ? (height - pad) - t * (height - 2 * pad) : pad + t * (height - 2 * pad);
+      t = Math.max(0, Math.min(1, t));
+      return invert ? (height - padBottom) - t * (height - pad - padBottom) : pad + t * (height - pad - padBottom);
     }
     var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width:100%;height:auto;display:block;" id="' + wrapId + 'Svg">';
     (opts.gridlines || []).forEach(function (g) {
@@ -1060,16 +1098,27 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       svg += '<line x1="' + pad + '" y1="' + gy + '" x2="' + (width - pad) + '" y2="' + gy + '" stroke="#161C2614" stroke-width="1"/>';
       svg += '<text x="' + (pad - 8) + '" y="' + (gy + 3) + '" font-size="9" fill="#161C2666" text-anchor="end">' + escapeHtml(g.label) + '</text>';
     });
+    // x축 날짜 라벨 (시작 · 중간 · 끝)
+    var fmtD = function (t) { return new Date(t).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' }); };
+    var xTicks = singleTime ? [minTs] : [minTs, minTs + span / 2, maxTs];
+    xTicks.forEach(function (t, i) {
+      var anchor = singleTime ? 'middle' : (i === 0 ? 'start' : (i === xTicks.length - 1 ? 'end' : 'middle'));
+      svg += '<text x="' + x(t).toFixed(1) + '" y="' + (height - padBottom + 16) + '" font-size="9" fill="#161C2666" text-anchor="' + anchor + '">' + fmtD(t) + '</text>';
+    });
+    if (singleTime) {
+      svg += '<text x="' + (width / 2) + '" y="' + (height - padBottom + 32) + '" font-size="9.5" fill="#161C2699" text-anchor="middle">스캔한 날짜가 하루뿐이라 추이 대신 현재 값만 표시됩니다. 다음 스캔 이후 선으로 이어집니다.</text>';
+    }
     nonEmpty.forEach(function (s) {
-      if (s.points.length < 2) {
-        var p0 = s.points[0];
-        svg += '<circle cx="' + x(p0.ts).toFixed(1) + '" cy="' + y(p0.value).toFixed(1) + '" r="3.5" fill="' + s.color + '"/>';
+      if (s.points.length < 2 || singleTime) {
+        var p0 = s.points[s.points.length - 1];
+        svg += '<circle cx="' + x(p0.ts).toFixed(1) + '" cy="' + y(p0.value).toFixed(1) + '" r="4.5" fill="' + s.color + '"/>';
         return;
       }
       var d = s.points.map(function (pt, i) { return (i === 0 ? 'M' : 'L') + x(pt.ts).toFixed(1) + ',' + y(pt.value).toFixed(1); }).join(' ');
-      svg += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="2"/>';
+      svg += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="2" stroke-linejoin="round"/>';
+      s.points.forEach(function (pt) { svg += '<circle cx="' + x(pt.ts).toFixed(1) + '" cy="' + y(pt.value).toFixed(1) + '" r="2.5" fill="' + s.color + '"/>'; });
       var last = s.points[s.points.length - 1];
-      svg += '<circle cx="' + x(last.ts).toFixed(1) + '" cy="' + y(last.value).toFixed(1) + '" r="3.5" fill="' + s.color + '"/>';
+      svg += '<circle cx="' + x(last.ts).toFixed(1) + '" cy="' + y(last.value).toFixed(1) + '" r="4" fill="' + s.color + '"/>';
     });
     svg += '<rect x="0" y="0" width="' + width + '" height="' + height + '" fill="transparent" id="' + wrapId + 'Hitbox" style="cursor:crosshair;"/>';
     svg += '</svg><div class="chart-tooltip" id="' + wrapId + 'Tooltip"></div>';
@@ -1080,7 +1129,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       var rect = svgEl.getBoundingClientRect();
       var relXpx = e.clientX - rect.left;
       var relX = relXpx / rect.width * width;
-      var ts = minTs + ((relX - pad) / (width - pad * 2)) * span;
+      var ts = singleTime ? minTs : minTs + ((relX - pad) / (width - pad * 2)) * span;
       ts = Math.max(minTs, Math.min(maxTs, ts));
       var rows = nonEmpty.map(function (s) {
         var val = s.points[0];
@@ -1104,39 +1153,61 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   }
 
   /* ---------------- share tab: hero + rankings ---------------- */
+  function ownMentioned(r) { return (r.brandHits || []).some(function (h) { return h.brand === OWN_BRAND && h.mentioned; }); }
+  function dayStart(t) { var d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }
+  // 결과를 날짜별로 묶음 → [{ day, items }] (시각을 알 수 없는 결과는 그래프에서만 제외)
+  function groupByDay(results) {
+    var map = {};
+    results.forEach(function (r) { if (!isFinite(r.ts)) return; var k = dayStart(r.ts); (map[k] = map[k] || []).push(r); });
+    return Object.keys(map).map(Number).sort(function (a, b) { return a - b; }).map(function (k) { return { day: k, ts: k + 12 * 3600000, items: map[k] }; });
+  }
+
+  // 값 범위에 맞춘 % 축 (예: 최대 15% → 0~20%) — 0~100% 고정이면 선이 바닥에 붙어 변화가 안 보임
+  function pctAxis(series) {
+    var maxVal = 0;
+    series.forEach(function (s) { (s.points || []).forEach(function (p) { if (isFinite(p.value) && p.value > maxVal) maxVal = p.value; }); });
+    var steps = [2, 4, 5, 8, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100], top = 100;
+    for (var i = 0; i < steps.length; i++) if (steps[i] >= maxVal * 1.15) { top = steps[i]; break; }
+    return { yDomain: [0, top], gridlines: [{ value: 0, label: '0%' }, { value: top / 2, label: (top / 2) + '%' }, { value: top, label: top + '%' }] };
+  }
+
   function renderHeroChart(results) {
-    var sorted = results.slice().sort(function (a, b) { return a.ts - b.ts; });
+    var days = groupByDay(results);
+    var pctFmt = function (v) { return v.toFixed(1) + '%'; };
     if (state.heroMode === 'byEngine') {
-      var byEngine = {}; ENGINES.forEach(function (e) { byEngine[e] = []; });
-      sorted.forEach(function (r) {
-        var arr = byEngine[r.engine];
-        var mc = arr.length ? arr[arr.length - 1].mc : 0;
-        var ownHit = r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; });
-        mc += ownHit ? 1 : 0;
-        arr.push({ ts: r.ts, value: mc / (arr.length + 1) * 100, mc: mc });
+      // 엔진별로 "그날까지 누적" 언급률
+      var series = ENGINES.map(function (e) {
+        var total = 0, hit = 0, pts = [];
+        days.forEach(function (d) {
+          var rs = d.items.filter(function (r) { return r.engine === e; });
+          if (!rs.length) return;
+          total += rs.length; hit += rs.filter(ownMentioned).length;
+          pts.push({ ts: d.ts, value: hit / total * 100 });
+        });
+        return { label: ENGINE_LABEL[e], color: ENGINE_COLOR[e], points: pts };
       });
-      var series = ENGINES.map(function (e) { return { label: ENGINE_LABEL[e], color: ENGINE_COLOR[e], points: byEngine[e] }; });
-      renderLineChart('heroChartWrap', series, { yDomain: [0, 100], yInvert: true, gridlines: [{ value: 0, label: '0%' }, { value: 50, label: '50%' }, { value: 100, label: '100%' }], valueFmt: function (v) { return v.toFixed(1) + '%'; } });
+      var ax = pctAxis(series);
+      renderLineChart('heroChartWrap', series, { yDomain: ax.yDomain, yInvert: true, gridlines: ax.gridlines, valueFmt: pctFmt });
     } else if (state.heroMode === 'rank') {
-      var pts = []; var running = [];
-      sorted.forEach(function (r) {
-        running.push(r);
+      // 날짜마다 그날까지 누적 데이터로 순위 계산 (예전: 결과 1건마다 전체 재계산 → 느리고 축이 브랜드 수(268위)까지 늘어남)
+      var pts = [], running = [], worst = 1;
+      days.forEach(function (d) {
+        running = running.concat(d.items);
         var sd = computeShare(running);
         var idx = sd.findIndex(function (x) { return x.brand === OWN_BRAND; });
-        pts.push({ ts: r.ts, value: idx > -1 ? idx + 1 : sd.length });
+        var rank = idx > -1 ? idx + 1 : sd.length;
+        worst = Math.max(worst, rank);
+        pts.push({ ts: d.ts, value: rank });
       });
-      var N = Math.max(computeShare(results).length, 1);
+      var N = Math.max(5, worst + 2);
+      var mid = Math.round((1 + N) / 2);
       renderLineChart('heroChartWrap', [{ label: OWN_BRAND, color: '#FF571F', points: pts }],
-        { yDomain: [1, N], yInvert: false, gridlines: [{ value: 1, label: '1위' }, { value: Math.max(Math.ceil(N / 2), 1), label: Math.ceil(N / 2) + '위' }, { value: N, label: N + '위' }], valueFmt: function (v) { return '#' + v; } });
+        { yDomain: [1, N], yInvert: false, gridlines: [{ value: 1, label: '1위' }, { value: mid, label: mid + '위' }, { value: N, label: N + '위' }], valueFmt: function (v) { return v + '위'; } });
     } else {
-      var arr = []; var mc = 0;
-      sorted.forEach(function (r, i) {
-        var ownHit = r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; });
-        mc += ownHit ? 1 : 0;
-        arr.push({ ts: r.ts, value: mc / (i + 1) * 100 });
-      });
-      renderLineChart('heroChartWrap', [{ label: OWN_BRAND, color: '#FF571F', points: arr }],
-        { yDomain: [0, 100], yInvert: true, gridlines: [{ value: 0, label: '0%' }, { value: 50, label: '50%' }, { value: 100, label: '100%' }], valueFmt: function (v) { return v.toFixed(1) + '%'; } });
+      var total = 0, hit = 0;
+      var arr = days.map(function (d) { total += d.items.length; hit += d.items.filter(ownMentioned).length; return { ts: d.ts, value: hit / total * 100 }; });
+      var one = [{ label: OWN_BRAND, color: '#FF571F', points: arr }], ax2 = pctAxis(one);
+      renderLineChart('heroChartWrap', one, { yDomain: ax2.yDomain, yInvert: true, gridlines: ax2.gridlines, valueFmt: pctFmt });
     }
   }
 
@@ -1253,18 +1324,29 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     grid.innerHTML = html || '<div class="empty-hint" style="grid-column:1/-1;">데이터 없음</div>';
   }
 
+  // 한 구역 렌더링이 실패해도 탭 전체가 비지 않도록 격리하고, 그 자리에 원인을 표시
+  function safeRender(elId, label, fn) {
+    try { fn(); }
+    catch (e) {
+      var el = $(elId);
+      if (el) el.innerHTML = '<div class="err-box" style="margin:8px 0;"><div class="err-title">● ' + escapeHtml(label) + '을(를) 그리지 못했습니다</div>' +
+        '<div class="err-cause">' + escapeHtml(e && e.message ? e.message : String(e)) + '</div>' +
+        '<div class="err-fix"><b>해결 방법</b> 새로고침 후에도 같으면 이 문구를 캡처해서 전달해주세요. (데이터 형식이 다른 스캔 결과가 섞였을 가능성)</div></div>';
+    }
+  }
+
   function renderShareTab() {
     var f = state.filters.share;
     var results = resultsByFilter(f);
     var shareData = computeShare(results);
     var ownEntry = shareData.find(function (x) { return x.brand === OWN_BRAND; }) || { count: 0, share: 0 };
     $('heroValue').textContent = results.length ? ownEntry.share.toFixed(1) + '%' : '0%';
-    renderHeroChart(results);
     var catLabel = f.category === 'all' ? '전체 카테고리' : f.category;
     $('heroCaption').textContent = '삭제된 프롬프트를 포함한 전체 데이터 기준 · ' + catLabel + ' 그룹 · ' + PRESET_LABEL[f.datePreset] + ' 기준';
-    renderBrandRankList(shareData);
-    renderModelRankGrid();
-    renderGroupRankGrid();
+    safeRender('heroChartWrap', '점유율 추이 그래프', function () { renderHeroChart(results); });
+    safeRender('brandRankList', '브랜드 랭킹', function () { renderBrandRankList(shareData); });
+    safeRender('modelRankGrid', '모델별 순위', function () { renderModelRankGrid(); });
+    safeRender('groupRankGrid', '프롬프트 그룹별 순위', function () { renderGroupRankGrid(); });
   }
 
   /* ---------------- agents tab ---------------- */
@@ -1431,7 +1513,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function promptShare(p, model) {
     var rs = state.results.filter(function (r) { return r.promptId === p.id && (model === 'all' || r.engine === model); });
     if (!rs.length) return null;
-    var mentioned = rs.filter(function (r) { return r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; }); }).length;
+    var mentioned = rs.filter(function (r) { return ownMentioned(r); }).length;
     return mentioned / rs.length * 100;
   }
   // CSV 내보내기용: 특정 프롬프트 x 특정 엔진의 스캔 결과를 기간 필터까지 반영해 집계
@@ -1443,7 +1525,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
       return true;
     });
     if (!rs.length) return { count: 0, share: null };
-    var mentioned = rs.filter(function (r) { return r.brandHits.some(function (h) { return h.brand === OWN_BRAND && h.mentioned; }); }).length;
+    var mentioned = rs.filter(function (r) { return ownMentioned(r); }).length;
     return { count: rs.length, share: mentioned / rs.length * 100 };
   }
   function renderPromptsTable() {
@@ -2834,24 +2916,40 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var colorPalette = ['#FF571F', '#B2B7C0', '#6BA6FF', '#916BAD', '#4D5764', '#53B368', '#FFB431', '#009795'];
     var colorOf = {}; domains.forEach(function (d, i) { colorOf[d.site] = colorPalette[i % colorPalette.length]; });
 
-    var sorted = results.slice().sort(function (a, b) { return a.ts - b.ts; });
+    // 하루 단위로 묶어서 "그날까지 누적" 점유율을 계산 (결과 1건마다 점을 찍으면 스캔일에 수백 개가 겹침)
+    var dayKey = function (t) { var d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+    var byDay = {};
+    results.forEach(function (r) {
+      if (!isFinite(r.ts)) return;
+      var k = dayKey(r.ts);
+      if (!byDay[k]) byDay[k] = [];
+      byDay[k].push(r);
+    });
+    var days = Object.keys(byDay).map(Number).sort(function (a, b) { return a - b; });
     var running = {}; selected.forEach(function (d) { running[d.site] = 0; });
     var runningTotal = 0;
     var pointsBySite = {}; selected.forEach(function (d) { pointsBySite[d.site] = []; });
-    sorted.forEach(function (r) {
-      (r.sources || []).forEach(function (s) {
-        var site = sourceSite(s);
-        runningTotal++;
-        if (running.hasOwnProperty(site)) running[site]++;
+    var maxVal = 0;
+    days.forEach(function (day) {
+      byDay[day].forEach(function (r) {
+        (r.sources || []).forEach(function (s) {
+          var site = sourceSite(s);
+          runningTotal++;
+          if (running.hasOwnProperty(site)) running[site]++;
+        });
       });
       selected.forEach(function (d) {
-        pointsBySite[d.site].push({ ts: r.ts, value: runningTotal ? (running[d.site] / runningTotal * 100) : 0 });
+        var v = runningTotal ? (running[d.site] / runningTotal * 100) : 0;
+        if (v > maxVal) maxVal = v;
+        pointsBySite[d.site].push({ ts: day + 12 * 3600000, value: v });
       });
     });
     var series = selected.map(function (d) { return { label: d.site, color: colorOf[d.site], catLabel: d.category, points: pointsBySite[d.site] }; });
+    // y축을 실제 값에 맞춤 (예: 최대 6% → 0~8%) — 예전엔 최소 20%로 고정돼 선이 바닥에 붙었음
+    var niceMax = maxVal <= 0 ? 10 : (function () { var steps = [2, 4, 5, 8, 10, 15, 20, 25, 30, 40, 50, 60, 80, 100]; for (var i = 0; i < steps.length; i++) if (steps[i] >= maxVal * 1.15) return steps[i]; return 100; })();
     renderLineChart('domainTrendWrap', series, {
-      yDomain: [0, Math.max(20, Math.ceil((selected[0] ? selected[0].share : 10) / 5) * 5 + 5)], yInvert: true,
-      gridlines: [{ value: 0, label: '0%' }, { value: 10, label: '10%' }, { value: 20, label: '20%' }],
+      yDomain: [0, niceMax], yInvert: true,
+      gridlines: [{ value: 0, label: '0%' }, { value: niceMax / 2, label: (niceMax / 2) + '%' }, { value: niceMax, label: niceMax + '%' }],
       valueFmt: function (v) { return v.toFixed(1) + '%'; },
       totalFmt: function () { return '총 인용: ' + sourceData.total + '건'; },
       emptyText: '인용 출처 데이터가 없습니다.'
@@ -3060,6 +3158,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
   function mergeResults(serverResults) {
     var existingIds = {}; state.results.forEach(function (r) { existingIds[resultKey(r)] = true; });
     var added = 0;
+    serverResults = normalizeResults(serverResults);
     serverResults.forEach(function (r) {
       var k = resultKey(r);
       if (!existingIds[k]) { state.results.push(r); existingIds[k] = true; added++; }
@@ -3437,7 +3536,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     var promptResults = state.results.filter(function(r) { return r.promptId === promptId; });
     var totalCount = promptResults.length;
     var mentionedCount = promptResults.filter(function(r) {
-      var hit = r.brandHits.find(function(h) { return h.brand === OWN_BRAND; });
+      var hit = (r.brandHits || []).find(function(h) { return h.brand === OWN_BRAND; });
       return hit && hit.mentioned;
     }).length;
     var share = totalCount > 0 ? (mentionedCount / totalCount * 100).toFixed(1) : '0';
@@ -3457,12 +3556,12 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     promptResults.forEach(function(r) { (r.brandHits || []).forEach(function(h) { allBrandsSeen[h.brand] = true; }); });
     Object.keys(allBrandsSeen).forEach(function(b) {
       var hits = promptResults.filter(function(r) {
-        var h = r.brandHits.find(function(x) { return x.brand === b; });
+        var h = (r.brandHits || []).find(function(x) { return x.brand === b; });
         return h && h.mentioned;
       }).length;
       if (hits > 0) {
         var sentiments = promptResults.map(function(r) {
-          var h = r.brandHits.find(function(x) { return x.brand === b && x.mentioned; });
+          var h = (r.brandHits || []).find(function(x) { return x.brand === b && x.mentioned; });
           return h ? h.sentiment : null;
         }).filter(function(s) { return s; });
         var positiveCount = sentiments.filter(function(s) { return s === 'positive'; }).length;
@@ -3539,7 +3638,7 @@ var PROMPTS_SEED = [{"no":1,"category":"OK 브랜드","type":"브랜드 질문",
     historyBody.innerHTML = '';
     var ENGINE_LABEL_MAP = { 'gpt': 'GPT', 'gemini': 'Gemini', 'claude': 'Claude' };
     promptResults.slice().reverse().slice(0, 50).forEach(function(r) {
-      var mentioned = r.brandHits.find(function(h) { return h.brand === OWN_BRAND; });
+      var mentioned = (r.brandHits || []).find(function(h) { return h.brand === OWN_BRAND; });
       var sentiment = mentioned ? mentioned.sentiment : '';
       var source = (r.sources && r.sources.length > 0) ? r.sources[0].site : '-';
       var row = document.createElement('tr');
