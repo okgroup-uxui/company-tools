@@ -9,6 +9,7 @@
   @font-face{font-family:'OK Font';font-weight:300;src:url('/company-tools/fonts/Ok-Light.woff2') format('woff2');}
   @font-face{font-family:'OK Font';font-weight:500;src:url('/company-tools/fonts/Ok-Medium.woff2') format('woff2');}
   :root{
+    --print-img-max:400px;
     --black:#F1F3F5;
     --panel:#ffffff;
     --panel-2:#EFEFEF;
@@ -1354,9 +1355,14 @@
     .print-container{display:block !important;}
     .print-container .paper{box-shadow:none; page-break-after:always; break-after:page;}
     .print-container .paper:last-child{page-break-after:auto; break-after:auto;}
-    .paper-trend-img{max-height:400px; object-fit:contain;}
-    .trend-images{max-height:400px;}
-    .trend-images img{max-height:400px; object-fit:contain;}
+    /* 인쇄용 이미지 최대 높이: --print-img-max 하나로 관리 */
+    .print-container .paper-trend-img{max-height:var(--print-img-max); object-fit:contain; break-inside:avoid;}
+    .print-container .trend-images{break-inside:avoid;}
+    .print-container .trend-images img{object-fit:contain;}
+    /* 가로 배치: 이미지마다 최대 높이 */
+    .print-container .trend-images.layout-row img{max-height:var(--print-img-max);}
+    /* 세로 배치: 쌓인 이미지 전체가 최대 높이 안에 들어오도록 장수만큼 나눔 (간격 10px) */
+    .print-container .trend-images.layout-column img{max-height:calc((var(--print-img-max) - (var(--n, 1) - 1) * 10px) / var(--n, 1));}
   }
 
   @keyframes movedFlash{0%{background:#fff1ea; border-color:var(--accent);} 100%{background:var(--panel);}}
@@ -2301,7 +2307,7 @@ function buildTrendImagesHtml(entry, singleClass){
     return `<img class="${singleClass}" src="${images[0]}" alt="">`;
   }
   const layoutClass = entry.imageLayout === 'column' ? 'layout-column' : 'layout-row';
-  return `<div class="trend-images ${layoutClass}">` +
+  return `<div class="trend-images ${layoutClass}" style="--n:${images.length}">` +
     images.map(src => `<img src="${src}" alt="">`).join('') +
     `</div>`;
 }
