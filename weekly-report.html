@@ -1453,6 +1453,31 @@
   .masthead{padding-bottom:14px; margin-bottom:16px;}
   .masthead-left h1{font-size:28px; margin:4px 0 0;}
   .type-tabs{margin-bottom:10px;}
+
+  /* --- 순서 변경 레일 (항상 보이는 ▲ 번호 ▼) --- */
+  .item-card.compact{padding-left:48px;}
+  .order-rail{
+    position:absolute; left:6px; top:8px; bottom:8px; width:32px;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:2px;
+  }
+  .rail-btn{
+    width:28px; height:22px; border:none; border-radius:5px; background:transparent;
+    color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .rail-btn .icon{width:16px; height:16px;}
+  .rail-btn:hover:not(:disabled){background:var(--panel-2); color:var(--ink);}
+  .rail-btn:disabled{opacity:.2; cursor:default;}
+  .item-card.compact .order-rail .drag-handle{
+    position:static; width:28px; height:26px; opacity:1; border-radius:5px;
+    color:var(--ink); cursor:grab; display:flex; align-items:center; justify-content:center;
+  }
+  .order-rail .drag-handle .icon{display:none; width:16px; height:16px;}
+  .order-rail .drag-handle .rail-num{font-size:12px; font-weight:500; color:var(--muted);}
+  .order-rail .drag-handle:hover{background:var(--panel-2);}
+  .order-rail .drag-handle:hover .rail-num{display:none;}
+  .order-rail .drag-handle:hover .icon{display:block;}
+  .item-card.just-moved{animation:movedFlash .7s ease;}
+  @keyframes movedFlash{0%{background:#fff1ea; border-color:var(--accent);} 100%{background:var(--panel);}}
 </style>
 </head>
 <body>
@@ -1792,7 +1817,43 @@ function renderWorkEditor(){
         document.querySelectorAll('.item-card.drag-over').forEach(el => el.classList.remove('drag-over'));
         dragState = null;
       });
-      itemCard.appendChild(dragHandle);
+      // 왼쪽 순서 레일: [▲] [번호/손잡이] [▼] — 화살표로 한 칸씩, 손잡이는 끌어서 이동
+      const moveItem = (from, to) => {
+        const arr = s[b.key];
+        if(to < 0 || to >= arr.length) return;
+        const [moved] = arr.splice(from, 1);
+        arr.splice(to, 0, moved);
+        s.polished[b.key] = null; s.summary = null;
+        renderEditor(); renderPaper(); markDirty();
+        requestAnimationFrame(() => {
+          const card = wrap.querySelectorAll('.item-card')[to];
+          if(card){ card.classList.add('just-moved'); setTimeout(() => card.classList.remove('just-moved'), 700); }
+        });
+      };
+      const rail = document.createElement('div');
+      rail.className = 'order-rail';
+      const railUp = document.createElement('button');
+      railUp.type = 'button';
+      railUp.className = 'rail-btn';
+      railUp.innerHTML = icon('chevron-up');
+      railUp.title = '위로 이동';
+      railUp.setAttribute('aria-label', '위로 이동');
+      railUp.disabled = idx === 0;
+      railUp.onclick = () => moveItem(idx, idx - 1);
+      const railDown = document.createElement('button');
+      railDown.type = 'button';
+      railDown.className = 'rail-btn';
+      railDown.innerHTML = icon('chevron-down');
+      railDown.title = '아래로 이동';
+      railDown.setAttribute('aria-label', '아래로 이동');
+      railDown.disabled = idx === s[b.key].length - 1;
+      railDown.onclick = () => moveItem(idx, idx + 1);
+      dragHandle.innerHTML = `<span class="rail-num">${idx + 1}</span>${icon('grip-vertical')}`;
+      dragHandle.title = '끌어서 순서 변경';
+      rail.appendChild(railUp);
+      rail.appendChild(dragHandle);
+      rail.appendChild(railDown);
+      itemCard.appendChild(rail);
 
       itemCard.addEventListener('dragover', (e) => {
         if(!dragState || dragState.blockKey !== b.key) return;
