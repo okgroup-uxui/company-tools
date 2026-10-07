@@ -1478,6 +1478,12 @@
   .order-rail .drag-handle:hover .icon{display:block;}
   .item-card.just-moved{animation:movedFlash .7s ease;}
   @keyframes movedFlash{0%{background:#fff1ea; border-color:var(--accent);} 100%{background:var(--panel);}}
+  .p-worktable-body{display:flex; flex-direction:column;}
+  .p-worktable-body > .p-workrow{flex:0 0 auto;}
+  .p-worktable-body > .p-workrow-filler{flex:1 0 0; min-height:0; border-bottom:none;}
+  .p-workrow-filler > div{padding:0;}
+  .p-workrow:has(+ .p-workrow-filler){border-bottom:1px solid var(--line-dark);}
+  .p-empty-txt{font-size:18px; color:#bbb; font-style:italic;}
 </style>
 </head>
 <body>
@@ -3182,7 +3188,11 @@ function buildPresentHtmlForWork(teamKey){
   </div>`;
   html += `<div class="p-worktable-body p-scroll-area">`;
   if(!doneItems.length){
-    html += `<div class="p-empty">작성된 내용이 없습니다.</div>`;
+    html += `<div class="p-workrow p-workrow-empty">
+      <div class="p-workrow-task"><span class="p-empty-txt">작성된 내용이 없습니다.</span></div>
+      <div class="p-workrow-date"><span class="p-workrow-remark-empty">-</span></div>
+      <div class="p-workrow-remark"><span class="p-workrow-remark-empty">-</span></div>
+    </div>`;
   } else {
     doneItems.forEach((it, i) => {
       const txt = doneTexts[i] || it.text;
@@ -3200,6 +3210,8 @@ function buildPresentHtmlForWork(teamKey){
       html += `</div>`;
     });
   }
+  // 행이 적어도 표의 세로선이 끝까지 이어지도록 남은 공간을 빈 행으로 채운다
+  html += `<div class="p-workrow p-workrow-filler"><div class="p-workrow-task"></div><div class="p-workrow-date"></div><div class="p-workrow-remark"></div></div>`;
   html += `</div></div>`;
 
   html += `</div>`;
