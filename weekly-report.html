@@ -1367,6 +1367,24 @@
 
   @keyframes movedFlash{0%{background:#fff1ea; border-color:var(--accent);} 100%{background:var(--panel);}}
 
+
+  /* ===== 트렌드 내용: 밑줄 · 목록 ===== */
+  .rte-btn{display:inline-flex; align-items:center; justify-content:center; padding:0;}
+  .rte-btn.rte-underline{text-decoration:underline; text-underline-offset:3px; font-weight:500;}
+  .rte-btn.active{border-color:var(--accent); background:var(--accent); color:#fff;}
+  .rte-btn.active:hover{color:#fff;}
+  .rte-sep{width:1px; height:22px; background:var(--line-dark); margin:0 2px;}
+  .content-editable ul, .content-editable ol,
+  .paper-trend-content ul, .paper-trend-content ol,
+  .p-trend-body ul, .p-trend-body ol{margin:0.2em 0; padding-left:1.5em;}
+  .content-editable ul, .paper-trend-content ul, .p-trend-body ul{list-style:disc;}
+  .content-editable ol, .paper-trend-content ol, .p-trend-body ol{list-style:decimal;}
+  .content-editable li, .paper-trend-content li, .p-trend-body li{margin:0.15em 0; padding-left:0.2em;}
+  .content-editable li::marker, .paper-trend-content li::marker, .p-trend-body li::marker{color:var(--accent);}
+  .paper-trend-content ul, .paper-trend-content ol{white-space:normal;}
+  .p-trend-body .p-step-li ul, .p-trend-body .p-step-li ol{margin:0;}
+  .p-trend-body .p-step-li + .p-step-li{margin-top:0.25em;}
+  u{text-underline-offset:0.18em;}
 </style>
 </head>
 <body>
@@ -2149,14 +2167,48 @@ function renderTrendEditor(){
   const toolbar = document.createElement('div');
   toolbar.className = 'rte-toolbar';
 
-  const boldBtn = document.createElement('button');
-  boldBtn.type = 'button';
-  boldBtn.className = 'rte-btn rte-bold';
-  boldBtn.textContent = 'B';
-  boldBtn.title = '굵게';
-  boldBtn.onmousedown = (e) => e.preventDefault();
-  boldBtn.onclick = () => { document.execCommand('bold'); contentDiv.focus(); syncContent(); };
-  toolbar.appendChild(boldBtn);
+  // 서식 버튼: [B] [U] | [• 목록] [1. 목록] | 색상
+  const LIST_BULLET_SVG = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="4" cy="5" r="1.6" fill="currentColor"/><circle cx="4" cy="10" r="1.6" fill="currentColor"/><circle cx="4" cy="15" r="1.6" fill="currentColor"/><path d="M8 5h9M8 10h9M8 15h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const LIST_NUMBER_SVG = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><text x="1.5" y="7" font-size="6" font-family="sans-serif" font-weight="700" fill="currentColor">1</text><text x="1.5" y="12.5" font-size="6" font-family="sans-serif" font-weight="700" fill="currentColor">2</text><text x="1.5" y="18" font-size="6" font-family="sans-serif" font-weight="700" fill="currentColor">3</text><path d="M8 5h9M8 10h9M8 15h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const FORMAT_BUTTONS = [
+    { cmd:'bold',                html:'B',             cls:'rte-bold',      title:'굵게 (Ctrl+B)' },
+    { cmd:'underline',           html:'U',             cls:'rte-underline', title:'밑줄 (Ctrl+U)' },
+    { sep:true },
+    { cmd:'insertUnorderedList', html:LIST_BULLET_SVG, cls:'rte-list',      title:'글머리 목록 (줄 앞에 "- " 입력)' },
+    { cmd:'insertOrderedList',   html:LIST_NUMBER_SVG, cls:'rte-list',      title:'번호 목록 (줄 앞에 "1. " 입력)' },
+    { sep:true },
+  ];
+  const formatBtns = [];
+  FORMAT_BUTTONS.forEach(def => {
+    if(def.sep){
+      const sep = document.createElement('span');
+      sep.className = 'rte-sep';
+      toolbar.appendChild(sep);
+      return;
+    }
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'rte-btn ' + def.cls;
+    btn.innerHTML = def.html;
+    btn.title = def.title;
+    btn.setAttribute('aria-label', def.title);
+    btn.dataset.cmd = def.cmd;
+    btn.onmousedown = (e) => e.preventDefault();
+    btn.onclick = () => { document.execCommand(def.cmd); contentDiv.focus(); syncContent(); updateFormatState(); };
+    toolbar.appendChild(btn);
+    formatBtns.push(btn);
+  });
+  // 커서 위치의 서식에 맞춰 버튼을 눌린 상태로 표시
+  function updateFormatState(){
+    const sel = document.getSelection();
+    const inside = sel && sel.rangeCount && contentDiv.contains(sel.anchorNode);
+    formatBtns.forEach(btn => {
+      let on = false;
+      try{ on = inside && document.queryCommandState(btn.dataset.cmd); }catch(err){}
+      btn.classList.toggle('active', !!on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
 
   const COLORS = ['#111111', '#FF571F'];
   COLORS.forEach(color => {
@@ -2191,6 +2243,35 @@ function renderTrendEditor(){
     markDirty();
   }
   contentDiv.oninput = syncContent;
+  contentDiv.addEventListener('keyup', updateFormatState);
+  contentDiv.addEventListener('mouseup', updateFormatState);
+  contentDiv.addEventListener('focus', updateFormatState);
+  contentDiv.addEventListener('blur', () => formatBtns.forEach(b => b.classList.remove('active')));
+  // 줄 맨 앞에서 "- " / "* " → 글머리 목록, "1. " → 번호 목록
+  contentDiv.addEventListener('keydown', (e) => {
+    if(e.key !== ' ' || e.isComposing) return;
+    const sel = document.getSelection();
+    if(!sel.rangeCount || !sel.isCollapsed) return;
+    const node = sel.anchorNode;
+    if(!node || node.nodeType !== 3 || !contentDiv.contains(node)) return;
+    if(node.parentElement && node.parentElement.closest('li')) return;   // 이미 목록 안
+    // 줄의 시작인지 확인: 앞 형제가 없거나 <br>
+    const prev = node.previousSibling;
+    if(prev && prev.nodeName !== 'BR') return;
+    const before = node.textContent.slice(0, sel.anchorOffset);
+    let cmd = null;
+    if(before === '-' || before === '*') cmd = 'insertUnorderedList';
+    else if(before === '1.') cmd = 'insertOrderedList';
+    if(!cmd) return;
+    e.preventDefault();
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(node, sel.anchorOffset);
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand('delete');
+    document.execCommand(cmd);
+    syncContent(); updateFormatState();
+  });
   // 다른 웹페이지/문서에서 붙여넣을 때 딸려오는 폰트 크기·색상 등 서식을 제거하고
   // 순수 텍스트만 들어오게 한다 (굵게/색상은 붙여넣은 뒤 툴바로 다시 적용)
   contentDiv.addEventListener('paste', (e) => {
@@ -3100,9 +3181,19 @@ function splitTrendParagraphs(contentHtml){
       if(node.nodeType === 1 && node.tagName === 'BR'){ flush(); return; }
       if(node.nodeType === 1 && BLOCK.test(node.tagName)){
         if(cur.trim()) flush(); else cur = '';
-        if(/^(UL|OL|TABLE|PRE|BLOCKQUOTE)$/.test(node.tagName)){ lines.push(node.outerHTML); return; }
+        if(/^(UL|OL)$/.test(node.tagName)){
+          // 목록은 항목 하나하나를 단락으로: 발표 때 한 항목씩 넘어간다 (번호는 start로 유지)
+          const tag = node.tagName.toLowerCase();
+          const start = parseInt(node.getAttribute('start') || '1', 10);
+          Array.from(node.children).filter(li => li.tagName === 'LI').forEach((li, i) => {
+            const startAttr = tag === 'ol' ? ` start="${start + i}"` : '';
+            lines.push({ list:true, html:`<${tag}${startAttr}><li>${li.innerHTML}</li></${tag}>` });
+          });
+          return;
+        }
+        if(/^(TABLE|PRE|BLOCKQUOTE)$/.test(node.tagName)){ lines.push(node.outerHTML); return; }
         // div/p 안에 다시 블록이나 br이 있을 수 있으니 재귀로 펼친다
-        const hasInnerBreaks = node.querySelector('br, div, p');
+        const hasInnerBreaks = node.querySelector('br, div, p, ul, ol');
         if(hasInnerBreaks){ walk(node); if(cur) flush(); }
         else lines.push(node.innerHTML);
         return;
@@ -3114,22 +3205,23 @@ function splitTrendParagraphs(contentHtml){
   if(cur) flush();
 
   const isBlank = (h) => {
+    if(typeof h !== 'string') return false;
     const t = document.createElement('div'); t.innerHTML = h;
     return t.textContent.replace(/\u00a0/g,' ').trim() === '';
   };
   const hasBlankSeparator = lines.some((l, i) => isBlank(l) && i > 0 && i < lines.length - 1);
+  // 목록 항목은 항상 독립된 단락. 일반 줄은 빈 줄 기준으로 묶는다
   const paras = [];
-  if(hasBlankSeparator){
-    let group = [];
-    lines.forEach(l => {
-      if(isBlank(l)){ if(group.length){ paras.push(group); group = []; } }
-      else group.push(l);
-    });
-    if(group.length) paras.push(group);
-  } else {
-    lines.filter(l => !isBlank(l)).forEach(l => paras.push([l]));
-  }
-  return paras.map(g => g.join('<br>'));
+  let group = [];
+  const closeGroup = () => { if(group.length){ paras.push({ list:false, html:group.join('<br>') }); group = []; } };
+  lines.forEach(l => {
+    if(typeof l !== 'string'){ closeGroup(); paras.push(l); return; }
+    if(isBlank(l)){ closeGroup(); return; }
+    group.push(l);
+    if(!hasBlankSeparator) closeGroup();
+  });
+  closeGroup();
+  return paras;
 }
 
 function buildPresentHtmlForTrend(teamKey, entry){
@@ -3151,7 +3243,7 @@ function buildPresentHtmlForTrend(teamKey, entry){
 
   const paras = splitTrendParagraphs(s.content);
   const textHtml = paras.length
-    ? `<div class="p-trend-body">${paras.map(p => `<div class="p-step">${p}</div>`).join('')}</div>`
+    ? `<div class="p-trend-body">${paras.map(p => `<div class="p-step${p.list ? ' p-step-li' : ''}">${p.html}</div>`).join('')}</div>`
     : '';
 
   const layout = s.slideLayout === 'column' ? 'column' : 'row';
