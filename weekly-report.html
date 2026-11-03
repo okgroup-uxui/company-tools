@@ -1385,10 +1385,144 @@
   .p-trend-body .p-step-li ul, .p-trend-body .p-step-li ol{margin:0;}
   .p-trend-body .p-step-li + .p-step-li{margin-top:0.25em;}
   u{text-underline-offset:0.18em;}
+
+  /* ===== 동시 편집 충돌 안내 ===== */
+  .conflict-bar{
+    position:fixed; top:16px; left:50%; transform:translate(-50%, -140%); z-index:200;
+    width:min(860px, calc(100% - 32px));
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:14px 16px 14px 18px; border-radius:10px;
+    background:#fff; border:2px solid var(--danger); box-shadow:0 12px 40px rgba(0,0,0,0.18);
+    transition:transform .3s ease, visibility .3s;
+    visibility:hidden;
+  }
+  .conflict-bar.show{transform:translate(-50%, 0); visibility:visible;}
+  .cb-text{display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.5; color:var(--ink);}
+  .cb-text .icon{color:var(--danger); flex:0 0 auto; margin-top:2px;}
+  .cb-text b{font-weight:600;}
+  .cb-actions{display:flex; gap:8px; flex:0 0 auto;}
+
+  /* ===== 팀 탭 작성 현황 ===== */
+  .tab-status{
+    display:inline-block; margin-left:8px; padding:2px 7px; border-radius:999px;
+    font-size:11px; font-weight:500; line-height:1.4; vertical-align:2px;
+  }
+  .tab-status.done{background:#e8f5ee; color:#1f8a4c;}
+  .tab-status.todo{background:#fff1ea; color:var(--accent);}
+
+  /* ===== 발표 순서 패널: 미작성 목록 ===== */
+  .order-missing{margin:4px 0 16px; padding:12px 14px; border-radius:8px; background:#fff6f2; border:1px solid #ffd9c9;}
+  .order-missing:has(.om-ok){background:#f1faf5; border-color:#cdebd9;}
+  .om-title{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--accent);}
+  .om-title.om-ok{color:#1f8a4c;}
+  .om-title .icon{width:15px; height:15px;}
+  .om-group{display:flex; gap:10px; align-items:flex-start; margin-top:10px;}
+  .om-group-label{flex:0 0 78px; font-size:12px; color:var(--muted); padding-top:5px;}
+  .om-list{display:flex; flex-wrap:wrap; gap:6px; flex:1;}
+  .om-item{
+    font-size:12px; padding:5px 10px; border-radius:999px; cursor:pointer;
+    border:1px solid #ffd9c9; background:#fff; color:var(--ink);
+  }
+  .om-item:hover{border-color:var(--accent); color:var(--accent);}
+
+  /* ===== 발표 중 이미지 크게 보기 ===== */
+  .p-trend-images img{cursor:zoom-in;}
+  .image-zoom{
+    position:fixed; inset:0; z-index:1100; display:none;
+    align-items:center; justify-content:center;
+    background:rgba(10,10,10,0.97); cursor:zoom-out;
+  }
+  .image-zoom.open{display:flex; animation:zoomIn .18s ease;}
+  @keyframes zoomIn{from{opacity:0;} to{opacity:1;}}
+  .image-zoom img{max-width:94vw; max-height:88vh; object-fit:contain; border-radius:4px; box-shadow:0 10px 50px rgba(0,0,0,0.5);}
+  .iz-count{position:absolute; top:22px; left:50%; transform:translateX(-50%); color:#fff; font-size:15px; letter-spacing:0.08em;}
+  .iz-hint{position:absolute; bottom:20px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.55); font-size:13px; white-space:nowrap;}
+  .image-zoom:not(.multi) .iz-hint{font-size:0;}
+  .image-zoom:not(.multi) .iz-hint::after{content:'Z 또는 Esc로 닫기'; font-size:13px;}
+
+  /* ===== 작성 현황 패널 ===== */
+  .status-panel{
+    position:fixed; top:20px; z-index:50;
+    left:max(16px, calc((100vw - 1180px) / 2 - 236px));
+    width:220px; max-height:calc(100vh - 40px); overflow-y:auto;
+    background:var(--panel); border:1px solid var(--line-dark); border-radius:10px;
+    padding:16px 14px 12px; box-shadow:0 4px 18px rgba(0,0,0,0.04);
+    scrollbar-width:thin;
+  }
+  .sp-head{display:flex; align-items:center; justify-content:space-between;}
+  .sp-title{font-size:15px; font-weight:500; color:var(--ink);}
+  .sp-close{display:none; background:none; border:none; padding:4px; cursor:pointer; color:var(--muted);}
+  .sp-week{font-size:12px; color:var(--muted); margin-top:2px;}
+  .sp-progress{margin:12px 0 6px;}
+  .sp-bar{height:6px; border-radius:3px; background:var(--panel-2); overflow:hidden;}
+  .sp-bar span{display:block; height:100%; background:var(--accent); border-radius:3px; transition:width .3s ease;}
+  .sp-summary{display:flex; justify-content:space-between; margin-top:6px; font-size:12px; color:var(--muted);}
+  .sp-summary b{color:var(--accent); font-weight:500;}
+  .sp-summary b.ok{color:#1f8a4c;}
+  .sp-section{margin-top:14px; padding-top:12px; border-top:1px solid var(--line-dark);}
+  .sp-section-title{display:flex; justify-content:space-between; font-size:12px; font-weight:500; color:var(--ink); margin-bottom:6px;}
+  .sp-section-title span{color:var(--muted); font-weight:300;}
+  .sp-group{font-size:11px; color:var(--muted); margin:10px 0 2px 4px;}
+  .sp-row{
+    display:flex; align-items:center; gap:8px; width:100%;
+    padding:6px 6px; border:none; border-radius:6px; background:transparent;
+    font-size:13px; color:var(--ink); cursor:pointer; text-align:left;
+  }
+  .sp-row:hover{background:var(--panel-2);}
+  .sp-row.current{background:#fff1ea;}
+  .sp-mark{
+    flex:0 0 16px; height:16px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .sp-row.todo .sp-mark{border:1.5px solid var(--accent);}
+  .sp-row.done .sp-mark{background:#1f8a4c; color:#fff;}
+  .sp-row.done .sp-mark .icon{width:11px; height:11px; stroke-width:3;}
+  .sp-name{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .sp-row.done .sp-name{color:var(--muted);}
+  .sp-state{font-size:11px; flex:0 0 auto;}
+  .sp-row.todo .sp-state{color:var(--accent);}
+  .sp-row.done .sp-state{color:#1f8a4c;}
+
+  .status-tab{display:none;}
+
+  /* 왼쪽 여백이 패널보다 좁은 화면: 왼쪽 가장자리 탭 → 눌러서 서랍처럼 펼침 */
+  @media (max-width: 1679px){
+    .status-panel{
+      left:0; top:0; bottom:0; max-height:none; height:100vh; width:260px;
+      border-radius:0 12px 12px 0; border-left:none;
+      transform:translateX(-105%); transition:transform .25s ease;
+      box-shadow:8px 0 30px rgba(0,0,0,0.12); z-index:120;
+    }
+    body.status-open .status-panel{transform:translateX(0);}
+    .sp-close{display:flex;}
+    .status-tab{
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      position:fixed; left:0; top:50%; transform:translateY(-50%); z-index:110;
+      padding:12px 7px; border:1px solid var(--line-dark); border-left:none;
+      border-radius:0 10px 10px 0; background:var(--panel); cursor:pointer;
+      box-shadow:2px 2px 12px rgba(0,0,0,0.06);
+    }
+    .status-tab:hover{border-color:var(--accent);}
+    .st-label{writing-mode:vertical-rl; text-orientation:upright; line-height:1.15; margin-bottom:2px; font-size:12px; font-weight:500; color:var(--ink); letter-spacing:0.1em;}
+    .st-count{
+      min-width:20px; height:20px; padding:0 5px; border-radius:10px;
+      background:var(--accent); color:#fff; font-size:11px; font-weight:500;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .st-count.ok{background:#1f8a4c;}
+    .st-count .icon{width:12px; height:12px; stroke-width:3;}
+    body.status-open::after{content:''; position:fixed; inset:0; background:rgba(0,0,0,0.18); z-index:100;}
+    body.status-open .status-tab{display:none;}
+  }
+  @media print{ .status-panel, .status-tab{display:none !important;} }
 </style>
 </head>
 <body>
 <div class="app">
+
+  <!-- 작성 현황: 넓은 화면에서는 왼쪽에 고정, 좁은 화면에서는 왼쪽 탭을 눌러 펼침 -->
+  <aside class="status-panel" id="statusPanel" aria-label="작성 현황"></aside>
+  <button class="status-tab" id="statusTab" aria-controls="statusPanel" aria-expanded="false"></button>
 
   <div class="masthead">
     <div class="masthead-left">
@@ -1434,7 +1568,14 @@
 
 <div class="print-container" id="printContainer"></div>
 
+<div class="conflict-bar" id="conflictBar" role="alert"></div>
+
 <div class="present" id="presentView">
+  <div class="image-zoom" id="imageZoom" aria-hidden="true">
+    <img id="imageZoomImg" alt="">
+    <div class="iz-count" id="imageZoomCount"></div>
+    <div class="iz-hint">Z 또는 Esc로 닫기 · ← → 이미지 넘기기</div>
+  </div>
   <div class="present-top">
     <div class="present-index " id="presentIndex">01 / 03</div>
     <div class="present-range " id="presentRange">-</div>
@@ -1456,6 +1597,7 @@
   <div class="order-panel">
     <h3>발표 순서</h3>
     <div class="sub">올리는 사람 순서대로 화살표로 정렬해주세요. 내용이 있는 보고서만 표시돼요.</div>
+    <div class="order-missing" id="orderMissing"></div>
     <div id="orderList"></div>
     <button class="btn ghost order-close" id="orderCloseBtn">닫기</button>
   </div>
@@ -1646,13 +1788,140 @@ function renderTypeTabs(){
   });
 }
 
+// ===== 작성 현황 =====
+function workFilled(teamKey){
+  const s = state[teamKey];
+  return !!s && BLOCKS.some(b => itemsOf(s, b.key).length > 0);
+}
+function trendFilled(entry){
+  if(!entry) return false;
+  const hasContent = entry.content && htmlToPlainText(entry.content).length > 0;
+  return !!(entry.title || (entry.images && entry.images.length) || hasContent);
+}
+function teamStatus(teamKey){
+  if(activeReportType === 'work'){
+    return workFilled(teamKey) ? { done:true, text:'작성' } : { done:false, text:'미작성' };
+  }
+  const list = trendState[teamKey] || [];
+  const n = list.filter(trendFilled).length;
+  return { done: list.length > 0 && n === list.length, text: `${n}/${list.length}` };
+}
+// 아직 안 쓴 보고서 목록 (업무보고는 팀 단위, 트렌드보고는 사람 단위)
+function missingReports(){
+  const out = [];
+  PRESENT_TEAM_ORDER.forEach(key => {
+    const t = TEAMS.find(x => x.key === key);
+    if(t && !workFilled(key)) out.push({ type:'work', team:key, label:`${t.label} 업무보고` });
+  });
+  TEAMS.forEach(t => (trendState[t.key] || []).forEach(e => {
+    if(!trendFilled(e)) out.push({ type:'trend', team:t.key, id:e.id, label:`${t.label} 트렌드보고 · ${e.author}` });
+  }));
+  return out;
+}
+function goToReport(m){
+  activeReportType = m.type;
+  activeTeam = m.team;
+  if(m.type === 'trend') activeTrendEntryId[m.team] = m.id;
+  document.getElementById('orderOverlay').style.display = 'none';
+  setStatusPanelOpen(false);
+  renderAll();
+}
+
+// ===== 작성 현황 패널 =====
+function setStatusPanelOpen(open){
+  document.body.classList.toggle('status-open', open);
+  document.getElementById('statusTab').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function renderStatusPanel(){
+  const panel = document.getElementById('statusPanel');
+  const tab = document.getElementById('statusTab');
+  if(!panel) return;
+
+  const workRows = TEAMS.map(t => ({
+    m: { type:'work', team:t.key },
+    label: t.label,
+    done: workFilled(t.key),
+    current: activeReportType === 'work' && activeTeam === t.key
+  }));
+  const curTrendId = activeReportType === 'trend'
+    ? (activeTrendEntryId[activeTeam] || ((trendState[activeTeam] || [])[0] || {}).id) : null;
+  const trendGroups = TEAMS.map(t => ({
+    label: t.label,
+    rows: (trendState[t.key] || []).map(e => ({
+      m: { type:'trend', team:t.key, id:e.id },
+      label: e.author,
+      done: trendFilled(e),
+      current: activeReportType === 'trend' && activeTeam === t.key && curTrendId === e.id
+    }))
+  })).filter(g => g.rows.length);
+
+  const allRows = [...workRows, ...trendGroups.flatMap(g => g.rows)];
+  const doneCount = allRows.filter(r => r.done).length;
+  const missingCount = allRows.length - doneCount;
+  const workDone = workRows.filter(r => r.done).length;
+  const trendRows = trendGroups.flatMap(g => g.rows);
+  const trendDone = trendRows.filter(r => r.done).length;
+  const pct = allRows.length ? Math.round(doneCount / allRows.length * 100) : 0;
+
+  const rowsHtml = [];
+  const rowBtn = (r) => {
+    const i = rowsHtml.length;
+    rowsHtml.push(r.m);
+    return `<button class="sp-row${r.done ? ' done' : ' todo'}${r.current ? ' current' : ''}" data-i="${i}">
+      <span class="sp-mark">${r.done ? icon('check') : ''}</span>
+      <span class="sp-name">${escapeHtml(r.label)}</span>
+      <span class="sp-state">${r.done ? '작성' : '미작성'}</span>
+    </button>`;
+  };
+
+  panel.innerHTML = `
+    <div class="sp-head">
+      <div class="sp-title">작성 현황</div>
+      <button class="sp-close" id="statusClose" aria-label="닫기">${icon('x')}</button>
+    </div>
+    <div class="sp-week">${escapeHtml(nextWeekLabel(currentMonday))}</div>
+    <div class="sp-progress" aria-label="전체 ${allRows.length}개 중 ${doneCount}개 작성">
+      <div class="sp-bar"><span style="width:${pct}%"></span></div>
+      <div class="sp-summary"><span>${missingCount ? `<b>${missingCount}</b>개 남음` : '<b class="ok">모두 작성 완료</b>'}</span><span>${doneCount}/${allRows.length}</span></div>
+    </div>
+
+    <div class="sp-section">
+      <div class="sp-section-title">업무보고 <span>${workDone}/${workRows.length}</span></div>
+      ${workRows.map(rowBtn).join('')}
+    </div>
+    <div class="sp-section">
+      <div class="sp-section-title">트렌드보고 <span>${trendDone}/${trendRows.length}</span></div>
+      ${trendGroups.map(g => `<div class="sp-group">${escapeHtml(g.label)}</div>${g.rows.map(rowBtn).join('')}`).join('')}
+    </div>
+  `;
+  panel.querySelectorAll('.sp-row').forEach(b => b.onclick = () => goToReport(rowsHtml[+b.dataset.i]));
+  document.getElementById('statusClose').onclick = () => setStatusPanelOpen(false);
+
+  tab.innerHTML = missingCount
+    ? `<span class="st-label">미작성</span><span class="st-count">${missingCount}</span>`
+    : `<span class="st-label">작성 현황</span><span class="st-count ok">${icon('check')}</span>`;
+}
+document.getElementById('statusTab').addEventListener('click', () => {
+  setStatusPanelOpen(!document.body.classList.contains('status-open'));
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && document.body.classList.contains('status-open')) setStatusPanelOpen(false);
+});
+// 서랍이 열린 상태에서 바깥(어두운 영역)을 누르면 닫기
+document.addEventListener('click', (e) => {
+  if(!document.body.classList.contains('status-open')) return;
+  if(e.target.closest('#statusPanel, #statusTab')) return;
+  setStatusPanelOpen(false);
+}, true);
+
 function renderTabs(){
   const wrap = document.getElementById('teamTabs');
   wrap.innerHTML = '';
   TEAMS.forEach((t, i) => {
     const btn = document.createElement('button');
     btn.className = 'team-tab' + (activeTeam === t.key ? ' active' : '');
-    btn.innerHTML = `<span class="n ">0${i+1}</span>${t.label}`;
+    const st = teamStatus(t.key);
+    btn.innerHTML = `<span class="n ">0${i+1}</span>${t.label}<span class="tab-status ${st.done ? 'done' : 'todo'}">${st.text}</span>`;
     btn.onclick = () => { activeTeam = t.key; renderAll(); };
     wrap.appendChild(btn);
   });
@@ -2424,7 +2693,19 @@ function buildPaperHtmlForTrend(teamKey, entry){
   return html;
 }
 
+function refreshTabStatus(){
+  renderStatusPanel();
+  const tabs = document.querySelectorAll('#teamTabs .team-tab');
+  TEAMS.forEach((t, i) => {
+    const el = tabs[i] && tabs[i].querySelector('.tab-status');
+    if(!el) return;
+    const st = teamStatus(t.key);
+    el.textContent = st.text;
+    el.className = 'tab-status ' + (st.done ? 'done' : 'todo');
+  });
+}
 function renderPaper(){
+  refreshTabStatus();
   const html = activeReportType === 'work'
     ? buildPaperHtmlForTeam(activeTeam)
     : buildPaperHtmlForTrend(activeTeam, getActiveTrendEntry());
@@ -2625,7 +2906,8 @@ document.getElementById('nextWeek').onclick = () => { changeWeek(7); };
 
 async function changeWeek(days){
   if(isDirty){
-    await saveCurrentWeek();
+    const ok = await saveCurrentWeek();
+    if(!ok && !confirm('저장되지 않은 변경사항이 있어요(충돌 또는 저장 실패). 이동하면 사라져요. 계속할까요?')) return;
   }
   const d = new Date(currentMonday);
   d.setDate(d.getDate()+days);
@@ -2646,13 +2928,133 @@ const dirtyVersions = {};
 let autosaveTimer = null;
 let lastSavedAt = null;
 const AUTOSAVE_DELAY = 1500;
+
+// ===== 동시 편집 충돌 감지 =====
+// 저장할 때마다 값에 _rev(무작위 버전 id)를 붙인다. 불러오거나 저장한 시점의 _rev를 knownRev에 기억해두고,
+// 다음 저장 직전에 서버 값을 다시 읽어 _rev가 달라졌으면(= 그 사이 누군가 저장함) 덮어쓰지 않고 멈춘다.
+const knownRev = {};          // dirty key → 마지막으로 알고 있는 서버 _rev (없으면 null)
+const conflicts = {};         // dirty key → 충돌 당시 서버 값
+function newRev(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function revOf(val){ return (val && !Array.isArray(val) && typeof val === 'object' && val._rev) ? val._rev : null; }
+function supportsRev(k){ return k !== 'order'; }   // order는 배열이라 버전 필드를 둘 수 없어 검사 제외
+function dirtyKeyLabel(k){
+  if(k === 'order') return '발표 순서';
+  const parts = k.split(':');
+  const t = TEAMS.find(x => x.key === parts[1]);
+  const team = t ? t.label : parts[1];
+  return parts[0] === 'work' ? `${team} 업무보고` : `${team} 트렌드보고 (${parts.slice(2).join(':')})`;
+}
+function normalizeTeamState(ts){
+  if(!ts.vacation || !ts.vacation.length) ts.vacation = [emptyVacationItem()];
+  BLOCKS.forEach(b => {
+    if(!ts[b.key]) ts[b.key] = [emptyItem()];
+    ts[b.key].forEach(item => {
+      if(item.detail === undefined) item.detail = '';
+      if(item.remark === undefined) item.remark = '';
+    });
+  });
+  if(!ts.polished) ts.polished = {};
+  return ts;
+}
+// 서버 값을 로컬 상태에 반영 (충돌 해결·창 복귀 시 최신화에 사용)
+function applyServerValue(k, val){
+  if(k.startsWith('work:')){
+    const team = k.slice(5);
+    state[team] = val ? normalizeTeamState(val) : emptyTeamState();
+  } else if(k.startsWith('trend:')){
+    const rest = k.slice(6);
+    const sepIdx = rest.indexOf(':');
+    const team = rest.slice(0, sepIdx);
+    const author = rest.slice(sepIdx + 1);
+    const list = trendState[team] || [];
+    const i = list.findIndex(e => e.author === author);
+    const entry = val ? normalizeTrendEntry({ ...val, id: author, author }) : emptyTrendEntry(author);
+    if(i >= 0) list[i] = entry; else list.push(entry);
+    trendState[team] = list;
+  } else if(k === 'order'){
+    slideOrder = Array.isArray(val) ? val : slideOrder;
+    reconcileSlideOrder();
+  }
+}
+function renderConflictBar(){
+  const bar = document.getElementById('conflictBar');
+  const keys = Object.keys(conflicts);
+  if(!keys.length){ bar.classList.remove('show'); bar.innerHTML = ''; return; }
+  const k = keys[0];
+  bar.innerHTML = `
+    <div class="cb-text">${icon('alert-triangle')}
+      <span><b>${escapeHtml(dirtyKeyLabel(k))}</b>${keys.length > 1 ? ` 외 ${keys.length - 1}건` : ''} · 다른 사람이 방금 수정했어요.<br>내 변경사항은 아직 저장되지 않았어요. 어떻게 할까요?</span>
+    </div>
+    <div class="cb-actions">
+      <button class="btn ghost sm" data-conflict="load">최신 내용 불러오기</button>
+      <button class="btn sm" data-conflict="overwrite">내 내용으로 덮어쓰기</button>
+    </div>`;
+  bar.classList.add('show');
+  bar.querySelector('[data-conflict="load"]').onclick = () => resolveConflict(k, 'load');
+  bar.querySelector('[data-conflict="overwrite"]').onclick = () => {
+    if(confirm('다른 사람이 저장한 내용이 내 내용으로 바뀌어요. 덮어쓸까요?')) resolveConflict(k, 'overwrite');
+  };
+}
+async function resolveConflict(k, how){
+  const serverVal = conflicts[k];
+  delete conflicts[k];
+  if(how === 'load'){
+    applyServerValue(k, serverVal);
+    knownRev[k] = revOf(serverVal);
+    dirtyKeys.delete(k);
+    isDirty = dirtyKeys.size > 0;
+    renderAll();
+  } else {
+    knownRev[k] = revOf(serverVal);   // 서버의 최신 버전을 '확인함'으로 간주하고 다시 저장
+    dirtyKeys.add(k); isDirty = true;
+  }
+  renderConflictBar();
+  updateSaveIndicator();
+  if(isDirty){ updateSaveIndicator('saving'); const ok = await saveCurrentWeek(); updateSaveIndicator(ok ? 'saved' : (Object.keys(conflicts).length ? 'conflict' : 'failed')); }
+}
+// 다른 창에 있다가 돌아오면, 내가 고치지 않은 부분은 서버 최신 내용으로 조용히 바꿔둔다
+// (금요일에 열어둔 창을 월요일에 다시 쓰는 경우의 충돌을 미리 줄임)
+let refreshingClean = false;
+async function refreshCleanKeys(){
+  if(!API_BASE_URL || refreshingClean) return;
+  if(document.getElementById('presentView').style.display === 'flex') return;
+  refreshingClean = true;
+  try{
+    const wk = weekKey(currentMonday);
+    const keys = [...TEAMS.map(t => `work:${t.key}`)];
+    TEAMS.forEach(t => (ROSTER[t.key] || []).forEach(name => keys.push(`trend:${t.key}:${name}`)));
+    const clean = keys.filter(k => !dirtyKeys.has(k) && !conflicts[k]);
+    const vals = await fetchManyKV(wk, clean).catch(() => clean.map(() => undefined));
+    if(weekKey(currentMonday) !== wk) return;   // 그 사이 주차를 옮겼으면 무시
+    let changed = false;
+    clean.forEach((k, i) => {
+      const v = vals[i];
+      if(v === undefined || dirtyKeys.has(k)) return;
+      if(revOf(v) !== (knownRev[k] ?? null)){
+        applyServerValue(k, v);
+        knownRev[k] = revOf(v);
+        changed = true;
+      }
+    });
+    if(changed){
+      const ae = document.activeElement;
+      const typing = ae && (ae.isContentEditable || /^(INPUT|TEXTAREA)$/.test(ae.tagName));
+      if(!typing){ renderAll(); }
+      else { renderTabs(); renderPaper(); }
+    }
+  } finally { refreshingClean = false; }
+}
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') refreshCleanKeys(); });
+window.addEventListener('focus', () => refreshCleanKeys());
 function scheduleAutosave(){
   clearTimeout(autosaveTimer);
   autosaveTimer = setTimeout(async () => {
     updateSaveIndicator('saving');
     const ok = await saveCurrentWeek();
-    updateSaveIndicator(ok ? (isDirty ? undefined : 'saved') : 'failed');
-    if(!ok) { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(scheduleAutosave, 8000); }
+    const hasConflict = Object.keys(conflicts).length > 0;
+    updateSaveIndicator(ok ? (isDirty ? undefined : 'saved') : (hasConflict ? 'conflict' : 'failed'));
+    // 네트워크 실패만 재시도. 충돌은 사용자가 고를 때까지 기다린다
+    if(!ok && !hasConflict) { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(scheduleAutosave, 8000); }
   }, AUTOSAVE_DELAY);
 }
 function currentDirtyScope(){
@@ -2676,6 +3078,7 @@ function updateSaveIndicator(status){
   const hhmm = (d) => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   let html = '', cls = '';
   if(status === 'saving'){ html = '저장 중…'; cls = 'saving'; }
+  else if(status === 'conflict' || (Object.keys(conflicts).length && status !== 'saved')){ html = icon('alert-triangle') + ' 수정 충돌 · 위 안내 확인'; cls = 'failed'; }
   else if(status === 'failed'){ html = icon('alert-triangle') + ' 저장 실패 · 저장 버튼을 눌러주세요'; cls = 'failed'; }
   else if(isDirty){ html = '입력 중 · 잠시 후 자동 저장'; cls = 'pending'; }
   else if(lastSavedAt){ html = icon('check') + ` 저장됨 ${hhmm(lastSavedAt)}`; cls = 'saved'; }
@@ -2703,15 +3106,63 @@ async function fetchKV(wk, suffix){
   }
   return null;
 }
-async function putKV(wk, suffix, value){
-  const res = await fetch(`${API_BASE_URL}/?key=${encodeURIComponent(kvKey(wk, suffix))}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(API_KEY ? {'X-API-Key': API_KEY} : {})
-    },
-    body: JSON.stringify(value)
-  });
+// Worker가 X-Expected-Rev(서버 측 충돌 검사)를 지원하는지. 예전 Worker면 CORS에서 막히므로 한 번 실패하면 false로 바꾸고
+// 클라이언트 측 검사(저장 직전 다시 읽어 비교)로 돌아간다.
+let serverRevCheck = true;
+// 여러 키를 한 번의 요청으로 조회 (Worker의 multiget). 실패하면 키별 GET으로 대체
+let multigetSupported = true;
+async function fetchManyKV(wk, suffixes){
+  if(multigetSupported){
+    try{
+      const res = await fetch(`${API_BASE_URL}/?multiget=1`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(API_KEY ? {'X-API-Key': API_KEY} : {}) },
+        body: JSON.stringify({ keys: suffixes.map(suf => kvKey(wk, suf)) })
+      });
+      if(!res.ok) throw new Error('multiget ' + res.status);
+      const data = await res.json();
+      if(!data || !Array.isArray(data.items)) throw new Error('multiget 응답 형식 아님');
+      const byKey = {};
+      (data.items || []).forEach(it => { byKey[it.key] = it.value; });
+      return suffixes.map(suf => {
+        const raw = byKey[kvKey(wk, suf)];
+        if(!raw) return null;
+        try{ return JSON.parse(raw); }catch(e){ return null; }
+      });
+    }catch(err){
+      multigetSupported = false;
+      console.warn('multiget 사용 불가 → 키별 조회로 전환', err);
+    }
+  }
+  return Promise.all(suffixes.map(suf => fetchKV(wk, suf)));
+}
+async function putKV(wk, suffix, value, expectedRev){
+  const useServerCheck = expectedRev !== undefined && serverRevCheck;
+  let res;
+  try{
+    res = await fetch(`${API_BASE_URL}/?key=${encodeURIComponent(kvKey(wk, suffix))}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(API_KEY ? {'X-API-Key': API_KEY} : {}),
+        ...(useServerCheck ? {'X-Expected-Rev': expectedRev || ''} : {})
+      },
+      body: JSON.stringify(value)
+    });
+  }catch(err){
+    if(useServerCheck){
+      serverRevCheck = false;
+      console.warn('Worker가 X-Expected-Rev를 지원하지 않아 클라이언트 측 충돌 검사로 전환합니다.');
+      const e = new Error('retry-without-server-check'); e.retry = true; throw e;
+    }
+    throw err;
+  }
+  if(res.status === 409){
+    const body = await res.json().catch(() => ({}));
+    let serverVal = null;
+    try{ serverVal = body.value ? JSON.parse(body.value) : null; }catch(e){}
+    const e = new Error('conflict'); e.conflict = true; e.serverValue = serverVal; throw e;
+  }
   if(!res.ok){
     const text = await res.text().catch(()=>'');
     throw new Error(`save failed: ${res.status} ${text}`);
@@ -2749,13 +3200,38 @@ async function saveCurrentWeek(){
   }
   const doFetch = (async () => {
     const wk = weekKey(currentMonday);
-    const keysToSave = Array.from(dirtyKeys);
+    const keysToSave = Array.from(dirtyKeys).filter(k => !conflicts[k]);
     const versionsAtStart = {};
     keysToSave.forEach(k => versionsAtStart[k] = dirtyVersions[k] || 0);
-    const results = await Promise.allSettled(keysToSave.map(async (k) => {
+    const saveOne = async (k) => {
+      const checked = supportsRev(k);
+      const expected = knownRev[k] ?? null;
+      // 예전 Worker: 저장 직전에 다시 읽어서 비교 (완전히 동시에 저장하는 경우는 못 막음)
+      if(checked && !serverRevCheck){
+        const server = await fetchKV(wk, k);
+        if(revOf(server) !== expected){
+          conflicts[k] = server;
+          const err = new Error('conflict'); err.conflict = true; throw err;
+        }
+      }
       const value = valueForDirtyKey(k);
-      await putKV(wk, k, value);
+      const prevRev = value && !Array.isArray(value) ? value._rev : undefined;
+      const rev = checked ? newRev() : null;
+      if(rev && value) value._rev = rev;
+      try{
+        // 새 Worker: 서버가 비교 후 저장을 한 번에 처리
+        await putKV(wk, k, value, checked ? expected : undefined);
+      }catch(err){
+        if(rev && value) value._rev = prevRev;
+        if(err.conflict){ conflicts[k] = err.serverValue; }
+        throw err;
+      }
+      if(rev) knownRev[k] = rev;
       return k;
+    };
+    const results = await Promise.allSettled(keysToSave.map(async (k) => {
+      try{ return await saveOne(k); }
+      catch(err){ if(err.retry) return await saveOne(k); throw err; }
     }));
     let allOk = true;
     results.forEach((r, i) => {
@@ -2764,12 +3240,14 @@ async function saveCurrentWeek(){
         // 저장하는 동안 또 고친 내용이 있으면 지우지 않고 다음 저장으로 넘긴다
         if((dirtyVersions[k] || 0) === versionsAtStart[k]) dirtyKeys.delete(k);
       } else {
-        console.error('save failed for', k, r.reason);
+        if(!(r.reason && r.reason.conflict)) console.error('save failed for', k, r.reason);
         allOk = false;
       }
     });
+    if(Object.keys(conflicts).length) allOk = false;
+    renderConflictBar();
     isDirty = dirtyKeys.size > 0;
-    if(allOk) lastSavedAt = new Date();
+    if(allOk || results.some(r => r.status === 'fulfilled')) lastSavedAt = new Date();
     if(allOk && isDirty) scheduleAutosave();
     return allOk;
   })();
@@ -2784,7 +3262,7 @@ async function handleSaveClick(){
   if(btn) btn.disabled = true;
   updateSaveIndicator('saving');
   const ok = await saveCurrentWeek();
-  updateSaveIndicator(ok ? 'saved' : 'failed');
+  updateSaveIndicator(ok ? 'saved' : (Object.keys(conflicts).length ? 'conflict' : 'failed'));
   if(btn) btn.disabled = false;
 }
 
@@ -2878,7 +3356,11 @@ async function loadWeek(){
     TEAMS.forEach(t => (ROSTER[t.key] || []).forEach(name => trendSuffixes.push(`trend:${t.key}:${name}`)));
     const allSuffixes = [...workSuffixes, ...trendSuffixes, 'order'];
 
-    const values = await Promise.all(allSuffixes.map(suf => fetchKV(wk, suf)));
+    const values = await fetchManyKV(wk, allSuffixes);
+    Object.keys(knownRev).forEach(k => delete knownRev[k]);
+    Object.keys(conflicts).forEach(k => delete conflicts[k]);
+    allSuffixes.forEach((suf, i) => { knownRev[suf] = revOf(values[i]); });
+    renderConflictBar();
 
     let anyFound = false;
     const newState = {};
@@ -3047,6 +3529,23 @@ function renderOrderPanel(){
   const list = document.getElementById('orderList');
   list.innerHTML = '';
   const active = activeSlideOrder();
+  const missing = missingReports();
+  const missWrap = document.getElementById('orderMissing');
+  if(missing.length){
+    const group = (type, title) => {
+      const items = missing.map((m, i) => ({ m, i })).filter(x => x.m.type === type);
+      if(!items.length) return '';
+      return `<div class="om-group"><span class="om-group-label">${title} ${items.length}</span>
+        <div class="om-list">${items.map(({m, i}) => `<button class="om-item" data-i="${i}" title="눌러서 작성하러 가기">${escapeHtml(type === 'work' ? m.label.replace(' 업무보고','') : m.label.replace(' 트렌드보고 · ', ' · '))}</button>`).join('')}</div></div>`;
+    };
+    missWrap.innerHTML = `<div class="om-title">${icon('alert-triangle')} 아직 작성하지 않은 보고서가 있어요</div>
+      ${group('work', '업무보고')}${group('trend', '트렌드보고')}`;
+    missWrap.querySelectorAll('.om-item').forEach(b => b.onclick = () => goToReport(missing[+b.dataset.i]));
+    missWrap.style.display = '';
+  } else {
+    missWrap.innerHTML = `<div class="om-title om-ok">${icon('check')} 모든 보고서가 작성됐어요</div>`;
+    missWrap.style.display = '';
+  }
   if(active.length === 0){
     list.innerHTML = `<div class="order-empty">아직 작성된 보고서가 없어요.</div>`;
     return;
@@ -3320,9 +3819,17 @@ async function enterPresent(){
   document.getElementById('presentBtn').disabled = true;
   document.getElementById('presentBtn').textContent = '불러오는 중...';
   if(isDirty){
-    await saveCurrentWeek();
-    dirtyKeys.clear();
-    isDirty = false;
+    const ok = await saveCurrentWeek();
+    if(!ok){
+      // 저장 실패·충돌 상태에서 다시 불러오면 내 변경사항이 사라지므로 발표 모드 진입을 멈춘다
+      document.getElementById('presentBtn').disabled = false;
+      document.getElementById('presentBtn').innerHTML = icon('player-play') + ' 발표 모드';
+      updateSaveIndicator(Object.keys(conflicts).length ? 'conflict' : 'failed');
+      alert(Object.keys(conflicts).length
+        ? '다른 사람의 수정과 충돌한 내용이 있어요. 화면 위 안내에서 먼저 선택해주세요.'
+        : '저장에 실패했어요. 네트워크를 확인한 뒤 다시 시도해주세요.');
+      return;
+    }
   }
   await loadWeek();
   updateSaveIndicator();
@@ -3356,6 +3863,7 @@ function wakePresentChrome(){
 document.getElementById('presentView').addEventListener('mousemove', wakePresentChrome);
 
 function exitPresent(){
+  closeImageZoom();
   document.getElementById('presentView').style.display = 'none';
   document.querySelector('.app').style.display = 'block';
   document.removeEventListener('keydown', presentKeyHandler);
@@ -3363,11 +3871,13 @@ function exitPresent(){
 }
 
 function nextPresentSlide(){
+  closeImageZoom();
   if(presentDeck.length === 0) return;
   presentIndex = (presentIndex + 1) % presentDeck.length;
   renderPresent();
 }
 function prevPresentSlide(){
+  closeImageZoom();
   if(presentDeck.length === 0) return;
   presentIndex = (presentIndex - 1 + presentDeck.length) % presentDeck.length;
   renderPresent();
@@ -3453,8 +3963,48 @@ function advanceOrScroll(direction){
   else prevPresentSlide();
 }
 
+// ===== 발표 중 이미지 크게 보기 =====
+let zoomImages = [];
+let zoomIndex = 0;
+function isZoomOpen(){ return document.getElementById('imageZoom').classList.contains('open'); }
+function openImageZoom(startIndex){
+  zoomImages = Array.from(document.querySelectorAll('#presentStage .p-trend-images img')).map(img => img.src);
+  if(!zoomImages.length) return false;
+  zoomIndex = Math.max(0, Math.min(zoomImages.length - 1, startIndex || 0));
+  showZoomImage();
+  const z = document.getElementById('imageZoom');
+  z.classList.add('open');
+  z.setAttribute('aria-hidden', 'false');
+  return true;
+}
+function showZoomImage(){
+  document.getElementById('imageZoomImg').src = zoomImages[zoomIndex];
+  document.getElementById('imageZoomCount').textContent = zoomImages.length > 1 ? `${zoomIndex + 1} / ${zoomImages.length}` : '';
+  document.getElementById('imageZoom').classList.toggle('multi', zoomImages.length > 1);
+}
+function closeImageZoom(){
+  const z = document.getElementById('imageZoom');
+  z.classList.remove('open');
+  z.setAttribute('aria-hidden', 'true');
+}
+document.getElementById('imageZoom').addEventListener('click', closeImageZoom);
+document.getElementById('presentStage').addEventListener('click', (e) => {
+  const img = e.target.closest('.p-trend-images img');
+  if(!img) return;
+  const all = Array.from(document.querySelectorAll('#presentStage .p-trend-images img'));
+  openImageZoom(all.indexOf(img));
+});
+
 function presentKeyHandler(e){
   document.getElementById('presentView').classList.add('idle');
+  if(isZoomOpen()){
+    e.preventDefault();
+    if(e.key === 'Escape' || e.key.toLowerCase() === 'z' || e.key === 'ㅋ') closeImageZoom();
+    else if(e.key === 'ArrowRight' && zoomIndex < zoomImages.length - 1){ zoomIndex++; showZoomImage(); }
+    else if(e.key === 'ArrowLeft' && zoomIndex > 0){ zoomIndex--; showZoomImage(); }
+    return;
+  }
+  if(e.key.toLowerCase() === 'z' || e.key === 'ㅋ'){ e.preventDefault(); openImageZoom(0); return; }
   if(e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ e.preventDefault(); advanceOrScroll(1); }
   else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); advanceOrScroll(-1); }
   else if(e.key === 'Escape'){ exitPresent(); }
