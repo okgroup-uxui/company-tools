@@ -2855,7 +2855,25 @@ function downloadText(filename, content){
   URL.revokeObjectURL(url);
 }
 
-function printPages(htmlArray){
+// 인쇄/PDF 저장 시 파일명은 브라우저가 document.title을 쓴다 → 인쇄하는 동안만 제목을 바꿨다가 되돌린다
+function printFileName(kind){
+  const h1 = document.querySelector('.masthead h1');
+  const dept = (h1 ? h1.textContent : document.title).replace(/\s*주간업무\s*$/, '').trim();
+  const week = nextWeekLabel(currentMonday).replace(/\s+/g, '');   // "11월 2주차" → "11월2주차"
+  return kind === 'trend' ? `${dept} 트렌드_${week}` : `${dept} 주간업무_${week}`;
+}
+const BASE_TITLE = document.title;   // 원래 제목 (인쇄를 연달아 해도 이 값으로 되돌림)
+function printWithTitle(title){
+  if(!title){ window.print(); return; }
+  const original = BASE_TITLE;
+  const restore = () => { document.title = original; window.removeEventListener('afterprint', restore); };
+  window.addEventListener('afterprint', restore);
+  document.title = title;
+  window.print();
+  setTimeout(restore, 1000);   // afterprint를 안 보내는 브라우저 대비
+}
+
+function printPages(htmlArray, fileTitle){
   const container = document.getElementById('printContainer');
   container.innerHTML = htmlArray.map(h => `<div class="paper">${h}</div>`).join('');
 
@@ -2863,7 +2881,7 @@ function printPages(htmlArray){
   // 모든 이미지가 실제로 로드(디코딩) 끝난 뒤에 인쇄를 시작한다.
   const imgs = Array.from(container.querySelectorAll('img'));
   if(imgs.length === 0){
-    window.print();
+    printWithTitle(fileTitle);
     return;
   }
   Promise.all(imgs.map(img => {
@@ -2874,7 +2892,7 @@ function printPages(htmlArray){
     });
   })).then(() => {
     // 로드 직후 한 프레임 정도 더 기다려 레이아웃이 완전히 반영되게 한다
-    requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    requestAnimationFrame(() => requestAnimationFrame(() => printWithTitle(fileTitle)));
   });
 }
 function printCurrentPaper(){
@@ -2885,7 +2903,7 @@ function printCurrentPaper(){
 }
 function printAllPapers(){
   if(activeReportType === 'work'){
-    printPages(TEAMS.map(t => buildPaperHtmlForTeam(t.key)));
+    printPages(TEAMS.map(t => buildPaperHtmlForTeam(t.key)), printFileName('work'));
   } else {
     const pages = [];
     TEAMS.forEach(t => {
@@ -2900,7 +2918,7 @@ function printAllPapers(){
       alert('작성된 트렌드보고가 없어요.');
       return;
     }
-    printPages(pages);
+    printPages(pages, printFileName('trend'));
   }
 }
 
