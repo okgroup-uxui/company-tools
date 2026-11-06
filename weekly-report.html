@@ -3010,6 +3010,37 @@ const AUTOSAVE_DELAY = 1500;
 // 다음 저장 직전에 서버 값을 다시 읽어 _rev가 달라졌으면(= 그 사이 누군가 저장함) 덮어쓰지 않고 멈춘다.
 const knownRev = {};          // dirty key → 마지막으로 알고 있는 서버 _rev (없으면 null)
 const conflicts = {};         // dirty key → 충돌 당시 서버 값
+// ===== KV 지연 반영 대응 =====
+// Cloudflare KV는 저장 직후 몇십 초 동안 예전 값을 돌려줄 수 있다(엣지 캐시).
+// 그래서 "서버가 돌려준 _rev가 내가 이 브라우저에서 예전에 저장했던 버전"이면 다른 사람의 수정이 아니라
+// 아직 반영이 덜 된 것으로 보고 충돌로 취급하지 않는다. 키마다 내 저장 계보(기준 버전 + 내가 쓴 버전들)를 기억한다.
+const revLineage = {};   // `${주차}|${키}` → [기준 rev, 내가 쓴 rev..., 최신] ('' = _rev 없음)
+const lineageKey = (wk, k) => `${wk}|${k}`;
+function lineageReset(wk, k, rev){ revLineage[lineageKey(wk, k)] = [rev || '']; }
+function lineagePush(wk, k, rev){
+  const a = revLineage[lineageKey(wk, k)] || (revLineage[lineageKey(wk, k)] = []);
+  a.push(rev || '');
+  if(a.length > 100) a.splice(0, a.length - 100);
+}
+// 서버 값이 '내 계보의 더 오래된 버전'인가 = 반영 지연으로 보이는 예전 값
+function isStaleOwn(wk, k, rev){
+  const a = revLineage[lineageKey(wk, k)];
+  if(!a || a.length < 2) return false;
+  const r = rev || '';
+  return a.includes(r) && a[a.length - 1] !== r;
+}
+// 저장 시각(savedAt) 같은 부수효과 없이 지금 로컬 값을 복사
+function localValueCopy(k){
+  let v;
+  if(k.startsWith('work:')) v = state[k.slice(5)];
+  else if(k.startsWith('trend:')){
+    const rest = k.slice(6); const i = rest.indexOf(':');
+    v = (trendState[rest.slice(0, i)] || []).find(e => e.author === rest.slice(i + 1));
+  }
+  return v ? JSON.parse(JSON.stringify(v)) : null;
+}
+let loadedWeekKey = null;
+
 function newRev(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function revOf(val){ return (val && !Array.isArray(val) && typeof val === 'object' && val._rev) ? val._rev : null; }
 function supportsRev(k){ return k !== 'order'; }   // order는 배열이라 버전 필드를 둘 수 없어 검사 제외
@@ -3077,11 +3108,13 @@ async function resolveConflict(k, how){
   if(how === 'load'){
     applyServerValue(k, serverVal);
     knownRev[k] = revOf(serverVal);
+    lineageReset(weekKey(currentMonday), k, revOf(serverVal));
     dirtyKeys.delete(k);
     isDirty = dirtyKeys.size > 0;
     renderAll();
   } else {
     knownRev[k] = revOf(serverVal);   // 서버의 최신 버전을 '확인함'으로 간주하고 다시 저장
+    lineageReset(weekKey(currentMonday), k, revOf(serverVal));
     dirtyKeys.add(k); isDirty = true;
   }
   renderConflictBar();
@@ -3106,7 +3139,9 @@ async function refreshCleanKeys(){
     clean.forEach((k, i) => {
       const v = vals[i];
       if(v === undefined || dirtyKeys.has(k)) return;
+      if(isStaleOwn(wk, k, revOf(v))) return;   // 반영 지연된 내 예전 값 → 무시
       if(revOf(v) !== (knownRev[k] ?? null)){
+        lineageReset(wk, k, revOf(v));
         applyServerValue(k, v);
         knownRev[k] = revOf(v);
         changed = true;
@@ -3285,7 +3320,7 @@ async function saveCurrentWeek(){
       // 예전 Worker: 저장 직전에 다시 읽어서 비교 (완전히 동시에 저장하는 경우는 못 막음)
       if(checked && !serverRevCheck){
         const server = await fetchKV(wk, k);
-        if(revOf(server) !== expected){
+        if(revOf(server) !== expected && !isStaleOwn(wk, k, revOf(server))){
           conflicts[k] = server;
           const err = new Error('conflict'); err.conflict = true; throw err;
         }
@@ -3294,15 +3329,29 @@ async function saveCurrentWeek(){
       const prevRev = value && !Array.isArray(value) ? value._rev : undefined;
       const rev = checked ? newRev() : null;
       if(rev && value) value._rev = rev;
-      try{
-        // 새 Worker: 서버가 비교 후 저장을 한 번에 처리
-        await putKV(wk, k, value, checked ? expected : undefined);
-      }catch(err){
-        if(rev && value) value._rev = prevRev;
-        if(err.conflict){ conflicts[k] = err.serverValue; }
-        throw err;
+      let expectedNow = expected;
+      for(let attempt = 0; ; attempt++){
+        try{
+          // 새 Worker: 서버가 비교 후 저장을 한 번에 처리
+          await putKV(wk, k, value, checked ? expectedNow : undefined);
+          break;
+        }catch(err){
+          const serverRev = err.conflict ? revOf(err.serverValue) : null;
+          // 서버가 보여준 값이 내가 예전에 저장한 버전이면 = 반영 지연. 그 버전 기준으로 다시 저장
+          if(err.conflict && attempt < 3 && isStaleOwn(wk, k, serverRev)){
+            expectedNow = serverRev;
+            continue;
+          }
+          if(rev && value) value._rev = prevRev;
+          if(err.conflict){ conflicts[k] = err.serverValue; }
+          throw err;
+        }
       }
-      if(rev) knownRev[k] = rev;
+      if(rev){
+        if(!revLineage[lineageKey(wk, k)]) lineageReset(wk, k, expected);
+        lineagePush(wk, k, rev);
+        knownRev[k] = rev;
+      }
       return k;
     };
     const results = await Promise.allSettled(keysToSave.map(async (k) => {
@@ -3433,6 +3482,18 @@ async function loadWeek(){
     const allSuffixes = [...workSuffixes, ...trendSuffixes, 'order'];
 
     const values = await fetchManyKV(wk, allSuffixes);
+    // 방금 저장한 내용이 아직 반영 안 된 예전 값으로 오면, 같은 주차를 보고 있는 동안은 로컬 값을 그대로 쓴다
+    allSuffixes.forEach((suf, i) => {
+      if(suf === 'order') return;
+      const r = revOf(values[i]);
+      if(loadedWeekKey === wk && isStaleOwn(wk, suf, r)){
+        const local = localValueCopy(suf);
+        if(local) values[i] = local;
+      } else if(!isStaleOwn(wk, suf, r) && (revLineage[lineageKey(wk, suf)] || []).slice(-1)[0] !== (r || '')){
+        lineageReset(wk, suf, r);   // 다른 사람의 새 버전(또는 처음 보는 키): 계보를 여기서 새로 시작
+      }
+    });
+    loadedWeekKey = wk;
     Object.keys(knownRev).forEach(k => delete knownRev[k]);
     Object.keys(conflicts).forEach(k => delete conflicts[k]);
     allSuffixes.forEach((suf, i) => { knownRev[suf] = revOf(values[i]); });
